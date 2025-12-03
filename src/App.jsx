@@ -1,5 +1,7 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { Copy, Check, Sparkles, TrendingUp, Rocket, CheckCircle2, Flame, Lightbulb, TestTube, Gauge, GripVertical, Trash2, Plus, Hash, MessageSquare, Type, Timer, PlusCircle, AtSign, Calendar, Minus, BarChart3, Database, LineChart, FileText, Bold, Home, History, Settings, Eye, Edit3, Zap, Award, ChevronRight, X, LogOut, Files, Download, Smartphone, Monitor, Target, Quote, ArrowLeft, LogIn, FlaskConical, AlertCircle, Bug, Send } from 'lucide-react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { Copy, Check, Sparkles, TrendingUp, Rocket, CheckCircle2, Flame, Lightbulb, TestTube, Gauge, GripVertical, Trash2, Plus, Hash, MessageSquare, Type, Timer, PlusCircle, AtSign, Calendar, Minus, BarChart3, Database, LineChart, FileText, Bold, Home, History, Settings, Eye, Edit3, Zap, Award, ChevronRight, X, LogOut, Files, Download, Smartphone, Monitor, Target, Quote, ArrowLeft, LogIn, FlaskConical, AlertCircle, Bug, Send, Loader2 } from 'lucide-react';
+import { useAuth } from './lib/AuthContext';
+import { db } from './lib/supabase';
 
 const BLOCKS = {
   POLL: { name: 'Umfrage-Kern', icon: BarChart3, req: true },
@@ -43,50 +45,72 @@ const defaultBlocks = function() {
 };
 
 const App = function() {
+  const { user, loading: authLoading, signOut, isAuthenticated } = useAuth();
   const [page, setPage] = useState('landing');
-  const [user, setUser] = useState(null);
   const [dashboardKey, setDashboardKey] = useState(0);
-  const [surveys, setSurveys] = useState([
-    { 
-      id: 1, 
-      title: 'Problem-Solution Fit', 
-      question: 'Was ist euer größtes Problem?', 
-      blocks: 5, 
-      created: '2024-01-15', 
-      scheduled: null, 
-      text: 'Test...', 
-      blockData: [],
-      validation_challenge: 'Wir glauben, dass Startups Schwierigkeiten haben, schnelles Marktfeedback zu erhalten. Unsere Hypothese ist, dass LinkedIn-Umfragen eine effektive Methode zur Validierung von Geschäftsideen sind.'
-    }
-  ]);
+  const [surveys, setSurveys] = useState([]);
   const [editSurvey, setEditSurvey] = useState(null);
   const [loginModal, setLoginModal] = useState(false);
+  const [surveysLoading, setSurveysLoading] = useState(false);
 
-  const login = function(email) { 
-    setUser({ email: email, name: email.split('@')[0] }); 
-    setLoginModal(false); 
-    setDashboardKey(function(k) { return k + 1; }); // Force Dashboard remount
+  // Load surveys when user logs in
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadSurveys();
+    } else {
+      setSurveys([]);
+    }
+  }, [isAuthenticated]);
+
+  const loadSurveys = async () => {
+    setSurveysLoading(true);
+    try {
+      const data = await db.getSurveys();
+      setSurveys(data);
+    } catch (err) {
+      console.error('Failed to load surveys:', err);
+    } finally {
+      setSurveysLoading(false);
+    }
   };
-  const logout = function() { setUser(null); setPage('landing'); };
 
-  if (page === 'dashboard' && !user) {
-    return React.createElement(Landing, { nav: setPage, showLogin: function() { setLoginModal(true); }, user: user, loginModal: loginModal, setLoginModal: setLoginModal, login: login });
+  const handleLogin = () => {
+    setLoginModal(false);
+    setDashboardKey(k => k + 1);
+    loadSurveys();
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    setPage('landing');
+  };
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  if (page === 'dashboard' && !isAuthenticated) {
+    return <Landing nav={setPage} showLogin={() => setLoginModal(true)} user={user} loginModal={loginModal} setLoginModal={setLoginModal} onLogin={handleLogin} />;
   }
 
   if (page === 'datenschutz' || page === 'agb') {
-    return React.createElement(LegalPage, { title: page === 'datenschutz' ? 'Datenschutz' : 'AGB', nav: setPage });
+    return <LegalPage title={page === 'datenschutz' ? 'Datenschutz' : 'AGB'} nav={setPage} />;
   }
 
   if (page === 'landing') {
-    return React.createElement(Landing, { nav: setPage, showLogin: function() { setLoginModal(true); }, user: user, loginModal: loginModal, setLoginModal: setLoginModal, login: login });
+    return <Landing nav={setPage} showLogin={() => setLoginModal(true)} user={user} loginModal={loginModal} setLoginModal={setLoginModal} onLogin={handleLogin} />;
   }
 
   if (page === 'editor') {
-    return React.createElement(Editor, { nav: setPage, user: user, login: login, surveys: surveys, setSurveys: setSurveys, editSurvey: editSurvey, setEditSurvey: setEditSurvey });
+    return <Editor nav={setPage} user={user} onLogin={handleLogin} surveys={surveys} setSurveys={setSurveys} editSurvey={editSurvey} setEditSurvey={setEditSurvey} loadSurveys={loadSurveys} />;
   }
 
   if (page === 'dashboard') {
-    return React.createElement(Dashboard, { key: dashboardKey, nav: setPage, user: user, logout: logout, surveys: surveys, setEditSurvey: setEditSurvey });
+    return <Dashboard key={dashboardKey} nav={setPage} user={user} logout={handleLogout} surveys={surveys} setSurveys={setSurveys} setEditSurvey={setEditSurvey} loading={surveysLoading} loadSurveys={loadSurveys} />;
   }
 
   return null;
@@ -97,7 +121,7 @@ const LegalPage = function(props) {
     <div className="min-h-screen bg-gray-50">
       <header className="sticky top-0 z-20 border-b border-gray-200 bg-white">
         <div className="mx-auto flex h-14 max-w-4xl items-center px-4">
-          <button onClick={function() { props.nav('landing'); }} className="flex items-center gap-2 text-gray-700 hover:text-gray-900">
+          <button onClick={() => props.nav('landing')} className="flex items-center gap-2 text-gray-700 hover:text-gray-900">
             <ArrowLeft className="h-4 w-4" />
             <span className="text-sm font-medium">Zurück</span>
           </button>
@@ -114,13 +138,15 @@ const LegalPage = function(props) {
 };
 
 const LoginModal = function(props) {
-  const [mode, setMode] = useState('login'); // 'login' or 'register'
+  const { signIn, signUp, error: authError } = useAuth();
+  const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [pwConfirm, setPwConfirm] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = function() {
+  const handleLogin = async () => {
     setError('');
     if (!email.includes('@')) {
       setError('Bitte gib eine gültige E-Mail ein');
@@ -130,11 +156,22 @@ const LoginModal = function(props) {
       setError('Passwort muss mindestens 6 Zeichen haben');
       return;
     }
-    props.onLogin(email);
-    props.nav('dashboard');
+    
+    setLoading(true);
+    const result = await signIn(email, pw);
+    setLoading(false);
+    
+    if (result.success) {
+      props.onLogin();
+      props.nav('dashboard');
+    } else {
+      setError(result.error === 'Invalid login credentials' 
+        ? 'E-Mail oder Passwort falsch' 
+        : result.error);
+    }
   };
 
-  const handleRegister = function() {
+  const handleRegister = async () => {
     setError('');
     if (!email.includes('@')) {
       setError('Bitte gib eine gültige E-Mail ein');
@@ -149,14 +186,26 @@ const LoginModal = function(props) {
       return;
     }
     
-    // TODO: Supabase Registration
-    // await supabase.auth.signUp({ email, password: pw });
+    setLoading(true);
+    const result = await signUp(email, pw);
+    setLoading(false);
     
-    props.onLogin(email);
-    props.nav('dashboard');
+    if (result.success) {
+      // Auto-login after registration or show confirmation message
+      if (result.data?.user?.identities?.length === 0) {
+        setError('Diese E-Mail ist bereits registriert');
+      } else if (result.data?.user && !result.data?.session) {
+        setError('Bitte bestätige deine E-Mail-Adresse');
+      } else {
+        props.onLogin();
+        props.nav('dashboard');
+      }
+    } else {
+      setError(result.error);
+    }
   };
 
-  const switchMode = function() {
+  const switchMode = () => {
     setMode(mode === 'login' ? 'register' : 'login');
     setError('');
     setPw('');
@@ -179,7 +228,7 @@ const LoginModal = function(props) {
           <input 
             type="email" 
             value={email} 
-            onChange={function(e) { setEmail(e.target.value); }} 
+            onChange={(e) => setEmail(e.target.value)} 
             placeholder="E-Mail" 
             className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" 
           />
@@ -187,7 +236,7 @@ const LoginModal = function(props) {
           <input 
             type="password" 
             value={pw} 
-            onChange={function(e) { setPw(e.target.value); }} 
+            onChange={(e) => setPw(e.target.value)} 
             placeholder="Passwort" 
             className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" 
           />
@@ -196,7 +245,7 @@ const LoginModal = function(props) {
             <input 
               type="password" 
               value={pwConfirm} 
-              onChange={function(e) { setPwConfirm(e.target.value); }} 
+              onChange={(e) => setPwConfirm(e.target.value)} 
               placeholder="Passwort bestätigen" 
               className={"w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 " + 
                 (pwConfirm && pw !== pwConfirm 
@@ -216,8 +265,10 @@ const LoginModal = function(props) {
           
           <button 
             onClick={mode === 'login' ? handleLogin : handleRegister} 
-            className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700"
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-50"
           >
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {mode === 'login' ? 'Anmelden' : 'Registrieren'}
           </button>
           
@@ -243,6 +294,8 @@ const LoginModal = function(props) {
 };
 
 const Landing = function(props) {
+  const { isAuthenticated } = useAuth();
+  
   return (
     <div className="min-h-screen bg-white">
       <nav className="fixed top-0 right-0 left-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
@@ -257,14 +310,14 @@ const Landing = function(props) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {props.user ? (
-              <button onClick={function() { props.nav('dashboard'); }} className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Dashboard</button>
+            {isAuthenticated ? (
+              <button onClick={() => props.nav('dashboard')} className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Dashboard</button>
             ) : (
               <button onClick={props.showLogin} className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                 <LogIn className="h-4 w-4" />Anmelden
               </button>
             )}
-            <button onClick={function() { props.nav('editor'); }} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Kostenlos starten</button>
+            <button onClick={() => props.nav('editor')} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Kostenlos starten</button>
           </div>
         </div>
       </nav>
@@ -278,7 +331,7 @@ const Landing = function(props) {
             Validiere Deinen <span className="text-blue-600">Market-Fit</span> in 48h
           </h1>
           <p className="mb-8 text-lg text-gray-600">Breaking Dynamics liefert präzise Marktdaten durch LinkedIn-Umfragen.</p>
-          <button onClick={function() { props.nav('editor'); }} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-8 py-4 text-lg font-bold text-white hover:bg-blue-700">
+          <button onClick={() => props.nav('editor')} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-8 py-4 text-lg font-bold text-white hover:bg-blue-700">
             Validierung starten
           </button>
         </div>
@@ -290,17 +343,15 @@ const Landing = function(props) {
             { icon: Gauge, title: 'Schnelle Validierung', desc: 'Daten in 48h' },
             { icon: Target, title: 'Echtes Feedback', desc: 'Von potenziellen Kunden' },
             { icon: Rocket, title: 'Growth-Hebel', desc: 'Content + Insights' }
-          ].map(function(item, i) {
-            return (
-              <div key={i} className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg hover:border-blue-500">
-                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
-                  <item.icon className="h-7 w-7" />
-                </div>
-                <h3 className="mb-3 text-xl font-bold text-gray-900">{item.title}</h3>
-                <p className="text-gray-600">{item.desc}</p>
+          ].map((item, i) => (
+            <div key={i} className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg hover:border-blue-500">
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                <item.icon className="h-7 w-7" />
               </div>
-            );
-          })}
+              <h3 className="mb-3 text-xl font-bold text-gray-900">{item.title}</h3>
+              <p className="text-gray-600">{item.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -313,21 +364,22 @@ const Landing = function(props) {
             <span className="font-bold text-white">Breaking Dynamics Marketing</span>
           </div>
           <div className="flex justify-center gap-6 text-sm text-gray-400">
-            <button onClick={function() { props.nav('datenschutz'); }} className="hover:text-white">Datenschutz</button>
-            <button onClick={function() { props.nav('agb'); }} className="hover:text-white">AGB</button>
+            <button onClick={() => props.nav('datenschutz')} className="hover:text-white">Datenschutz</button>
+            <button onClick={() => props.nav('agb')} className="hover:text-white">AGB</button>
           </div>
         </div>
       </footer>
 
-      {props.loginModal && <LoginModal onClose={function() { props.setLoginModal(false); }} onLogin={props.login} nav={props.nav} />}
+      {props.loginModal && <LoginModal onClose={() => props.setLoginModal(false)} onLogin={props.onLogin} nav={props.nav} />}
     </div>
   );
 };
 
 const Editor = function(props) {
-  const [blocks, setBlocks] = useState(function() { return props.editSurvey?.blockData || defaultBlocks(); });
+  const { user, isAuthenticated, signUp, signIn } = useAuth();
+  const [blocks, setBlocks] = useState(() => props.editSurvey?.blockData || defaultBlocks());
   const [sidebar, setSidebar] = useState(true);
-  const [email, setEmail] = useState(props.user?.email || '');
+  const [email, setEmail] = useState(user?.email || '');
   const [dragIdx, setDragIdx] = useState(null);
   const [result, setResult] = useState('');
   const [step, setStep] = useState('edit');
@@ -337,26 +389,39 @@ const Editor = function(props) {
   const [privacy, setPrivacy] = useState(false);
   const [activeBlock, setActiveBlock] = useState(null);
   const [previewMode, setPreviewMode] = useState('desktop');
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
-  const addBlock = function(t) { var id = genId(); setBlocks(function(p) { return [...p, { id: id, type: t, data: initData(t) }]; }); setActiveBlock(id); };
-  const updateBlock = function(id, d) { setBlocks(function(p) { return p.map(function(b) { return b.id === id ? { ...b, data: { ...b.data, ...d } } : b; }); }); };
-  const deleteBlock = function(id) { var b = blocks.find(function(x) { return x.id === id; }); if (b && !BLOCKS[b.type].req) setBlocks(function(p) { return p.filter(function(x) { return x.id !== id; }); }); };
+  const addBlock = (t) => { 
+    const id = genId(); 
+    setBlocks(p => [...p, { id, type: t, data: initData(t) }]); 
+    setActiveBlock(id); 
+  };
+  
+  const updateBlock = (id, d) => { 
+    setBlocks(p => p.map(b => b.id === id ? { ...b, data: { ...b.data, ...d } } : b)); 
+  };
+  
+  const deleteBlock = (id) => { 
+    const b = blocks.find(x => x.id === id); 
+    if (b && !BLOCKS[b.type].req) setBlocks(p => p.filter(x => x.id !== id)); 
+  };
 
-  var canGen = useMemo(function() { var p = blocks.find(function(b) { return b.type === 'POLL'; }); var filled = p?.data.opts?.filter(function(o) { return o?.trim(); }).length || 0; return p?.data.q?.trim() && filled >= 2 && email.trim(); }, [blocks, email]);
+  const canGen = useMemo(() => { 
+    const p = blocks.find(b => b.type === 'POLL'); 
+    const filled = p?.data.opts?.filter(o => o?.trim()).length || 0; 
+    return p?.data.q?.trim() && filled >= 2 && email.trim(); 
+  }, [blocks, email]);
 
-  // Extract validation_challenge from CHALLENGE block (NOT included in post text)
-  var getValidationChallenge = function() {
-    var challengeBlock = blocks.find(function(b) { return b.type === 'CHALLENGE'; });
+  const getValidationChallenge = () => {
+    const challengeBlock = blocks.find(b => b.type === 'CHALLENGE');
     return challengeBlock?.data?.text?.trim() || '';
   };
 
-  // Generate LinkedIn post text - EXCLUDES CHALLENGE block
-  var genText = function() {
-    var t = '';
-    blocks.forEach(function(b) {
-      // CHALLENGE block is explicitly excluded from generated text
+  const genText = () => {
+    let t = '';
+    blocks.forEach(b => {
       if (b.type === 'CHALLENGE') return;
-      
       if (b.type === 'TITLE' && b.data.text) t += b.data.text + '\n\n\n';
       if (b.type === 'POLL' && b.data.q) t += '🎯 ' + b.data.q + '\n\n';
       if (b.type === 'CTA' && b.data.text) t += '👉 ' + b.data.text + '\n\n\n';
@@ -366,41 +431,81 @@ const Editor = function(props) {
     return t.trim();
   };
 
-  var finalize = function() {
-    var txt = genText();
-    var validationChallenge = getValidationChallenge();
+  const finalize = async () => {
+    setSaving(true);
+    setSaveError(null);
     
-    var s = { 
-      id: Date.now(), 
-      title: blocks.find(function(b) { return b.type === 'TITLE'; })?.data.text?.slice(0, 50) || 'Umfrage', 
-      question: blocks.find(function(b) { return b.type === 'POLL'; })?.data.q || '', 
+    const txt = genText();
+    const validationChallenge = getValidationChallenge();
+    
+    const surveyData = { 
+      title: blocks.find(b => b.type === 'TITLE')?.data.text?.slice(0, 50) || 'Umfrage', 
+      question: blocks.find(b => b.type === 'POLL')?.data.q || '', 
       blocks: blocks.length, 
-      created: new Date().toISOString().split('T')[0], 
-      scheduled: null, 
       text: txt, 
       blockData: blocks,
-      // Separate field for Supabase storage - NOT included in post text
       validation_challenge: validationChallenge
     };
     
-    // TODO: Supabase Integration
-    // await supabase.from('surveys').insert({
-    //   ...s,
-    //   validation_challenge: validationChallenge  // Stored in dedicated column
-    // });
-    
-    props.setSurveys(function(p) { return [s, ...p]; });
-    setResult(txt);
-    setStep('result');
+    try {
+      if (isAuthenticated) {
+        // Save to Supabase
+        if (props.editSurvey?.id) {
+          await db.updateSurvey(props.editSurvey.id, surveyData);
+        } else {
+          await db.createSurvey(surveyData);
+        }
+        // Reload surveys
+        await props.loadSurveys();
+      } else {
+        // Local state only for non-authenticated users
+        const s = {
+          id: Date.now(),
+          ...surveyData,
+          created: new Date().toISOString().split('T')[0],
+          scheduled: null,
+        };
+        props.setSurveys(p => [s, ...p]);
+      }
+      
+      setResult(txt);
+      setStep('result');
+    } catch (err) {
+      console.error('Failed to save survey:', err);
+      setSaveError(err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  var handleGen = function() { if (!canGen) return; if (!props.user) { setModal(true); return; } finalize(); };
-  var handleReg = function() { if (pw.length >= 6 && privacy) { props.login(email); setModal(false); finalize(); } };
-  var copyTxt = function() { navigator.clipboard.writeText(clean(result)); setCopied(true); setTimeout(function() { setCopied(false); }, 2000); };
+  const handleGen = () => { 
+    if (!canGen) return; 
+    if (!isAuthenticated) { 
+      setModal(true); 
+      return; 
+    } 
+    finalize(); 
+  };
+  
+  const handleReg = async () => { 
+    if (pw.length >= 6 && privacy) { 
+      const result = await signUp(email, pw);
+      if (result.success) {
+        setModal(false); 
+        finalize(); 
+      }
+    } 
+  };
+  
+  const copyTxt = () => { 
+    navigator.clipboard.writeText(clean(result)); 
+    setCopied(true); 
+    setTimeout(() => setCopied(false), 2000); 
+  };
 
-  var getStyle = function(id, idx) {
-    var block = blocks.find(function(x) { return x.id === id; });
-    var isChallenge = block?.type === 'CHALLENGE';
+  const getStyle = (id, idx) => {
+    const block = blocks.find(x => x.id === id);
+    const isChallenge = block?.type === 'CHALLENGE';
     
     if (dragIdx === idx) return 'border-amber-700 bg-amber-800';
     if (activeBlock === id) {
@@ -427,8 +532,8 @@ const Editor = function(props) {
             {copied ? 'Kopiert!' : 'Text kopieren'}
           </button>
           <div className="mt-3 flex gap-3">
-            <button onClick={function() { setStep('edit'); setResult(''); setBlocks(defaultBlocks()); }} className="flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">Neue Umfrage</button>
-            {props.user && <button onClick={function() { props.nav('dashboard'); }} className="flex-1 rounded-xl bg-gray-100 px-4 py-3 text-sm font-bold text-gray-700 hover:bg-gray-200">Dashboard</button>}
+            <button onClick={() => { setStep('edit'); setResult(''); setBlocks(defaultBlocks()); }} className="flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">Neue Umfrage</button>
+            {isAuthenticated && <button onClick={() => props.nav('dashboard')} className="flex-1 rounded-xl bg-gray-100 px-4 py-3 text-sm font-bold text-gray-700 hover:bg-gray-200">Dashboard</button>}
           </div>
         </div>
       </div>
@@ -440,12 +545,12 @@ const Editor = function(props) {
       <header className="sticky top-0 z-20 border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            {props.user ? (
-              <button onClick={function() { props.nav('dashboard'); }} className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            {isAuthenticated ? (
+              <button onClick={() => props.nav('dashboard')} className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                 <Home className="h-4 w-4" />Dashboard
               </button>
             ) : (
-              <button onClick={function() { props.nav('landing'); }} className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <button onClick={() => props.nav('landing')} className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                 <ArrowLeft className="h-4 w-4" />Zurück
               </button>
             )}
@@ -462,18 +567,18 @@ const Editor = function(props) {
 
       <div className="flex h-[calc(100vh-57px)]">
         <div className={"flex flex-shrink-0 flex-col border-r border-gray-200 bg-white transition-all " + (sidebar ? 'w-56' : 'w-12')}>
-          <button onClick={function() { setSidebar(!sidebar); }} className={"flex items-center justify-center border-b border-gray-200 p-3 " + (sidebar ? 'bg-amber-800 text-white' : 'bg-white text-gray-500 hover:bg-gray-50')}>
+          <button onClick={() => setSidebar(!sidebar)} className={"flex items-center justify-center border-b border-gray-200 p-3 " + (sidebar ? 'bg-amber-800 text-white' : 'bg-white text-gray-500 hover:bg-gray-50')}>
             <Plus className={"h-5 w-5 transition-transform " + (sidebar ? 'rotate-45' : '')} />
           </button>
           {sidebar && (
             <div className="flex-1 overflow-y-auto p-2">
               <p className="mb-2 px-2 text-xs font-bold uppercase text-gray-400">Bausteine</p>
-              {Object.entries(BLOCKS).map(function([k, v]) {
-                var isChallenge = k === 'CHALLENGE';
+              {Object.entries(BLOCKS).map(([k, v]) => {
+                const isChallenge = k === 'CHALLENGE';
                 return (
                   <button 
                     key={k} 
-                    onClick={function() { if (!v.req) addBlock(k); }} 
+                    onClick={() => { if (!v.req) addBlock(k); }} 
                     disabled={v.req} 
                     className={"flex w-full items-center gap-2 rounded-lg p-2 text-left text-sm transition-all " + 
                       (v.req ? 'cursor-not-allowed opacity-40' : 
@@ -493,10 +598,10 @@ const Editor = function(props) {
         <div className="flex flex-1 overflow-hidden">
           <div className="flex-1 overflow-y-auto p-4">
             <div className="mx-auto max-w-xl space-y-3">
-              {blocks.map(function(b, i) {
-                var isChallenge = b.type === 'CHALLENGE';
+              {blocks.map((b, i) => {
+                const isChallenge = b.type === 'CHALLENGE';
                 return (
-                  <div key={b.id} onClick={function() { setActiveBlock(b.id); }} className={"cursor-pointer rounded-xl border-2 transition-all " + getStyle(b.id, i)}>
+                  <div key={b.id} onClick={() => setActiveBlock(b.id)} className={"cursor-pointer rounded-xl border-2 transition-all " + getStyle(b.id, i)}>
                     <div className={"flex items-center gap-2 border-b px-3 py-2 " + 
                       (activeBlock === b.id 
                         ? (isChallenge ? 'border-purple-200 bg-purple-100' : 'border-amber-200 bg-amber-100') 
@@ -513,7 +618,7 @@ const Editor = function(props) {
                       {BLOCKS[b.type].req ? (
                         <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700">Pflicht</span>
                       ) : (
-                        <button onClick={function(e) { e.stopPropagation(); deleteBlock(b.id); }} className="rounded p-1 hover:bg-red-100">
+                        <button onClick={(e) => { e.stopPropagation(); deleteBlock(b.id); }} className="rounded p-1 hover:bg-red-100">
                           <Trash2 className="h-4 w-4 text-red-400" />
                         </button>
                       )}
@@ -526,12 +631,32 @@ const Editor = function(props) {
               })}
 
               <div className="mt-4 space-y-3 rounded-xl border-2 border-gray-200 bg-white p-4">
-                <input type="email" value={email} onChange={function(e) { setEmail(e.target.value); }} placeholder="E-Mail-Adresse" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm" />
-                <button onClick={handleGen} disabled={!canGen} className={"flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold uppercase " + (canGen ? 'bg-amber-800 text-white hover:bg-amber-900' : 'cursor-not-allowed bg-gray-200 text-gray-400')}>
-                  <Rocket className="h-5 w-5" />Erstellen
+                <input 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  placeholder="E-Mail-Adresse" 
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm"
+                  disabled={isAuthenticated}
+                />
+                
+                {saveError && (
+                  <div className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                    {saveError}
+                  </div>
+                )}
+                
+                <button 
+                  onClick={handleGen} 
+                  disabled={!canGen || saving} 
+                  className={"flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold uppercase " + (canGen && !saving ? 'bg-amber-800 text-white hover:bg-amber-900' : 'cursor-not-allowed bg-gray-200 text-gray-400')}
+                >
+                  {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Rocket className="h-5 w-5" />}
+                  {saving ? 'Speichern...' : 'Erstellen'}
                 </button>
-                <button onClick={function() { props.nav(props.user ? 'dashboard' : 'landing'); }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-gray-300 bg-white px-4 py-3 text-sm font-bold uppercase text-gray-600 hover:bg-gray-50">
-                  <X className="h-4 w-4" />{props.user ? 'Abbrechen' : 'Zur Startseite'}
+                <button onClick={() => props.nav(isAuthenticated ? 'dashboard' : 'landing')} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-gray-300 bg-white px-4 py-3 text-sm font-bold uppercase text-gray-600 hover:bg-gray-50">
+                  <X className="h-4 w-4" />{isAuthenticated ? 'Abbrechen' : 'Zur Startseite'}
                 </button>
               </div>
             </div>
@@ -541,10 +666,10 @@ const Editor = function(props) {
             <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
               <p className="text-sm font-bold uppercase text-gray-900">Vorschau</p>
               <div className="flex rounded-lg border border-gray-200 p-1">
-                <button onClick={function() { setPreviewMode('desktop'); }} className={"rounded p-1.5 " + (previewMode === 'desktop' ? 'bg-amber-800 text-white' : 'text-gray-400')}>
+                <button onClick={() => setPreviewMode('desktop')} className={"rounded p-1.5 " + (previewMode === 'desktop' ? 'bg-amber-800 text-white' : 'text-gray-400')}>
                   <Monitor className="h-4 w-4" />
                 </button>
-                <button onClick={function() { setPreviewMode('mobile'); }} className={"rounded p-1.5 " + (previewMode === 'mobile' ? 'bg-amber-800 text-white' : 'text-gray-400')}>
+                <button onClick={() => setPreviewMode('mobile')} className={"rounded p-1.5 " + (previewMode === 'mobile' ? 'bg-amber-800 text-white' : 'text-gray-400')}>
                   <Smartphone className="h-4 w-4" />
                 </button>
               </div>
@@ -566,13 +691,13 @@ const Editor = function(props) {
               <h3 className="text-xl font-bold text-gray-900">Daten sichern?</h3>
             </div>
             <input type="email" value={email} readOnly className="mb-2 w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-sm" />
-            <input type="password" value={pw} onChange={function(e) { setPw(e.target.value); }} placeholder="Passwort (min. 6)" className="mb-3 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm" />
+            <input type="password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="Passwort (min. 6)" className="mb-3 w-full rounded-lg border border-gray-300 px-4 py-3 text-sm" />
             <label className="mb-4 flex items-start gap-2 text-sm">
-              <input type="checkbox" checked={privacy} onChange={function(e) { setPrivacy(e.target.checked); }} className="mt-1 rounded" />
+              <input type="checkbox" checked={privacy} onChange={(e) => setPrivacy(e.target.checked)} className="mt-1 rounded" />
               <span className="text-gray-600">Ich stimme den Datenschutzbestimmungen zu.</span>
             </label>
             <button onClick={handleReg} disabled={!privacy || pw.length < 6} className={"w-full rounded-xl px-4 py-3 text-sm font-bold uppercase " + (privacy && pw.length >= 6 ? 'bg-amber-800 text-white hover:bg-amber-900' : 'cursor-not-allowed bg-gray-200 text-gray-400')}>Registrieren</button>
-            <button onClick={function() { setModal(false); finalize(); }} className="mt-2 w-full text-sm text-gray-400 hover:text-gray-600">Nur kopieren</button>
+            <button onClick={() => { setModal(false); finalize(); }} className="mt-2 w-full text-sm text-gray-400 hover:text-gray-600">Nur kopieren</button>
           </div>
         </div>
       )}
@@ -581,12 +706,11 @@ const Editor = function(props) {
 };
 
 const BlockContent = function(props) {
-  var b = props.block;
-  var cls = "w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm";
+  const b = props.block;
+  const cls = "w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm";
 
-  if (b.type === 'TITLE') return <textarea value={b.data.text || ''} onChange={function(e) { props.update(b.id, { text: e.target.value.slice(0, 150) }); }} placeholder="Post-Titel..." className={cls + " resize-none"} rows={2} />;
+  if (b.type === 'TITLE') return <textarea value={b.data.text || ''} onChange={(e) => props.update(b.id, { text: e.target.value.slice(0, 150) })} placeholder="Post-Titel..." className={cls + " resize-none"} rows={2} />;
   
-  // CHALLENGE block - internal validation hypothesis (NOT included in LinkedIn post)
   if (b.type === 'CHALLENGE') return (
     <div className="space-y-2">
       <div className="flex items-start gap-2 rounded-lg bg-purple-50 p-3 text-xs text-purple-700">
@@ -595,7 +719,7 @@ const BlockContent = function(props) {
       </div>
       <textarea 
         value={b.data.text || ''} 
-        onChange={function(e) { props.update(b.id, { text: e.target.value }); }} 
+        onChange={(e) => props.update(b.id, { text: e.target.value })} 
         placeholder="Beschreibe dein Problem oder deine Hypothese, die du validieren möchtest...
 
 Beispiel: Wir glauben, dass B2B-SaaS-Gründer Schwierigkeiten haben, schnelles Marktfeedback zu erhalten. Unsere Hypothese ist, dass LinkedIn-Umfragen eine effektive Methode zur Validierung von Geschäftsideen sind." 
@@ -607,49 +731,45 @@ Beispiel: Wir glauben, dass B2B-SaaS-Gründer Schwierigkeiten haben, schnelles M
   
   if (b.type === 'POLL') return (
     <div className="space-y-3">
-      <textarea value={b.data.q || ''} onChange={function(e) { props.update(b.id, { q: e.target.value }); }} placeholder="Hypothesen-Frage..." className={cls + " resize-none"} rows={2} />
+      <textarea value={b.data.q || ''} onChange={(e) => props.update(b.id, { q: e.target.value })} placeholder="Hypothesen-Frage..." className={cls + " resize-none"} rows={2} />
       <div className="grid grid-cols-2 gap-2">
-        {b.data.opts?.map(function(o, i) {
-          return <input key={i} value={o} onChange={function(e) { var opts = [...(b.data.opts || [])]; opts[i] = e.target.value; props.update(b.id, { opts: opts }); }} placeholder={"Option " + (i + 1)} className={cls} />;
-        })}
+        {b.data.opts?.map((o, i) => (
+          <input key={i} value={o} onChange={(e) => { const opts = [...(b.data.opts || [])]; opts[i] = e.target.value; props.update(b.id, { opts }); }} placeholder={"Option " + (i + 1)} className={cls} />
+        ))}
       </div>
     </div>
   );
 
-  if (b.type === 'CTA') return <input value={b.data.text || ''} onChange={function(e) { props.update(b.id, { text: e.target.value }); }} placeholder="z.B. Kommentiere 'PDF'" className={cls} />;
-  if (b.type === 'HASHTAG') return <input value={b.data.tags || ''} onChange={function(e) { props.update(b.id, { tags: e.target.value }); }} placeholder="#Startup #MVP" className={cls} />;
-  if (b.type === 'CUSTOM') return <textarea value={b.data.text || ''} onChange={function(e) { props.update(b.id, { text: e.target.value }); }} placeholder="Eigener Text..." className={cls + " resize-none"} rows={2} />;
-  if (b.type === 'MENTION') return <input value={b.data.text || ''} onChange={function(e) { props.update(b.id, { text: e.target.value }); }} placeholder="@MaxMuster" className={cls} />;
-  if (b.type === 'NUMBER') return <input value={b.data.text || ''} onChange={function(e) { props.update(b.id, { text: e.target.value }); }} placeholder="87% der Gründer..." className={cls} />;
+  if (b.type === 'CTA') return <input value={b.data.text || ''} onChange={(e) => props.update(b.id, { text: e.target.value })} placeholder="z.B. Kommentiere 'PDF'" className={cls} />;
+  if (b.type === 'HASHTAG') return <input value={b.data.tags || ''} onChange={(e) => props.update(b.id, { tags: e.target.value })} placeholder="#Startup #MVP" className={cls} />;
+  if (b.type === 'CUSTOM') return <textarea value={b.data.text || ''} onChange={(e) => props.update(b.id, { text: e.target.value })} placeholder="Eigener Text..." className={cls + " resize-none"} rows={2} />;
+  if (b.type === 'MENTION') return <input value={b.data.text || ''} onChange={(e) => props.update(b.id, { text: e.target.value })} placeholder="@MaxMuster" className={cls} />;
+  if (b.type === 'NUMBER') return <input value={b.data.text || ''} onChange={(e) => props.update(b.id, { text: e.target.value })} placeholder="87% der Gründer..." className={cls} />;
 
   if (b.type === 'DURATION') return (
     <div className="flex gap-2">
-      {Object.entries(DUR_LABELS).map(function([v, l]) {
-        return (
-          <label key={v} className={"flex-1 cursor-pointer rounded-lg border-2 py-3 text-center text-sm font-bold " + (b.data.val === v ? 'border-amber-700 bg-amber-800 text-white' : 'border-gray-200 bg-white text-gray-600')}>
-            <input type="radio" name={"dur-" + b.id} value={v} checked={b.data.val === v} onChange={function(e) { props.update(b.id, { val: e.target.value }); }} className="sr-only" />{l}
-          </label>
-        );
-      })}
+      {Object.entries(DUR_LABELS).map(([v, l]) => (
+        <label key={v} className={"flex-1 cursor-pointer rounded-lg border-2 py-3 text-center text-sm font-bold " + (b.data.val === v ? 'border-amber-700 bg-amber-800 text-white' : 'border-gray-200 bg-white text-gray-600')}>
+          <input type="radio" name={"dur-" + b.id} value={v} checked={b.data.val === v} onChange={(e) => props.update(b.id, { val: e.target.value })} className="sr-only" />{l}
+        </label>
+      ))}
     </div>
   );
 
   if (b.type === 'DIVIDER') return (
     <div className="flex gap-2">
-      {['line', 'stars'].map(function(s) {
-        return (
-          <label key={s} className={"flex-1 cursor-pointer rounded-lg border-2 py-3 text-center text-sm font-bold " + (b.data.style === s ? 'border-amber-700 bg-amber-800 text-white' : 'border-gray-200 bg-white text-gray-600')}>
-            <input type="radio" name={"div-" + b.id} value={s} checked={b.data.style === s} onChange={function(e) { props.update(b.id, { style: e.target.value }); }} className="sr-only" />{s === 'line' ? '────────' : '* * *'}
-          </label>
-        );
-      })}
+      {['line', 'stars'].map((s) => (
+        <label key={s} className={"flex-1 cursor-pointer rounded-lg border-2 py-3 text-center text-sm font-bold " + (b.data.style === s ? 'border-amber-700 bg-amber-800 text-white' : 'border-gray-200 bg-white text-gray-600')}>
+          <input type="radio" name={"div-" + b.id} value={s} checked={b.data.style === s} onChange={(e) => props.update(b.id, { style: e.target.value })} className="sr-only" />{s === 'line' ? '────────' : '* * *'}
+        </label>
+      ))}
     </div>
   );
 
   if (b.type === 'SCHEDULE') return (
     <div className="flex gap-2">
-      <input type="date" value={b.data.date || ''} onChange={function(e) { props.update(b.id, { date: e.target.value }); }} className={cls + " flex-1"} />
-      <input type="time" value={b.data.time || ''} onChange={function(e) { props.update(b.id, { time: e.target.value }); }} className={cls + " w-32"} />
+      <input type="date" value={b.data.date || ''} onChange={(e) => props.update(b.id, { date: e.target.value })} className={cls + " flex-1"} />
+      <input type="time" value={b.data.time || ''} onChange={(e) => props.update(b.id, { time: e.target.value })} className={cls + " w-32"} />
     </div>
   );
 
@@ -657,9 +777,8 @@ Beispiel: Wir glauben, dass B2B-SaaS-Gründer Schwierigkeiten haben, schnelles M
 };
 
 const Preview = function(props) {
-  // Filter out CHALLENGE blocks from preview (internal only)
-  var visibleBlocks = props.blocks.filter(function(b) { return b.type !== 'CHALLENGE'; });
-  var has = visibleBlocks.some(function(b) { return b.data.text || b.data.q || b.data.tags; });
+  const visibleBlocks = props.blocks.filter(b => b.type !== 'CHALLENGE');
+  const has = visibleBlocks.some(b => b.data.text || b.data.q || b.data.tags);
   
   return (
     <div className={"rounded-2xl border border-gray-200 bg-white shadow-xl " + (props.mobile ? 'text-xs' : 'text-sm')}>
@@ -672,12 +791,12 @@ const Preview = function(props) {
             <p className="text-xs text-gray-500">Startup Gründerin</p>
           </div>
         </div>
-        {has ? visibleBlocks.map(function(b) {
+        {has ? visibleBlocks.map(b => {
           if (b.type === 'TITLE' && b.data.text) return <p key={b.id} className="mb-3 text-gray-800">{b.data.text}</p>;
           if (b.type === 'POLL' && b.data.q) return (
             <div key={b.id} className="mb-3 rounded-xl border border-gray-200 bg-gray-50 p-3">
               <p className="mb-2 font-semibold text-gray-900">🎯 {b.data.q}</p>
-              {b.data.opts?.filter(Boolean).map(function(o, i) { return <div key={i} className="mb-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-gray-700">{o}</div>; })}
+              {b.data.opts?.filter(Boolean).map((o, i) => <div key={i} className="mb-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-gray-700">{o}</div>)}
             </div>
           );
           if (b.type === 'CTA' && b.data.text) return <p key={b.id} className="mb-3 font-semibold text-blue-600">👉 {b.data.text}</p>;
@@ -694,9 +813,15 @@ const Preview = function(props) {
   );
 };
 
-// Survey Detail Modal for Dashboard
 const SurveyDetailModal = function(props) {
-  var s = props.survey;
+  const s = props.survey;
+  const [copied, setCopied] = useState(false);
+  
+  const copyText = () => {
+    navigator.clipboard.writeText(clean(s.text));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
   
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
@@ -712,7 +837,6 @@ const SurveyDetailModal = function(props) {
         </div>
         
         <div className="p-6 space-y-6">
-          {/* Validation Challenge Section */}
           {s.validation_challenge && (
             <div className="rounded-xl border-2 border-purple-200 bg-purple-50 p-5">
               <div className="mb-3 flex items-center gap-2">
@@ -724,7 +848,6 @@ const SurveyDetailModal = function(props) {
             </div>
           )}
           
-          {/* Poll Question */}
           {s.question && (
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
               <div className="mb-2 flex items-center gap-2">
@@ -735,7 +858,6 @@ const SurveyDetailModal = function(props) {
             </div>
           )}
           
-          {/* Generated Post Text */}
           <div className="rounded-xl border border-gray-200 bg-white p-5">
             <div className="mb-3 flex items-center gap-2">
               <FileText className="h-5 w-5 text-blue-600" />
@@ -744,17 +866,16 @@ const SurveyDetailModal = function(props) {
             <pre className="whitespace-pre-wrap rounded-lg bg-gray-50 p-4 text-sm text-gray-700 border border-gray-200">{s.text || 'Kein Text generiert'}</pre>
           </div>
           
-          {/* Actions */}
           <div className="flex gap-3">
             <button 
-              onClick={function() { navigator.clipboard.writeText(clean(s.text)); }} 
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-amber-800 px-4 py-3 text-sm font-bold text-white hover:bg-amber-900"
+              onClick={copyText} 
+              className={"flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold " + (copied ? 'bg-green-600 text-white' : 'bg-amber-800 text-white hover:bg-amber-900')}
             >
-              <Copy className="h-4 w-4" />
-              Post-Text kopieren
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? 'Kopiert!' : 'Post-Text kopieren'}
             </button>
             <button 
-              onClick={function() { props.onEdit(s); props.onClose(); }} 
+              onClick={() => { props.onEdit(s); props.onClose(); }} 
               className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50"
             >
               <Edit3 className="h-4 w-4" />
@@ -772,17 +893,41 @@ const Dashboard = function(props) {
   const [copiedId, setCopiedId] = useState(null);
   const [detailSurvey, setDetailSurvey] = useState(null);
   const [chartPeriod, setChartPeriod] = useState('week');
+  const [deleting, setDeleting] = useState(null);
 
-  var copyTxt = function(id, t) { navigator.clipboard.writeText(clean(t)); setCopiedId(id); setTimeout(function() { setCopiedId(null); }, 1500); };
-  var edit = function(s) { props.setEditSurvey({ ...s, blockData: s.blockData || [] }); props.nav('editor'); };
+  const copyTxt = (id, t) => { 
+    navigator.clipboard.writeText(clean(t)); 
+    setCopiedId(id); 
+    setTimeout(() => setCopiedId(null), 1500); 
+  };
+  
+  const edit = (s) => { 
+    props.setEditSurvey({ ...s, blockData: s.blockData || [] }); 
+    props.nav('editor'); 
+  };
 
-  var stats = useMemo(function() { return { total: props.surveys.length, week: props.surveys.filter(function(s) { return new Date(s.created) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); }).length }; }, [props.surveys]);
+  const deleteSurvey = async (id) => {
+    setDeleting(id);
+    try {
+      await db.deleteSurvey(id);
+      await props.loadSurveys();
+    } catch (err) {
+      console.error('Failed to delete survey:', err);
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const stats = useMemo(() => ({ 
+    total: props.surveys.length, 
+    week: props.surveys.filter(s => new Date(s.created) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length 
+  }), [props.surveys]);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="sticky top-0 z-20 border-b border-gray-200 bg-white">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <button onClick={function() { props.nav('landing'); }} className="flex items-center gap-2">
+          <button onClick={() => props.nav('landing')} className="flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600">
               <Flame className="h-5 w-5 text-white" />
             </div>
@@ -800,215 +945,219 @@ const Dashboard = function(props) {
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div className="flex rounded-xl border border-gray-200 bg-white p-1">
-            {[{ k: 'home', i: Home, l: 'Dashboard' }, { k: 'history', i: History, l: 'Historie' }, { k: 'analyse', i: LineChart, l: 'Analyse' }].map(function(t) {
-              return (
-                <button key={t.k} onClick={function() { setTab(t.k); }} className={"flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium " + (tab === t.k ? 'bg-amber-800 text-white' : 'text-gray-600 hover:bg-gray-100')}>
-                  <t.i className="h-4 w-4" />{t.l}
-                </button>
-              );
-            })}
+            {[{ k: 'home', i: Home, l: 'Dashboard' }, { k: 'history', i: History, l: 'Historie' }, { k: 'analyse', i: LineChart, l: 'Analyse' }].map(t => (
+              <button key={t.k} onClick={() => setTab(t.k)} className={"flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium " + (tab === t.k ? 'bg-amber-800 text-white' : 'text-gray-600 hover:bg-gray-100')}>
+                <t.i className="h-4 w-4" />{t.l}
+              </button>
+            ))}
           </div>
-          <button onClick={function() { props.nav('editor'); }} className="flex items-center gap-2 rounded-xl bg-amber-800 px-5 py-2.5 text-sm font-bold text-white hover:bg-amber-900">
+          <button onClick={() => props.nav('editor')} className="flex items-center gap-2 rounded-xl bg-amber-800 px-5 py-2.5 text-sm font-bold text-white hover:bg-amber-900">
             <Plus className="h-4 w-4" />Neue Validierung
           </button>
         </div>
 
-        {tab === 'home' && (
-          <div className="space-y-8">
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-              <div className="rounded-2xl border border-gray-200 bg-white p-5">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-500">Gesamt Tests</span>
-                  <BarChart3 className="h-5 w-5 text-amber-600" />
-                </div>
-                <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-              <div className="rounded-2xl border border-gray-200 bg-white p-5">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-500">Diese Woche</span>
-                  <TrendingUp className="h-5 w-5 text-green-500" />
-                </div>
-                <p className="text-3xl font-bold text-gray-900">{stats.week}</p>
-              </div>
-            </div>
-
-            {/* LineChart für Gesamt Tests */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="flex items-center gap-2 font-bold text-gray-900">
-                  <LineChart className="h-5 w-5 text-blue-600" />
-                  Test-Verlauf
-                </h3>
-                <div className="flex rounded-lg border border-gray-200 p-1">
-                  <button 
-                    onClick={function() { setChartPeriod('week'); }} 
-                    className={"rounded px-3 py-1 text-xs font-medium transition-all " + (chartPeriod === 'week' ? 'bg-amber-800 text-white' : 'text-gray-600 hover:bg-gray-100')}
-                  >
-                    Woche
-                  </button>
-                  <button 
-                    onClick={function() { setChartPeriod('month'); }} 
-                    className={"rounded px-3 py-1 text-xs font-medium transition-all " + (chartPeriod === 'month' ? 'bg-amber-800 text-white' : 'text-gray-600 hover:bg-gray-100')}
-                  >
-                    Monate
-                  </button>
-                  <button 
-                    onClick={function() { setChartPeriod('year'); }} 
-                    className={"rounded px-3 py-1 text-xs font-medium transition-all " + (chartPeriod === 'year' ? 'bg-amber-800 text-white' : 'text-gray-600 hover:bg-gray-100')}
-                  >
-                    Jahre
-                  </button>
-                </div>
-              </div>
-              <div className="h-48">
-                {props.surveys.length > 0 ? (
-                  <div className="flex h-full items-end justify-between gap-2 px-4">
-                    {(function() {
-                      var chartData = [];
-                      
-                      if (chartPeriod === 'week') {
-                        // Letzte 7 Tage
-                        for (var i = 6; i >= 0; i--) {
-                          var date = new Date();
-                          date.setDate(date.getDate() - i);
-                          var dateStr = date.toISOString().split('T')[0];
-                          var count = props.surveys.filter(function(s) { return s.created === dateStr; }).length;
-                          chartData.push({ label: date.toLocaleDateString('de-DE', { weekday: 'short' }), count: count });
-                        }
-                      } else if (chartPeriod === 'month') {
-                        // Letzte 12 Monate
-                        for (var i = 11; i >= 0; i--) {
-                          var date = new Date();
-                          date.setMonth(date.getMonth() - i);
-                          var monthStr = date.toISOString().slice(0, 7); // YYYY-MM
-                          var count = props.surveys.filter(function(s) { return s.created && s.created.startsWith(monthStr); }).length;
-                          chartData.push({ label: date.toLocaleDateString('de-DE', { month: 'short' }), count: count });
-                        }
-                      } else if (chartPeriod === 'year') {
-                        // Letzte 5 Jahre
-                        for (var i = 4; i >= 0; i--) {
-                          var year = new Date().getFullYear() - i;
-                          var yearStr = year.toString();
-                          var count = props.surveys.filter(function(s) { return s.created && s.created.startsWith(yearStr); }).length;
-                          chartData.push({ label: yearStr, count: count });
-                        }
-                      }
-                      
-                      var maxCount = Math.max.apply(null, chartData.map(function(d) { return d.count; })) || 1;
-                      
-                      return chartData.map(function(d, idx) {
-                        var height = d.count > 0 ? Math.max((d.count / maxCount) * 100, 10) : 5;
-                        return (
-                          <div key={idx} className="flex flex-1 flex-col items-center gap-2">
-                            <div className="relative w-full flex justify-center">
-                              {d.count > 0 && (
-                                <span className="absolute -top-6 text-xs font-bold text-amber-700">{d.count}</span>
-                              )}
-                              <div 
-                                className={"w-full max-w-[40px] rounded-t-lg transition-all " + (d.count > 0 ? 'bg-gradient-to-t from-amber-600 to-amber-400' : 'bg-gray-200')}
-                                style={{ height: height + '%', minHeight: '8px' }}
-                              />
-                            </div>
-                            <span className="text-xs text-gray-500">{d.label}</span>
-                          </div>
-                        );
-                      });
-                    })()}
+        {props.loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
+          </div>
+        ) : (
+          <>
+            {tab === 'home' && (
+              <div className="space-y-8">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  <div className="rounded-2xl border border-gray-200 bg-white p-5">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-xs font-medium text-gray-500">Gesamt Tests</span>
+                      <BarChart3 className="h-5 w-5 text-amber-600" />
+                    </div>
+                    <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
                   </div>
-                ) : (
-                  <div className="flex h-full items-center justify-center text-gray-400">
-                    <div className="text-center">
-                      <LineChart className="mx-auto mb-2 h-10 w-10 opacity-50" />
-                      <p className="text-sm">Noch keine Daten</p>
+                  <div className="rounded-2xl border border-gray-200 bg-white p-5">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-xs font-medium text-gray-500">Diese Woche</span>
+                      <TrendingUp className="h-5 w-5 text-green-500" />
+                    </div>
+                    <p className="text-3xl font-bold text-gray-900">{stats.week}</p>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-gray-200 bg-white p-6">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="flex items-center gap-2 font-bold text-gray-900">
+                      <LineChart className="h-5 w-5 text-blue-600" />
+                      Test-Verlauf
+                    </h3>
+                    <div className="flex rounded-lg border border-gray-200 p-1">
+                      {['week', 'month', 'year'].map(p => (
+                        <button 
+                          key={p}
+                          onClick={() => setChartPeriod(p)} 
+                          className={"rounded px-3 py-1 text-xs font-medium transition-all " + (chartPeriod === p ? 'bg-amber-800 text-white' : 'text-gray-600 hover:bg-gray-100')}
+                        >
+                          {p === 'week' ? 'Woche' : p === 'month' ? 'Monate' : 'Jahre'}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* Letzte Tests Button */}
-            <div>
-              <button 
-                onClick={function() { setTab('history'); }} 
-                className="flex w-full items-center justify-between rounded-2xl border border-gray-200 bg-white p-5 text-left transition-all hover:border-amber-400 hover:shadow-md"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100">
-                    <History className="h-6 w-6 text-amber-700" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900">Letzte Tests</h3>
-                    <p className="text-sm text-gray-500">{props.surveys.length} Validierungen insgesamt</p>
+                  <div className="h-48">
+                    {props.surveys.length > 0 ? (
+                      <div className="flex h-full items-end justify-between gap-2 px-4">
+                        {(() => {
+                          const chartData = [];
+                          
+                          if (chartPeriod === 'week') {
+                            for (let i = 6; i >= 0; i--) {
+                              const date = new Date();
+                              date.setDate(date.getDate() - i);
+                              const dateStr = date.toISOString().split('T')[0];
+                              const count = props.surveys.filter(s => s.created === dateStr).length;
+                              chartData.push({ label: date.toLocaleDateString('de-DE', { weekday: 'short' }), count });
+                            }
+                          } else if (chartPeriod === 'month') {
+                            for (let i = 11; i >= 0; i--) {
+                              const date = new Date();
+                              date.setMonth(date.getMonth() - i);
+                              const monthStr = date.toISOString().slice(0, 7);
+                              const count = props.surveys.filter(s => s.created?.startsWith(monthStr)).length;
+                              chartData.push({ label: date.toLocaleDateString('de-DE', { month: 'short' }), count });
+                            }
+                          } else {
+                            for (let i = 4; i >= 0; i--) {
+                              const year = new Date().getFullYear() - i;
+                              const count = props.surveys.filter(s => s.created?.startsWith(year.toString())).length;
+                              chartData.push({ label: year.toString(), count });
+                            }
+                          }
+                          
+                          const maxCount = Math.max(...chartData.map(d => d.count)) || 1;
+                          
+                          return chartData.map((d, idx) => {
+                            const height = d.count > 0 ? Math.max((d.count / maxCount) * 100, 10) : 5;
+                            return (
+                              <div key={idx} className="flex flex-1 flex-col items-center gap-2">
+                                <div className="relative w-full flex justify-center">
+                                  {d.count > 0 && (
+                                    <span className="absolute -top-6 text-xs font-bold text-amber-700">{d.count}</span>
+                                  )}
+                                  <div 
+                                    className={"w-full max-w-[40px] rounded-t-lg transition-all " + (d.count > 0 ? 'bg-gradient-to-t from-amber-600 to-amber-400' : 'bg-gray-200')}
+                                    style={{ height: `${height}%`, minHeight: '8px' }}
+                                  />
+                                </div>
+                                <span className="text-xs text-gray-500">{d.label}</span>
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-gray-400">
+                        <div className="text-center">
+                          <LineChart className="mx-auto mb-2 h-10 w-10 opacity-50" />
+                          <p className="text-sm">Noch keine Daten</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-              </button>
-            </div>
-          </div>
-        )}
 
-        {tab === 'history' && (
-          <div className="rounded-2xl border border-gray-200 bg-white">
-            <table className="w-full">
-              <thead className="border-b border-gray-200 bg-gray-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500">Titel</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500">Hypothese</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500">Erstellt</th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500">Aktionen</th>
-                </tr>
-              </thead>
-              <tbody>
-                {props.surveys.map(function(s) {
-                  return (
-                    <tr key={s.id} className="border-b border-gray-100 hover:bg-amber-50 cursor-pointer" onClick={function() { setDetailSurvey(s); }}>
-                      <td className="px-6 py-4 font-medium text-gray-900">{s.title}</td>
-                      <td className="px-6 py-4">
-                        {s.validation_challenge ? (
-                          <span className="inline-flex items-center gap-1 rounded bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700">
-                            <FlaskConical className="h-3 w-3" />
-                            <span className="max-w-[200px] truncate">{s.validation_challenge}</span>
-                          </span>
-                        ) : (
-                          <span className="text-xs text-gray-400">—</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{s.created}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex justify-end gap-2">
-                          <button onClick={function(e) { e.stopPropagation(); copyTxt(s.id, s.text); }} className={"rounded-lg p-2 " + (copiedId === s.id ? 'bg-green-100 text-green-600' : 'text-gray-400 hover:bg-gray-100')}>
-                            {copiedId === s.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                          </button>
-                          <button onClick={function(e) { e.stopPropagation(); edit(s); }} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
-                            <Edit3 className="h-4 w-4" />
-                          </button>
-                          <button onClick={function(e) { e.stopPropagation(); setDetailSurvey(s); }} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
-                            <Eye className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                <button 
+                  onClick={() => setTab('history')} 
+                  className="flex w-full items-center justify-between rounded-2xl border border-gray-200 bg-white p-5 text-left transition-all hover:border-amber-400 hover:shadow-md"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100">
+                      <History className="h-6 w-6 text-amber-700" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">Letzte Tests</h3>
+                      <p className="text-sm text-gray-500">{props.surveys.length} Validierungen insgesamt</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                </button>
+              </div>
+            )}
 
-        {tab === 'analyse' && (
-          <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center">
-            <LineChart className="mx-auto mb-4 h-12 w-12 text-gray-300" />
-            <h3 className="text-lg font-bold text-gray-900">Analyse</h3>
-            <p className="mt-2 text-sm text-gray-500">Kommt bald...</p>
-          </div>
+            {tab === 'history' && (
+              <div className="rounded-2xl border border-gray-200 bg-white">
+                {props.surveys.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <History className="mx-auto mb-4 h-12 w-12 text-gray-300" />
+                    <h3 className="text-lg font-bold text-gray-900">Keine Umfragen</h3>
+                    <p className="mt-2 text-sm text-gray-500">Erstelle deine erste Validierung!</p>
+                    <button onClick={() => props.nav('editor')} className="mt-4 rounded-xl bg-amber-800 px-5 py-2.5 text-sm font-bold text-white hover:bg-amber-900">
+                      Neue Validierung
+                    </button>
+                  </div>
+                ) : (
+                  <table className="w-full">
+                    <thead className="border-b border-gray-200 bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500">Titel</th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500">Hypothese</th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500">Erstellt</th>
+                        <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500">Aktionen</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {props.surveys.map(s => (
+                        <tr key={s.id} className="border-b border-gray-100 hover:bg-amber-50 cursor-pointer" onClick={() => setDetailSurvey(s)}>
+                          <td className="px-6 py-4 font-medium text-gray-900">{s.title}</td>
+                          <td className="px-6 py-4">
+                            {s.validation_challenge ? (
+                              <span className="inline-flex items-center gap-1 rounded bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700">
+                                <FlaskConical className="h-3 w-3" />
+                                <span className="max-w-[200px] truncate">{s.validation_challenge}</span>
+                              </span>
+                            ) : (
+                              <span className="text-xs text-gray-400">—</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600">{s.created}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex justify-end gap-2">
+                              <button onClick={(e) => { e.stopPropagation(); copyTxt(s.id, s.text); }} className={"rounded-lg p-2 " + (copiedId === s.id ? 'bg-green-100 text-green-600' : 'text-gray-400 hover:bg-gray-100')}>
+                                {copiedId === s.id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                              </button>
+                              <button onClick={(e) => { e.stopPropagation(); edit(s); }} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
+                                <Edit3 className="h-4 w-4" />
+                              </button>
+                              <button onClick={(e) => { e.stopPropagation(); setDetailSurvey(s); }} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
+                                <Eye className="h-4 w-4" />
+                              </button>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); if (confirm('Survey wirklich löschen?')) deleteSurvey(s.id); }} 
+                                disabled={deleting === s.id}
+                                className="rounded-lg p-2 text-gray-400 hover:bg-red-100 hover:text-red-600"
+                              >
+                                {deleting === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+
+            {tab === 'analyse' && (
+              <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center">
+                <LineChart className="mx-auto mb-4 h-12 w-12 text-gray-300" />
+                <h3 className="text-lg font-bold text-gray-900">Analyse</h3>
+                <p className="mt-2 text-sm text-gray-500">Kommt bald...</p>
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Survey Detail Modal */}
       {detailSurvey && (
         <SurveyDetailModal 
           survey={detailSurvey} 
-          onClose={function() { setDetailSurvey(null); }} 
+          onClose={() => setDetailSurvey(null)} 
           onEdit={edit}
         />
       )}
@@ -1016,50 +1165,53 @@ const Dashboard = function(props) {
   );
 };
 
-// Feedback Widget - Omnipresent floating button
 const FeedbackWidget = function() {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [feedbackType, setFeedbackType] = useState('bug');
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = function() {
+  const handleSubmit = async () => {
     if (!message.trim()) return;
     
-    // TODO: Supabase Integration
-    // await supabase.from('feedback').insert({
-    //   type: feedbackType,
-    //   message: message,
-    //   email: email,
-    //   created_at: new Date().toISOString()
-    // });
-    
-    console.log('Feedback submitted:', { type: feedbackType, message, email });
-    setSubmitted(true);
-    setTimeout(function() {
-      setIsOpen(false);
-      setSubmitted(false);
-      setMessage('');
-      setEmail('');
-    }, 2000);
+    setLoading(true);
+    try {
+      await db.submitFeedback({
+        type: feedbackType,
+        message: message,
+        email: email || user?.email,
+      });
+      
+      setSubmitted(true);
+      setTimeout(() => {
+        setIsOpen(false);
+        setSubmitted(false);
+        setMessage('');
+        setEmail('');
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to submit feedback:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
-      {/* Floating Button */}
       <button
-        onClick={function() { setIsOpen(true); }}
+        onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-lg transition-all hover:scale-110 hover:shadow-xl active:scale-95"
         title="Feedback geben"
       >
         <Rocket className="h-6 w-6" />
       </button>
 
-      {/* Feedback Modal */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-end p-6 sm:items-center sm:justify-center">
-          <div className="fixed inset-0 bg-black/50" onClick={function() { setIsOpen(false); }} />
+          <div className="fixed inset-0 bg-black/50" onClick={() => setIsOpen(false)} />
           
           <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
             {submitted ? (
@@ -1079,15 +1231,14 @@ const FeedbackWidget = function() {
                     </div>
                     <h3 className="text-lg font-bold text-gray-900">Feedback</h3>
                   </div>
-                  <button onClick={function() { setIsOpen(false); }} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
+                  <button onClick={() => setIsOpen(false)} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100">
                     <X className="h-5 w-5" />
                   </button>
                 </div>
 
-                {/* Type Selection */}
                 <div className="mb-4 flex gap-2">
                   <button
-                    onClick={function() { setFeedbackType('bug'); }}
+                    onClick={() => setFeedbackType('bug')}
                     className={"flex flex-1 items-center justify-center gap-2 rounded-xl border-2 py-3 text-sm font-bold transition-all " + 
                       (feedbackType === 'bug' ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300')}
                   >
@@ -1095,7 +1246,7 @@ const FeedbackWidget = function() {
                     Bug melden
                   </button>
                   <button
-                    onClick={function() { setFeedbackType('feature'); }}
+                    onClick={() => setFeedbackType('feature')}
                     className={"flex flex-1 items-center justify-center gap-2 rounded-xl border-2 py-3 text-sm font-bold transition-all " + 
                       (feedbackType === 'feature' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300')}
                   >
@@ -1104,32 +1255,29 @@ const FeedbackWidget = function() {
                   </button>
                 </div>
 
-                {/* Message */}
                 <textarea
                   value={message}
-                  onChange={function(e) { setMessage(e.target.value); }}
+                  onChange={(e) => setMessage(e.target.value)}
                   placeholder={feedbackType === 'bug' ? 'Beschreibe den Bug...' : 'Beschreibe deine Idee...'}
                   className="mb-4 w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                   rows={4}
                 />
 
-                {/* Email (optional) */}
                 <input
                   type="email"
                   value={email}
-                  onChange={function(e) { setEmail(e.target.value); }}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="E-Mail (optional, für Rückfragen)"
                   className="mb-4 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 />
 
-                {/* Submit */}
                 <button
                   onClick={handleSubmit}
-                  disabled={!message.trim()}
+                  disabled={!message.trim() || loading}
                   className={"flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all " + 
-                    (message.trim() ? 'bg-blue-600 text-white hover:bg-blue-700' : 'cursor-not-allowed bg-gray-200 text-gray-400')}
+                    (message.trim() && !loading ? 'bg-blue-600 text-white hover:bg-blue-700' : 'cursor-not-allowed bg-gray-200 text-gray-400')}
                 >
-                  <Send className="h-4 w-4" />
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   Absenden
                 </button>
               </>
@@ -1141,7 +1289,6 @@ const FeedbackWidget = function() {
   );
 };
 
-// Wrapper component to include FeedbackWidget on all pages
 const AppWithFeedback = function() {
   return (
     <>
