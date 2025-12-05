@@ -1,0 +1,18 @@
+# ============================================
+# Breaking Dynamics - robots.txt
+# ============================================
+
+# Alle Suchmaschinen erlauben
+User-agent: *
+Allow: /
+
+# Seiten die nicht indexiert werden sollen
+Disallow: /admin
+Disallow: /api/
+Disallow: /*.json$
+
+# Sitemap Location
+Sitemap: https://breakingdynamics.com/sitemap.xml
+
+# Crawl-Delay (optional, für Server-Schonung)
+# Crawl-delay: 1
