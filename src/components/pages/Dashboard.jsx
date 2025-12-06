@@ -217,9 +217,14 @@ const Dashboard = function(props) {
               </button>
             ))}
           </div>
-          <Link to="/editor" className="btn-primary">
-            <Plus className="h-4 w-4" />{t('dashboard.newValidation')}
-          </Link>
+          <div className="flex gap-3">
+            <Link to="/carousel" className="btn-primary">
+              <Plus className="h-4 w-4" />{t('carousel.newCarousel')}
+            </Link>
+            <Link to="/editor" className="btn-secondary">
+              <Plus className="h-4 w-4" />{t('dashboard.newValidation')}
+            </Link>
+          </div>
         </div>
 
         {props.surveysError && (

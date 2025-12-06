@@ -1,0 +1,158 @@
+import React, { forwardRef, useState } from 'react';
+import { GripVertical, Trash2, Plus } from 'lucide-react';
+import { getBlockComponent } from './blocks';
+import { BACKGROUND_STYLES, BLOCK_TYPES } from '../../utils/slideTemplates';
+
+const SlideCanvas = forwardRef(({
+  slide,
+  onSlideChange,
+  isEditing = true,
+  scale = 0.5,
+  showControls = true
+}, ref) => {
+  const [activeBlockId, setActiveBlockId] = useState(null);
+  const [draggedBlockIndex, setDraggedBlockIndex] = useState(null);
+
+  if (!slide) return null;
+
+  const backgroundStyle = BACKGROUND_STYLES[slide.styles?.background] || BACKGROUND_STYLES['solid-dark'];
+
+  const padding = slide.styles?.padding === 'sm' ? 40 :
+                  slide.styles?.padding === 'lg' ? 80 :
+                  slide.styles?.padding === 'xl' ? 100 : 60;
+
+  const handleBlockChange = (blockId, newContent) => {
+    const updatedBlocks = slide.blocks.map((block) =>
+      block.id === blockId ? { ...block, content: newContent } : block
+    );
+    onSlideChange({ ...slide, blocks: updatedBlocks });
+  };
+
+  const handleDeleteBlock = (blockId) => {
+    const updatedBlocks = slide.blocks.filter((block) => block.id !== blockId);
+    onSlideChange({ ...slide, blocks: updatedBlocks });
+    setActiveBlockId(null);
+  };
+
+  const handleDragStart = (e, index) => {
+    setDraggedBlockIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    if (draggedBlockIndex === null || draggedBlockIndex === index) return;
+
+    const updatedBlocks = [...slide.blocks];
+    const [draggedBlock] = updatedBlocks.splice(draggedBlockIndex, 1);
+    updatedBlocks.splice(index, 0, draggedBlock);
+
+    onSlideChange({ ...slide, blocks: updatedBlocks });
+    setDraggedBlockIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedBlockIndex(null);
+  };
+
+  return (
+    <div
+      className="relative mx-auto"
+      style={{
+        width: 1080 * scale,
+        height: 1080 * scale,
+      }}
+    >
+      {/* Slide Canvas */}
+      <div
+        ref={ref}
+        className="absolute inset-0 overflow-hidden"
+        style={{
+          width: 1080,
+          height: 1080,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          ...backgroundStyle.style,
+        }}
+      >
+        {/* Content Container */}
+        <div
+          className="w-full h-full flex flex-col"
+          style={{
+            padding,
+            justifyContent: slide.styles?.verticalAlign === 'top' ? 'flex-start' :
+                           slide.styles?.verticalAlign === 'bottom' ? 'flex-end' : 'center',
+          }}
+        >
+          {slide.blocks.map((block, index) => {
+            const BlockComponent = getBlockComponent(block.type);
+            const isActive = activeBlockId === block.id;
+
+            return (
+              <div
+                key={block.id}
+                className={`relative group ${isEditing ? 'cursor-move' : ''}`}
+                draggable={isEditing && showControls}
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnd={handleDragEnd}
+                onClick={() => isEditing && setActiveBlockId(block.id)}
+                style={{
+                  outline: isActive && isEditing ? '2px solid #FF6B35' : 'none',
+                  outlineOffset: '4px',
+                  borderRadius: '4px',
+                  marginBottom: index < slide.blocks.length - 1 ? '8px' : 0,
+                }}
+              >
+                {/* Block Controls */}
+                {isEditing && showControls && isActive && (
+                  <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <div className="p-1 rounded bg-[#1A1A1D] text-white/50 cursor-grab">
+                      <GripVertical className="h-4 w-4" />
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteBlock(block.id);
+                      }}
+                      className="p-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+
+                {/* Block Component */}
+                <BlockComponent
+                  content={block.content}
+                  onChange={(newContent) => handleBlockChange(block.id, newContent)}
+                  isEditing={isEditing && isActive}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Add Block Indicator (when empty) */}
+      {isEditing && slide.blocks.length === 0 && (
+        <div
+          className="absolute inset-0 flex items-center justify-center border-2 border-dashed border-white/20 rounded-xl"
+          style={{
+            width: 1080 * scale,
+            height: 1080 * scale,
+          }}
+        >
+          <div className="text-center text-white/40">
+            <Plus className="h-8 w-8 mx-auto mb-2" />
+            <p>Drag blocks here</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
+SlideCanvas.displayName = 'SlideCanvas';
+
+export default SlideCanvas;

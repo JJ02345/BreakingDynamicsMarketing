@@ -9,7 +9,7 @@ import { AppProvider, useApp } from './context/AppContext';
 
 // Components
 import { EmailConfirmation } from './components/auth';
-import { Editor } from './components/editor';
+import { Editor, CarouselEditor } from './components/editor';
 import { Landing, Dashboard, LegalPage, WorkInProgress } from './components/pages';
 import { FeedbackWidget, ProtectedRoute } from './components/common';
 
@@ -39,6 +39,7 @@ const AppRoutes = function() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/editor" element={<EditorPage />} />
+      <Route path="/carousel" element={<CarouselEditorPage />} />
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <DashboardPage />
@@ -77,6 +78,11 @@ const DashboardPage = function() {
 
 const AdminPage = function() {
   return <AdminDashboard />;
+};
+
+const CarouselEditorPage = function() {
+  const app = useApp();
+  return <CarouselEditor {...app} />;
 };
 
 // ============================================
