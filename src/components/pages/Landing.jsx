@@ -71,7 +71,11 @@ const Landing = function(props) {
 
           {/* CTA Buttons */}
           <div className="animate-slide-up delay-300 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/editor" className="btn-primary btn-lg animate-glow-pulse">
+            <Link to="/carousel" className="btn-primary btn-lg animate-glow-pulse">
+              {t('carousel.newCarousel')}
+              <ChevronRight className="h-5 w-5" />
+            </Link>
+            <Link to="/editor" className="btn-secondary btn-lg">
               {t('landing.ctaButton')}
               <ChevronRight className="h-5 w-5" />
             </Link>
