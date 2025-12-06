@@ -182,15 +182,10 @@ const Landing = function(props) {
             </div>
           </div>
 
-          <a
-            href="https://discord.gg/dein-link"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary btn-xl"
-          >
+          <Link to="/wip" className="btn-primary btn-xl">
             {t('landing.communityButton')}
             <ChevronRight className="h-5 w-5" />
-          </a>
+          </Link>
         </div>
       </section>
 

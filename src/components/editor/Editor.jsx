@@ -406,7 +406,7 @@ const Editor = function(props) {
     const hasPoll = blocks.some(b => b.type === 'POLL' && b.data?.q?.trim());
 
     return (
-      <div className="min-h-screen bg-[#0A0A0B] p-6 flex items-center justify-center">
+      <div className="min-h-screen h-screen bg-[#0A0A0B] p-6 flex items-center justify-center overflow-auto">
         <div className="w-full max-w-xl card-dark p-8 animate-scale-in">
           <div className="mb-6 flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-[#00E676]/10 border border-[#00E676]/20 flex items-center justify-center">
@@ -478,8 +478,8 @@ const Editor = function(props) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0B]">
-      <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0A0A0B]/90 backdrop-blur-xl">
+    <div className="min-h-screen h-screen bg-[#0A0A0B] flex flex-col overflow-hidden">
+      <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0A0A0B]/90 backdrop-blur-xl flex-shrink-0">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
@@ -513,7 +513,7 @@ const Editor = function(props) {
         </div>
       </header>
 
-      <div className="flex h-[calc(100vh-57px)]">
+      <div className="flex flex-1 overflow-hidden">
         {/* Baukasten Sidebar - Grid Layout */}
         <div className={"flex flex-shrink-0 flex-col border-r border-white/5 bg-[#111113] transition-all " + (sidebar ? 'w-72' : 'w-12')}>
           <button onClick={() => setSidebar(!sidebar)} className={"flex items-center justify-center border-b border-white/5 p-3 transition-all " + (sidebar ? 'bg-[#FF6B35] text-[#0A0A0B]' : 'text-white/50 hover:bg-white/5 hover:text-white')}>

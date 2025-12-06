@@ -46,6 +46,10 @@ export const translations = {
       privacy: 'Privacy',
       terms: 'Terms',
     },
+    // Work in Progress
+    wip: {
+      description: 'This feature is currently being developed. Check back soon!',
+    },
     // Auth
     auth: {
       login: 'Sign In',
@@ -227,6 +231,10 @@ export const translations = {
       communityButton: 'Community beitreten',
       privacy: 'Datenschutz',
       terms: 'AGB',
+    },
+    // Work in Progress
+    wip: {
+      description: 'Diese Funktion wird gerade entwickelt. Schau bald wieder vorbei!',
     },
     // Auth
     auth: {

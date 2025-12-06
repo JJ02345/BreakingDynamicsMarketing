@@ -10,7 +10,7 @@ import { AppProvider, useApp } from './context/AppContext';
 // Components
 import { EmailConfirmation } from './components/auth';
 import { Editor } from './components/editor';
-import { Landing, Dashboard, LegalPage } from './components/pages';
+import { Landing, Dashboard, LegalPage, WorkInProgress } from './components/pages';
 import { FeedbackWidget, ProtectedRoute } from './components/common';
 
 // Admin Dashboard
@@ -51,6 +51,7 @@ const AppRoutes = function() {
       } />
       <Route path="/datenschutz" element={<LegalPage title="Datenschutz" />} />
       <Route path="/agb" element={<LegalPage title="AGB" />} />
+      <Route path="/wip" element={<WorkInProgress />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
