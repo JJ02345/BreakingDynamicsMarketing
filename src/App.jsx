@@ -10,6 +10,7 @@ import { AppProvider, useApp } from './context/AppContext';
 // Components
 import { EmailConfirmation } from './components/auth';
 import { Editor, CarouselEditor } from './components/editor';
+import { OfflineSurveyEditor } from './components/survey';
 import { Landing, Dashboard, LegalPage, WorkInProgress } from './components/pages';
 import { FeedbackWidget, ProtectedRoute } from './components/common';
 
@@ -38,7 +39,8 @@ const AppRoutes = function() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route path="/editor" element={<EditorPage />} />
+      <Route path="/editor" element={<SurveyEditorPage />} />
+      <Route path="/survey" element={<SurveyEditorPage />} />
       <Route path="/carousel" element={<CarouselEditorPage />} />
       <Route path="/dashboard" element={
         <ProtectedRoute>
@@ -69,6 +71,10 @@ const LandingPage = function() {
 const EditorPage = function() {
   const app = useApp();
   return <Editor {...app} />;
+};
+
+const SurveyEditorPage = function() {
+  return <OfflineSurveyEditor />;
 };
 
 const DashboardPage = function() {
