@@ -35,6 +35,11 @@
 
 * { box-sizing: border-box; }
 
+html {
+  background-color: var(--bd-black);
+  min-height: 100%;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--bd-black);
@@ -42,6 +47,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  background-color: var(--bd-black);
 }
 
 .font-display { font-family: var(--font-display); }
