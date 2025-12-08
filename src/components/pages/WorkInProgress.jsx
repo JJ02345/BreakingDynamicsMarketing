@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, ArrowLeft, Construction } from 'lucide-react';
-import { useLanguage, LanguageSwitcher } from '../../context/LanguageContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 const WorkInProgress = function() {
   const { t } = useLanguage();
@@ -20,7 +20,6 @@ const WorkInProgress = function() {
               <p className="text-xs font-medium text-[#FF6B35] tracking-wider uppercase">Survey Marketing</p>
             </div>
           </Link>
-          <LanguageSwitcher />
         </div>
       </nav>
 

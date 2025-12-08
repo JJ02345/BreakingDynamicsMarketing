@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Home, Download, Save, Loader2, Eye } from 'lucide-react';
-import { useLanguage, LanguageSwitcher } from '../../context/LanguageContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 const CarouselHeader = ({
   title,
@@ -42,8 +42,6 @@ const CarouselHeader = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <LanguageSwitcher />
-
           <button
             onClick={onTogglePreview}
             className={`btn-ghost ${previewMode ? 'bg-[#FF6B35]/20 text-[#FF6B35]' : ''}`}
