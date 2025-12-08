@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, FileText, Trash2, Sparkles } from 'lucide-react';
+import { Home, FileText, Trash2, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { SURVEY_TEMPLATES } from '../../utils/surveyTemplates';
 
@@ -19,8 +19,14 @@ const OfflineSurveyTemplates = ({
       <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0A0A0B]/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors">
-              <ArrowLeft className="h-5 w-5" />
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors"
+            >
+              <Home className="h-4 w-4 text-[#00D4FF]" />
+              <span className="text-sm font-medium text-white">
+                {language === 'de' ? 'Startseite' : 'Home'}
+              </span>
             </Link>
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#00D4FF] to-[#0A66C2]">

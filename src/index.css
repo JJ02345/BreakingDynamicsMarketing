@@ -6,7 +6,7 @@
    BREAKING DYNAMICS - DESIGN SYSTEM
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap');
 
 :root {
   --bd-orange: #FF6B35;
@@ -56,6 +56,17 @@ body {
 }
 
 .font-display { font-family: var(--font-display); }
+
+/* Syne Font Fix - Ensure proper letter spacing and rendering */
+.font-\[\'Syne\'\],
+[class*="font-['Syne']"] {
+  font-family: 'Syne', sans-serif;
+  letter-spacing: -0.02em;
+  font-feature-settings: 'kern' 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 /* ============================================
    ANIMATIONS

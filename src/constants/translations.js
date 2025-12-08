@@ -2,7 +2,7 @@
 // TRANSLATIONS - English
 // ============================================
 export const en = {
-  nav: { dashboard: 'Dashboard', login: 'Sign In', startFree: 'Start Free', logout: 'Sign Out', admin: 'Admin', editor: 'Editor', back: 'Back' },
+  nav: { dashboard: 'Dashboard', login: 'Sign In', startFree: 'Start Free', logout: 'Sign Out', admin: 'Admin', editor: 'Editor', back: 'Back', home: 'Home' },
   landing: {
     tagline: 'Validation Tools', badge: 'For Ambitious Founders', headline1: 'Two Tools.', headline2: 'One Goal: Market-Fit.',
     heroDesc: 'Create professional LinkedIn carousels or run offline surveys. Get real market feedback in 48 hours.',
@@ -84,7 +84,7 @@ export const en = {
 // TRANSLATIONS - German
 // ============================================
 export const de = {
-  nav: { dashboard: 'Dashboard', login: 'Anmelden', startFree: 'Kostenlos starten', logout: 'Abmelden', admin: 'Admin', editor: 'Editor', back: 'Zurück' },
+  nav: { dashboard: 'Dashboard', login: 'Anmelden', startFree: 'Kostenlos starten', logout: 'Abmelden', admin: 'Admin', editor: 'Editor', back: 'Zurück', home: 'Startseite' },
   landing: {
     tagline: 'Validierungs-Tools', badge: 'Für ambitionierte Gründer', headline1: 'Zwei Tools.', headline2: 'Ein Ziel: Market-Fit.',
     heroDesc: 'Erstelle professionelle LinkedIn-Carousels oder führe Offline-Umfragen durch. Erhalte echtes Marktfeedback in 48 Stunden.',
