@@ -56,23 +56,6 @@ const OnlineSurveyTemplates = ({ onSelectTemplate, onOpenAI }) => {
           </p>
         </div>
 
-        {/* Section: Selbst erstellen */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center">
-              <FileText className="h-5 w-5 text-[#00D4FF]" />
-            </div>
-            <div>
-              <h2 className="font-['Syne'] text-xl font-bold text-white">
-                {isDE ? 'Selbst erstellen' : 'Create yourself'}
-              </h2>
-              <p className="text-sm text-white/40">
-                {isDE ? 'Wähle eine Vorlage als Startpunkt' : 'Choose a template as starting point'}
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Blank Survey - Full Width at Top */}
         <button
           onClick={() => onSelectTemplate('blank')}
