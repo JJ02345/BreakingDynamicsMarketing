@@ -6,9 +6,11 @@
    BREAKING DYNAMICS - DESIGN SYSTEM
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap');
+/* Font Loading - Optimized for: schnell, innovativ, professionell */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap');
 
 :root {
+  /* Brand Colors */
   --bd-orange: #FF6B35;
   --bd-orange-light: #FF8C5A;
   --bd-orange-dark: #E55A2B;
@@ -18,6 +20,8 @@
   --bd-cyan-glow: rgba(0, 212, 255, 0.3);
   --bd-linkedin: #0A66C2;
   --bd-linkedin-dark: #004182;
+
+  /* Neutral Colors */
   --bd-black: #0A0A0B;
   --bd-dark: #111113;
   --bd-gray-dark: #1A1A1D;
@@ -26,11 +30,15 @@
   --bd-gray-lighter: #8A8A8F;
   --bd-white: #FAFAFA;
   --bd-white-dim: #E5E5E5;
+
+  /* Status Colors */
   --bd-success: #00E676;
   --bd-warning: #FFAB00;
   --bd-error: #FF5252;
-  --font-display: 'Syne', sans-serif;
-  --font-body: 'Space Grotesk', sans-serif;
+
+  /* Typography - Brand Values: schnell, innovativ, professionell */
+  --font-display: 'Syne', system-ui, sans-serif;  /* Headlines: Bold, Innovativ */
+  --font-body: 'Inter', system-ui, sans-serif;    /* Body: Clean, Professionell */
 }
 
 * { box-sizing: border-box; }
@@ -57,15 +65,30 @@ body {
 
 .font-display { font-family: var(--font-display); }
 
-/* Syne Font Fix - Ensure proper letter spacing and rendering */
+/* ===========================================
+   TYPOGRAPHY SYSTEM
+   Brand Values: schnell, innovativ, professionell
+   =========================================== */
+
+/* Syne - Display Font (Headlines, Titles)
+   → Innovativ, dynamisch, auffällig */
 .font-\[\'Syne\'\],
 [class*="font-['Syne']"] {
-  font-family: 'Syne', sans-serif;
-  letter-spacing: -0.02em;
-  font-feature-settings: 'kern' 1;
+  font-family: 'Syne', system-ui, sans-serif;
+  letter-spacing: -0.03em;
+  font-feature-settings: 'kern' 1, 'liga' 1;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Inter - Body Font (Text, UI Elements)
+   → Professionell, lesbar, modern */
+body, .font-body {
+  font-family: 'Inter', system-ui, sans-serif;
+  letter-spacing: -0.011em;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  text-rendering: optimizeLegibility;
 }
 
 /* ============================================
