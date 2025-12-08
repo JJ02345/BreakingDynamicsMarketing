@@ -1,16 +1,24 @@
 import React from 'react';
 
+const FONT_SIZE_MAP = {
+  xs: '14px',
+  sm: '18px',
+  base: '24px',
+  lg: '32px',
+  xl: '48px',
+  xxl: '64px',
+  xxxl: '80px'
+};
+
 const TextBlock = ({ content, onChange, isEditing }) => {
   const style = {
-    fontSize: content.fontSize === 'xxl' ? '64px' :
-              content.fontSize === 'xl' ? '48px' :
-              content.fontSize === 'lg' ? '32px' :
-              content.fontSize === 'base' ? '24px' : '18px',
+    fontSize: FONT_SIZE_MAP[content.fontSize] || FONT_SIZE_MAP.base,
     fontWeight: content.fontWeight || 'normal',
+    fontStyle: content.fontStyle || 'normal',
     textAlign: content.textAlign || 'center',
     color: content.color || '#FFFFFF',
     lineHeight: 1.3,
-    fontFamily: "'Space Grotesk', sans-serif",
+    fontFamily: content.fontFamily || "'Space Grotesk', sans-serif",
     width: '100%',
     whiteSpace: 'pre-wrap'
   };

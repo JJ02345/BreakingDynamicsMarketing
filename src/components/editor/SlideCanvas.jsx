@@ -1,7 +1,8 @@
 import React, { forwardRef, useState } from 'react';
-import { GripVertical, Trash2, Plus } from 'lucide-react';
+import { GripVertical, Trash2, Plus, Settings2 } from 'lucide-react';
 import { getBlockComponent } from './blocks';
 import { BACKGROUND_STYLES, BLOCK_TYPES } from '../../utils/slideTemplates';
+import BlockStylePanel from './BlockStylePanel';
 
 const SlideCanvas = forwardRef(({
   slide,
@@ -12,6 +13,7 @@ const SlideCanvas = forwardRef(({
 }, ref) => {
   const [activeBlockId, setActiveBlockId] = useState(null);
   const [draggedBlockIndex, setDraggedBlockIndex] = useState(null);
+  const [showStylePanel, setShowStylePanel] = useState(false);
 
   if (!slide) return null;
 
@@ -32,7 +34,10 @@ const SlideCanvas = forwardRef(({
     const updatedBlocks = slide.blocks.filter((block) => block.id !== blockId);
     onSlideChange({ ...slide, blocks: updatedBlocks });
     setActiveBlockId(null);
+    setShowStylePanel(false);
   };
+
+  const activeBlock = activeBlockId ? slide.blocks.find(b => b.id === activeBlockId) : null;
 
   const handleDragStart = (e, index) => {
     setDraggedBlockIndex(index);
@@ -113,6 +118,16 @@ const SlideCanvas = forwardRef(({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        setShowStylePanel(!showStylePanel);
+                      }}
+                      className={`p-1 rounded transition-colors ${showStylePanel ? 'bg-[#FF6B35]/20 text-[#FF6B35]' : 'bg-[#1A1A1D] text-white/50 hover:text-white'}`}
+                      title="Block styling"
+                    >
+                      <Settings2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
                         handleDeleteBlock(block.id);
                       }}
                       className="p-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
@@ -120,6 +135,15 @@ const SlideCanvas = forwardRef(({
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
+                )}
+
+                {/* Block Style Panel */}
+                {isEditing && showControls && isActive && showStylePanel && (
+                  <BlockStylePanel
+                    block={block}
+                    onChange={(newContent) => handleBlockChange(block.id, newContent)}
+                    onClose={() => setShowStylePanel(false)}
+                  />
                 )}
 
                 {/* Block Component */}

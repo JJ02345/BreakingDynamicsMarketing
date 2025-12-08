@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Home, ArrowLeft, Zap, Download, Save, Loader2, Eye } from 'lucide-react';
+import { Home, ArrowLeft, Zap, Download, Save, Loader2, Eye, Sparkles } from 'lucide-react';
 import { useLanguage, LanguageSwitcher } from '../../context/LanguageContext';
 
 const CarouselHeader = ({
@@ -14,6 +14,7 @@ const CarouselHeader = ({
   onTogglePreview,
   onSave,
   onExport,
+  onOpenAIGenerator,
   t,
 }) => {
   return (
@@ -49,6 +50,16 @@ const CarouselHeader = ({
 
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
+
+          {/* AI Generator Button */}
+          <button
+            onClick={onOpenAIGenerator}
+            className="btn-ghost bg-gradient-to-r from-[#FF6B35]/10 to-[#FF8C5A]/10 border border-[#FF6B35]/30 hover:border-[#FF6B35]/50 text-[#FF6B35]"
+            title="KI Carousel Generator"
+          >
+            <Sparkles className="h-4 w-4" />
+            <span className="hidden sm:inline">KI Generator</span>
+          </button>
 
           <button
             onClick={onTogglePreview}

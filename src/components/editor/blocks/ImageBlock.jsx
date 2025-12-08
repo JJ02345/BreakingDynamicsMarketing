@@ -24,6 +24,35 @@ const ImageBlock = ({ content, onChange, isEditing }) => {
                        content.borderRadius === 'lg' ? '16px' :
                        content.borderRadius === 'full' ? '50%' : '12px';
 
+  // Filter effects
+  const getFilter = () => {
+    switch (content.filter) {
+      case 'grayscale': return 'grayscale(100%)';
+      case 'sepia': return 'sepia(80%)';
+      case 'brightness': return 'brightness(1.2)';
+      default: return 'none';
+    }
+  };
+
+  // Shadow effects
+  const getShadow = () => {
+    switch (content.shadow) {
+      case 'sm': return '0 4px 6px -1px rgba(0, 0, 0, 0.3)';
+      case 'lg': return '0 25px 50px -12px rgba(0, 0, 0, 0.5)';
+      default: return 'none';
+    }
+  };
+
+  // Border styles
+  const getBorder = () => {
+    const color = content.borderColor || '#FFFFFF';
+    switch (content.border) {
+      case 'thin': return `2px solid ${color}`;
+      case 'thick': return `4px solid ${color}`;
+      default: return 'none';
+    }
+  };
+
   if (!content.src) {
     return (
       <div
@@ -69,6 +98,9 @@ const ImageBlock = ({ content, onChange, isEditing }) => {
           height: '100%',
           objectFit: content.fit || 'cover',
           borderRadius,
+          filter: getFilter(),
+          boxShadow: getShadow(),
+          border: getBorder(),
         }}
       />
       {isEditing && (

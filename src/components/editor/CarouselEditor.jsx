@@ -9,6 +9,7 @@ import BlockPalette from './BlockPalette';
 import CarouselHeader from './CarouselHeader';
 import CarouselSlideControls from './CarouselSlideControls';
 import CarouselBackgroundPanel from './CarouselBackgroundPanel';
+import AIGeneratorModal from './AIGeneratorModal';
 import { createDefaultCarousel, createBlock } from '../../utils/slideTemplates';
 import { generateAndDownloadPDF } from '../../lib/pdfGenerator';
 
@@ -25,6 +26,7 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   const [exportProgress, setExportProgress] = useState(0);
   const [showStylePanel, setShowStylePanel] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
 
   const slideRefs = useRef([]);
   const canvasScale = 0.55;
@@ -93,6 +95,13 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   const goToPrevSlide = () => { if (activeSlideIndex > 0) setActiveSlideIndex(activeSlideIndex - 1); };
   const goToNextSlide = () => { if (activeSlideIndex < slides.length - 1) setActiveSlideIndex(activeSlideIndex + 1); };
 
+  const handleAIGenerated = useCallback((result) => {
+    setSlides(result.slides);
+    setTitle(result.title);
+    setActiveSlideIndex(0);
+    addToast('Carousel erfolgreich generiert!', 'success');
+  }, [addToast]);
+
   const handleSave = async () => {
     if (!isAuthenticated) { addToast(t('carousel.loginToSave'), 'warning'); return; }
     setSaving(true);
@@ -154,6 +163,7 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
         onTogglePreview={() => setPreviewMode(!previewMode)}
         onSave={handleSave}
         onExport={handleExportPDF}
+        onOpenAIGenerator={() => setShowAIGenerator(true)}
         t={t}
       />
 
@@ -219,6 +229,13 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
           </div>
         ))}
       </div>
+
+      {/* AI Generator Modal */}
+      <AIGeneratorModal
+        isOpen={showAIGenerator}
+        onClose={() => setShowAIGenerator(false)}
+        onGenerated={handleAIGenerated}
+      />
     </div>
   );
 };
