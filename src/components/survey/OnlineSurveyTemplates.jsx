@@ -57,8 +57,8 @@ const OnlineSurveyTemplates = ({ onSelectTemplate, onOpenAI }) => {
         </div>
 
         {/* Section: Selbst erstellen */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-6">
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center">
               <FileText className="h-5 w-5 text-[#00D4FF]" />
             </div>
@@ -73,38 +73,72 @@ const OnlineSurveyTemplates = ({ onSelectTemplate, onOpenAI }) => {
           </div>
         </div>
 
-        {/* Template Grid */}
+        {/* Blank Survey - Full Width at Top */}
+        <button
+          onClick={() => onSelectTemplate('blank')}
+          className="w-full p-6 rounded-2xl bg-gradient-to-r from-[#1A1A1D] to-[#1A1A1D]/80 border-2 border-dashed border-white/20 hover:border-[#00D4FF]/50 transition-all group text-left mb-6"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <FileText className="h-7 w-7 text-[#00D4FF]" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-['Syne'] text-lg font-bold text-white mb-1 group-hover:text-[#00D4FF] transition-colors">
+                {isDE ? 'Leere Umfrage' : 'Blank Survey'}
+              </h3>
+              <p className="text-sm text-white/50">
+                {isDE
+                  ? 'Starte mit einer leeren Umfrage und füge eigene Fragen hinzu'
+                  : 'Start with an empty survey and add your own questions'}
+              </p>
+            </div>
+            <div className="px-4 py-2 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/20 text-[#00D4FF] font-medium group-hover:bg-[#00D4FF]/20 transition-colors">
+              {isDE ? 'Starten' : 'Start'}
+            </div>
+          </div>
+        </button>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 mb-6">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-white/30 text-sm">{isDE ? 'oder wähle eine Vorlage' : 'or choose a template'}</span>
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
+
+        {/* Template Grid - without blank */}
         <div className="grid gap-4 md:grid-cols-2">
-          {Object.entries(SURVEY_TEMPLATES).map(([id, template]) => {
-            const Icon = TEMPLATE_ICONS[id] || FileText;
-            return (
-              <button
-                key={id}
-                onClick={() => onSelectTemplate(id)}
-                className="p-6 rounded-2xl bg-[#1A1A1D] border border-white/10 hover:border-white/20 transition-all group text-left"
-              >
-                <div className="flex items-start gap-4">
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
-                    style={{
-                      background: `${template.color}15`,
-                      border: `1px solid ${template.color}30`,
-                    }}
-                  >
-                    <Icon className="h-6 w-6" style={{ color: template.color }} />
+          {Object.entries(SURVEY_TEMPLATES)
+            .filter(([id]) => id !== 'blank')
+            .map(([id, template]) => {
+              const Icon = TEMPLATE_ICONS[id] || FileText;
+              return (
+                <button
+                  key={id}
+                  onClick={() => onSelectTemplate(id)}
+                  className="p-6 rounded-2xl bg-[#1A1A1D] border border-white/10 hover:border-white/20 transition-all group text-left"
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
+                      style={{
+                        background: `${template.color}15`,
+                        border: `1px solid ${template.color}30`,
+                      }}
+                    >
+                      <Icon className="h-6 w-6" style={{ color: template.color }} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-white mb-1 group-hover:text-[#00D4FF] transition-colors">
+                        {isDE ? template.nameDE : template.name}
+                      </h3>
+                      <p className="text-sm text-white/40">
+                        {isDE ? template.descriptionDE : template.description}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-white mb-1 group-hover:text-[#00D4FF] transition-colors">
-                      {isDE ? template.nameDE : template.name}
-                    </h3>
-                    <p className="text-sm text-white/40">
-                      {isDE ? template.descriptionDE : template.description}
-                    </p>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
         </div>
 
         {/* Divider */}

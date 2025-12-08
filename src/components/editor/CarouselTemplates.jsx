@@ -118,41 +118,75 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI }) => {
           </div>
         </div>
 
-        {/* Template Grid */}
+        {/* Blank Carousel - Full Width at Top */}
+        <button
+          onClick={() => onSelectTemplate('blank')}
+          className="w-full p-6 rounded-2xl bg-gradient-to-r from-[#1A1A1D] to-[#1A1A1D]/80 border-2 border-dashed border-white/20 hover:border-[#FF6B35]/50 transition-all group text-left mb-6"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-xl bg-[#FF6B35]/10 border border-[#FF6B35]/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <FileText className="h-7 w-7 text-[#FF6B35]" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-['Syne'] text-lg font-bold text-white mb-1 group-hover:text-[#FF6B35] transition-colors">
+                {isDE ? 'Leeres Carousel' : 'Blank Carousel'}
+              </h3>
+              <p className="text-sm text-white/50">
+                {isDE
+                  ? 'Starte mit einem leeren Carousel und füge eigene Slides hinzu'
+                  : 'Start with an empty carousel and add your own slides'}
+              </p>
+            </div>
+            <div className="px-4 py-2 rounded-xl bg-[#FF6B35]/10 border border-[#FF6B35]/20 text-[#FF6B35] font-medium group-hover:bg-[#FF6B35]/20 transition-colors">
+              {isDE ? 'Starten' : 'Start'}
+            </div>
+          </div>
+        </button>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 mb-6">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-white/30 text-sm">{isDE ? 'oder wähle eine Vorlage' : 'or choose a template'}</span>
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
+
+        {/* Template Grid - without blank */}
         <div className="grid gap-4 md:grid-cols-2">
-          {Object.entries(CAROUSEL_PRESETS).map(([id, template]) => {
-            const Icon = template.icon;
-            return (
-              <button
-                key={id}
-                onClick={() => onSelectTemplate(id)}
-                className="p-6 rounded-2xl bg-[#1A1A1D] border border-white/10 hover:border-white/20 transition-all group text-left"
-              >
-                <div className="flex items-start gap-4">
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
-                    style={{
-                      background: `${template.color}15`,
-                      border: `1px solid ${template.color}30`,
-                    }}
-                  >
-                    <Icon className="h-6 w-6" style={{ color: template.color }} />
+          {Object.entries(CAROUSEL_PRESETS)
+            .filter(([id]) => id !== 'blank')
+            .map(([id, template]) => {
+              const Icon = template.icon;
+              return (
+                <button
+                  key={id}
+                  onClick={() => onSelectTemplate(id)}
+                  className="p-6 rounded-2xl bg-[#1A1A1D] border border-white/10 hover:border-white/20 transition-all group text-left"
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
+                      style={{
+                        background: `${template.color}15`,
+                        border: `1px solid ${template.color}30`,
+                      }}
+                    >
+                      <Icon className="h-6 w-6" style={{ color: template.color }} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-white mb-1 group-hover:text-[#FF6B35] transition-colors">
+                        {isDE ? template.nameDE : template.name}
+                      </h3>
+                      <p className="text-sm text-white/40">
+                        {isDE ? template.descriptionDE : template.description}
+                      </p>
+                      <p className="text-xs text-white/30 mt-2">
+                        {template.slides} {isDE ? 'Slides' : 'Slides'}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-white mb-1 group-hover:text-[#FF6B35] transition-colors">
-                      {isDE ? template.nameDE : template.name}
-                    </h3>
-                    <p className="text-sm text-white/40">
-                      {isDE ? template.descriptionDE : template.description}
-                    </p>
-                    <p className="text-xs text-white/30 mt-2">
-                      {template.slides} {isDE ? 'Slides' : 'Slides'}
-                    </p>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
         </div>
 
         {/* Divider */}

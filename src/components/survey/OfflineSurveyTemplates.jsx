@@ -91,44 +91,78 @@ const OfflineSurveyTemplates = ({
           </div>
         </div>
 
+        {/* Blank Survey - Full Width at Top */}
+        <button
+          onClick={() => onSelectTemplate('blank')}
+          className="w-full p-6 rounded-2xl bg-gradient-to-r from-[#1A1A1D] to-[#1A1A1D]/80 border-2 border-dashed border-white/20 hover:border-[#00D4FF]/50 transition-all group text-left mb-6"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <FileText className="h-7 w-7 text-[#00D4FF]" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-['Syne'] text-lg font-bold text-white mb-1 group-hover:text-[#00D4FF] transition-colors">
+                {language === 'de' ? 'Leere Umfrage' : 'Blank Survey'}
+              </h3>
+              <p className="text-sm text-white/50">
+                {language === 'de'
+                  ? 'Starte mit einer leeren Umfrage und füge eigene Fragen hinzu'
+                  : 'Start with an empty survey and add your own questions'}
+              </p>
+            </div>
+            <div className="px-4 py-2 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/20 text-[#00D4FF] font-medium group-hover:bg-[#00D4FF]/20 transition-colors">
+              {language === 'de' ? 'Starten' : 'Start'}
+            </div>
+          </div>
+        </button>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 mb-6">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-white/30 text-sm">{language === 'de' ? 'oder wähle eine Vorlage' : 'or choose a template'}</span>
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
+
         <div className="grid gap-6 md:grid-cols-2">
-          {Object.entries(SURVEY_TEMPLATES).map(([key, template]) => {
-            const Icon = template.icon;
-            return (
-              <button
-                key={key}
-                onClick={() => onSelectTemplate(key)}
-                className="group relative p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-white/20 transition-all text-left"
-              >
-                <div
-                  className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"
-                  style={{
-                    background: `linear-gradient(135deg, ${template.color}10 0%, transparent 50%)`,
-                  }}
-                />
-                <div className="relative">
+          {Object.entries(SURVEY_TEMPLATES)
+            .filter(([key]) => key !== 'blank')
+            .map(([key, template]) => {
+              const Icon = template.icon;
+              return (
+                <button
+                  key={key}
+                  onClick={() => onSelectTemplate(key)}
+                  className="group relative p-6 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-white/20 transition-all text-left"
+                >
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
+                    className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"
                     style={{
-                      background: `${template.color}15`,
-                      border: `1px solid ${template.color}30`,
+                      background: `linear-gradient(135deg, ${template.color}10 0%, transparent 50%)`,
                     }}
-                  >
-                    <Icon className="h-6 w-6" style={{ color: template.color }} />
+                  />
+                  <div className="relative">
+                    <div
+                      className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
+                      style={{
+                        background: `${template.color}15`,
+                        border: `1px solid ${template.color}30`,
+                      }}
+                    >
+                      <Icon className="h-6 w-6" style={{ color: template.color }} />
+                    </div>
+                    <h3 className="font-['Syne'] text-lg font-bold mb-2">
+                      {language === 'de' ? template.nameDE : template.name}
+                    </h3>
+                    <p className="text-sm text-white/50">
+                      {language === 'de' ? template.descriptionDE : template.description}
+                    </p>
+                    <div className="mt-4 flex items-center gap-2 text-xs text-white/30">
+                      <span>{template.defaultBlocks.length} blocks</span>
+                    </div>
                   </div>
-                  <h3 className="font-['Syne'] text-lg font-bold mb-2">
-                    {language === 'de' ? template.nameDE : template.name}
-                  </h3>
-                  <p className="text-sm text-white/50">
-                    {language === 'de' ? template.descriptionDE : template.description}
-                  </p>
-                  <div className="mt-4 flex items-center gap-2 text-xs text-white/30">
-                    <span>{template.defaultBlocks.length} blocks</span>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
         </div>
 
         {/* Divider */}
