@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, WifiOff, Download, Upload, Smartphone, QrCode } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { createSurveyFromTemplate, createBlock } from '../../utils/surveyTemplates';
 import SurveyBlock from './SurveyBlock';
@@ -11,6 +11,7 @@ import OfflineSurveySettingsPanel from './OfflineSurveySettingsPanel';
 
 const OfflineSurveyEditor = () => {
   const { language } = useLanguage();
+  const isDE = language === 'de';
   const [survey, setSurvey] = useState(null);
   const [selectedBlockId, setSelectedBlockId] = useState(null);
   const [showTemplates, setShowTemplates] = useState(true);
@@ -18,6 +19,28 @@ const OfflineSurveyEditor = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [savedSurveys, setSavedSurveys] = useState([]);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [collectedResponses, setCollectedResponses] = useState([]);
+
+  // Monitor online/offline status
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Load collected responses from localStorage
+  useEffect(() => {
+    const responses = localStorage.getItem('offlineSurveyResponses');
+    if (responses) setCollectedResponses(JSON.parse(responses));
+  }, []);
 
   // Load saved surveys from localStorage
   useEffect(() => {
@@ -103,6 +126,63 @@ const OfflineSurveyEditor = () => {
     link.click();
   };
 
+  // Export responses as CSV
+  const handleExportResponses = () => {
+    if (!survey?.responses || survey.responses.length === 0) {
+      alert(isDE ? 'Keine Antworten zum Exportieren' : 'No responses to export');
+      return;
+    }
+
+    const headers = survey.blocks
+      .filter(b => ['SINGLE_CHOICE', 'MULTI_CHOICE', 'RATING', 'NPS', 'TEXT_INPUT', 'YES_NO'].includes(b.type))
+      .map(b => b.content.question || b.type);
+
+    const rows = survey.responses.map(response => {
+      return headers.map((_, i) => {
+        const answer = response.answers[i];
+        return typeof answer === 'object' ? JSON.stringify(answer) : String(answer || '');
+      });
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `responses_${survey.id}_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
+  // Import survey from JSON file
+  const handleImportSurvey = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const imported = JSON.parse(e.target.result);
+        if (imported.blocks && imported.id) {
+          setSurvey(imported);
+          setShowTemplates(false);
+        } else {
+          alert(isDE ? 'Ungültiges Umfrage-Format' : 'Invalid survey format');
+        }
+      } catch (err) {
+        alert(isDE ? 'Fehler beim Importieren' : 'Error importing file');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  // Start data collection mode (kiosk mode)
+  const handleStartCollection = () => {
+    setShowPreview(true);
+  };
+
   const handleLoadSurvey = (savedSurvey) => {
     setSurvey(savedSurvey);
     setShowTemplates(false);
@@ -138,6 +218,16 @@ const OfflineSurveyEditor = () => {
   // Editor View
   return (
     <div className="min-h-screen bg-[#0A0A0B] text-white">
+      {/* Offline Status Banner */}
+      {isOffline && (
+        <div className="bg-[#00D4FF]/10 border-b border-[#00D4FF]/20 px-4 py-2">
+          <div className="flex items-center justify-center gap-2 text-[#00D4FF] text-sm">
+            <WifiOff className="h-4 w-4" />
+            <span>{isDE ? 'Offline-Modus aktiv - Alle Daten werden lokal gespeichert' : 'Offline mode active - All data saved locally'}</span>
+          </div>
+        </div>
+      )}
+
       <OfflineSurveyHeader
         survey={survey}
         isSaved={isSaved}
@@ -152,8 +242,36 @@ const OfflineSurveyEditor = () => {
       <div className="flex">
         {/* Left Sidebar - Block Palette */}
         <aside className="w-72 border-r border-white/5 h-[calc(100vh-4rem)] overflow-y-auto p-4 bg-[#0A0A0B]">
+          {/* Offline Actions */}
+          <div className="mb-6 p-3 rounded-xl bg-[#00D4FF]/5 border border-[#00D4FF]/20">
+            <div className="flex items-center gap-2 mb-3">
+              <Smartphone className="h-4 w-4 text-[#00D4FF]" />
+              <span className="text-sm font-medium text-white">
+                {isDE ? 'Offline Sammlung' : 'Offline Collection'}
+              </span>
+            </div>
+            <div className="space-y-2">
+              <button
+                onClick={handleStartCollection}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-[#00D4FF] text-white text-sm font-medium hover:bg-[#00D4FF]/90 transition-colors"
+              >
+                <QrCode className="h-4 w-4" />
+                {isDE ? 'Sammlung starten' : 'Start Collection'}
+              </button>
+              {survey?.responses?.length > 0 && (
+                <button
+                  onClick={handleExportResponses}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-white/10 transition-colors"
+                >
+                  <Download className="h-4 w-4" />
+                  {isDE ? `${survey.responses.length} Antworten exportieren` : `Export ${survey.responses.length} responses`}
+                </button>
+              )}
+            </div>
+          </div>
+
           <h3 className="text-sm font-semibold text-white/40 uppercase tracking-wider mb-4">
-            {language === 'de' ? 'Blöcke hinzufügen' : 'Add Blocks'}
+            {isDE ? 'Blöcke hinzufügen' : 'Add Blocks'}
           </h3>
           <SurveyBlockPalette onAddBlock={handleAddBlock} />
         </aside>

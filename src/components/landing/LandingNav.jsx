@@ -51,7 +51,7 @@ const LandingNav = ({ onShowLogin }) => {
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-72 rounded-xl bg-[#1A1A1D] border border-white/10 shadow-2xl overflow-hidden animate-scale-in">
                 {/* Online Survey Option */}
                 <Link
-                  to="/dashboard"
+                  to="/survey/online"
                   className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
                 >
                   <div className="w-10 h-10 rounded-lg bg-[#00E676]/10 border border-[#00E676]/20 flex items-center justify-center">
