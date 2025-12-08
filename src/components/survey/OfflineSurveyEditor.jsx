@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, WifiOff, Download, Upload, Smartphone, QrCode } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useToast } from '../../context/ToastContext';
 import { createSurveyFromTemplate, createBlock } from '../../utils/surveyTemplates';
 import SurveyBlock from './SurveyBlock';
 import SurveyBlockPalette from './SurveyBlockPalette';
@@ -8,15 +9,18 @@ import SurveyPreview from './SurveyPreview';
 import OfflineSurveyHeader from './OfflineSurveyHeader';
 import OfflineSurveyTemplates from './OfflineSurveyTemplates';
 import OfflineSurveySettingsPanel from './OfflineSurveySettingsPanel';
+import AISurveyGeneratorModal from './AIsurveyGeneratorModal';
 
 const OfflineSurveyEditor = () => {
   const { language } = useLanguage();
+  const { addToast } = useToast();
   const isDE = language === 'de';
   const [survey, setSurvey] = useState(null);
   const [selectedBlockId, setSelectedBlockId] = useState(null);
   const [showTemplates, setShowTemplates] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [savedSurveys, setSavedSurveys] = useState([]);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -70,6 +74,13 @@ const OfflineSurveyEditor = () => {
   const handleSelectTemplate = (templateId) => {
     setSurvey(createSurveyFromTemplate(templateId));
     setShowTemplates(false);
+  };
+
+  const handleAIGenerated = (generatedSurvey) => {
+    setSurvey(generatedSurvey);
+    setShowTemplates(false);
+    setShowAIGenerator(false);
+    addToast(isDE ? 'Umfrage erfolgreich generiert!' : 'Survey generated successfully!', 'success');
   };
 
   const handleAddBlock = (blockType) => {
@@ -201,12 +212,20 @@ const OfflineSurveyEditor = () => {
   // Template Selection View
   if (showTemplates) {
     return (
-      <OfflineSurveyTemplates
-        savedSurveys={savedSurveys}
-        onSelectTemplate={handleSelectTemplate}
-        onLoadSurvey={handleLoadSurvey}
-        onDeleteSurvey={handleDeleteSurvey}
-      />
+      <>
+        <OfflineSurveyTemplates
+          savedSurveys={savedSurveys}
+          onSelectTemplate={handleSelectTemplate}
+          onLoadSurvey={handleLoadSurvey}
+          onDeleteSurvey={handleDeleteSurvey}
+          onOpenAI={() => setShowAIGenerator(true)}
+        />
+        <AISurveyGeneratorModal
+          isOpen={showAIGenerator}
+          onClose={() => setShowAIGenerator(false)}
+          onGenerated={handleAIGenerated}
+        />
+      </>
     );
   }
 

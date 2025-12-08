@@ -10,15 +10,19 @@ import CarouselHeader from './CarouselHeader';
 import CarouselSlideControls from './CarouselSlideControls';
 import CarouselBackgroundPanel from './CarouselBackgroundPanel';
 import AIGeneratorModal from './AIGeneratorModal';
-import { createDefaultCarousel, createBlock } from '../../utils/slideTemplates';
+import CarouselTemplates from './CarouselTemplates';
+import { createDefaultCarousel, createBlock, createSlide } from '../../utils/slideTemplates';
 import { generateAndDownloadPDF } from '../../lib/pdfGenerator';
 
 const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   const { user, isAuthenticated } = useAuth();
   const { addToast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isDE = language === 'de';
 
-  const [slides, setSlides] = useState(() => editCarousel?.slides || createDefaultCarousel());
+  // Show templates if no editCarousel is passed
+  const [showTemplates, setShowTemplates] = useState(!editCarousel);
+  const [slides, setSlides] = useState(() => editCarousel?.slides || []);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [title, setTitle] = useState(editCarousel?.title || '');
   const [saving, setSaving] = useState(false);
@@ -99,8 +103,61 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     setSlides(result.slides);
     setTitle(result.title);
     setActiveSlideIndex(0);
-    addToast('Carousel erfolgreich generiert!', 'success');
-  }, [addToast]);
+    setShowTemplates(false);
+    setShowAIGenerator(false);
+    addToast(isDE ? 'Carousel erfolgreich generiert!' : 'Carousel generated successfully!', 'success');
+  }, [addToast, isDE]);
+
+  // Handle template selection
+  const handleSelectTemplate = useCallback((templateId) => {
+    let newSlides;
+    switch (templateId) {
+      case 'optionComparison':
+        newSlides = [
+          createSlide('cover', 1),
+          createSlide('option', 2),
+          createSlide('option', 3),
+          createSlide('comparison', 4),
+          createSlide('cta', 5)
+        ];
+        break;
+      case 'storySelling':
+        newSlides = [
+          createSlide('cover', 1),
+          createSlide('option', 2),
+          createSlide('option', 3),
+          createSlide('quote', 4),
+          createSlide('stats', 5),
+          createSlide('cta', 6)
+        ];
+        break;
+      case 'statsShowcase':
+        newSlides = [
+          createSlide('cover', 1),
+          createSlide('stats', 2),
+          createSlide('stats', 3),
+          createSlide('cta', 4)
+        ];
+        break;
+      case 'tipsList':
+        newSlides = [
+          createSlide('cover', 1),
+          createSlide('option', 2),
+          createSlide('option', 3),
+          createSlide('option', 4),
+          createSlide('cta', 5)
+        ];
+        break;
+      case 'blank':
+      default:
+        newSlides = [createSlide('blank', 1)];
+        break;
+    }
+    setSlides(newSlides);
+    setTitle('');
+    setActiveSlideIndex(0);
+    setShowTemplates(false);
+  }, []);
 
   const handleSave = async () => {
     if (!isAuthenticated) { addToast(t('carousel.loginToSave'), 'warning'); return; }
@@ -149,6 +206,23 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeSlideIndex, slides.length]);
+
+  // Template Selection View
+  if (showTemplates) {
+    return (
+      <>
+        <CarouselTemplates
+          onSelectTemplate={handleSelectTemplate}
+          onOpenAI={() => setShowAIGenerator(true)}
+        />
+        <AIGeneratorModal
+          isOpen={showAIGenerator}
+          onClose={() => setShowAIGenerator(false)}
+          onGenerated={handleAIGenerated}
+        />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen h-screen bg-[#0A0A0B] flex flex-col overflow-hidden">

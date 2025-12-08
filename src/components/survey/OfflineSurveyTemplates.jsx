@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, FileText, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileText, Trash2, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { SURVEY_TEMPLATES } from '../../utils/surveyTemplates';
 
@@ -9,6 +9,7 @@ const OfflineSurveyTemplates = ({
   onSelectTemplate,
   onLoadSurvey,
   onDeleteSurvey,
+  onOpenAI,
 }) => {
   const { language } = useLanguage();
 
@@ -73,15 +74,22 @@ const OfflineSurveyTemplates = ({
           </div>
         )}
 
-        {/* Templates */}
-        <h2 className="font-['Syne'] text-2xl font-bold mb-2">
-          {language === 'de' ? 'Vorlage wählen' : 'Choose a Template'}
-        </h2>
-        <p className="text-white/50 mb-8">
-          {language === 'de'
-            ? 'Starte mit einer Vorlage für Problem- oder Ideen-Validierung'
-            : 'Start with a template for problem or idea validation'}
-        </p>
+        {/* Section: Selbst erstellen */}
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center">
+              <FileText className="h-5 w-5 text-[#00D4FF]" />
+            </div>
+            <div>
+              <h2 className="font-['Syne'] text-xl font-bold text-white">
+                {language === 'de' ? 'Selbst erstellen' : 'Create yourself'}
+              </h2>
+              <p className="text-sm text-white/40">
+                {language === 'de' ? 'Wähle eine Vorlage als Startpunkt' : 'Choose a template as starting point'}
+              </p>
+            </div>
+          </div>
+        </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           {Object.entries(SURVEY_TEMPLATES).map(([key, template]) => {
@@ -121,6 +129,68 @@ const OfflineSurveyTemplates = ({
               </button>
             );
           })}
+        </div>
+
+        {/* Divider */}
+        {onOpenAI && (
+          <>
+            <div className="flex items-center gap-4 my-10">
+              <div className="flex-1 h-px bg-white/10" />
+              <span className="text-white/30 text-sm">{language === 'de' ? 'oder' : 'or'}</span>
+              <div className="flex-1 h-px bg-white/10" />
+            </div>
+
+            {/* Section: KI-Unterstützung */}
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center">
+                  <Sparkles className="h-5 w-5 text-[#00D4FF]" />
+                </div>
+                <div>
+                  <h2 className="font-['Syne'] text-xl font-bold text-white">
+                    {language === 'de' ? 'KI-Unterstützung' : 'AI Assistance'}
+                  </h2>
+                  <p className="text-sm text-white/40">
+                    {language === 'de' ? 'Lass dir bei der Erstellung helfen' : 'Get help creating your survey'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Generator Card */}
+            <button
+              onClick={onOpenAI}
+              className="w-full p-5 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-[#00D4FF]/30 transition-all group text-left"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00D4FF]/20 to-[#0A66C2]/20 border border-[#00D4FF]/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Sparkles className="h-6 w-6 text-[#00D4FF]" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white mb-1 group-hover:text-[#00D4FF] transition-colors">
+                    {language === 'de' ? 'Fragen generieren lassen' : 'Generate questions'}
+                  </h3>
+                  <p className="text-sm text-white/40">
+                    {language === 'de'
+                      ? 'Beschreibe deine Hypothese und erhalte Fragen-Vorschläge'
+                      : 'Describe your hypothesis and get question suggestions'}
+                  </p>
+                </div>
+                <div className="px-3 py-1.5 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 text-[#00D4FF] text-sm font-medium">
+                  {language === 'de' ? 'Starten' : 'Start'}
+                </div>
+              </div>
+            </button>
+          </>
+        )}
+
+        {/* Footer Info */}
+        <div className="mt-12 text-center">
+          <p className="text-white/30 text-sm">
+            {language === 'de'
+              ? 'Du behältst immer die volle Kontrolle. Die KI unterstützt dich nur bei Bedarf.'
+              : 'You always keep full control. AI only assists when needed.'}
+          </p>
         </div>
       </div>
     </div>
