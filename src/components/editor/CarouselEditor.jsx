@@ -197,6 +197,45 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     } finally { setExporting(false); setExportProgress(0); }
   };
 
+  // LinkedIn Post - Opens LinkedIn with pre-filled post
+  const handlePostToLinkedIn = useCallback(async () => {
+    if (slides.length === 0) {
+      addToast(isDE ? 'Keine Slides zum Posten' : 'No slides to post', 'warning');
+      return;
+    }
+
+    // First export the PDF
+    setExporting(true);
+    setExportProgress(0);
+    try {
+      const slideElements = slideRefs.current.filter(Boolean);
+      if (slideElements.length === 0) throw new Error('No slides found');
+
+      await generateAndDownloadPDF(slideElements, {
+        filename: `${title || 'linkedin-carousel'}.pdf`,
+        width: 1080, height: 1080, quality: 2,
+        onProgress: ({ percentage }) => setExportProgress(percentage),
+      });
+
+      // Open LinkedIn share dialog
+      const linkedInUrl = 'https://www.linkedin.com/feed/?shareActive=true';
+      window.open(linkedInUrl, '_blank');
+
+      addToast(
+        isDE
+          ? 'PDF heruntergeladen! Lade es jetzt in deinen LinkedIn Post hoch.'
+          : 'PDF downloaded! Now upload it to your LinkedIn post.',
+        'success'
+      );
+    } catch (error) {
+      console.error('Post to LinkedIn failed:', error);
+      addToast(isDE ? 'Fehler beim Vorbereiten' : 'Preparation failed', 'error');
+    } finally {
+      setExporting(false);
+      setExportProgress(0);
+    }
+  }, [slides, title, isDE, addToast]);
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -237,7 +276,6 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
         onTogglePreview={() => setPreviewMode(!previewMode)}
         onSave={handleSave}
         onExport={handleExportPDF}
-        onOpenAIGenerator={() => setShowAIGenerator(true)}
         t={t}
       />
 
@@ -291,7 +329,11 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
 
         {!previewMode && (
           <div className="w-48 flex-shrink-0 border-l border-white/5 bg-[#111113] overflow-y-auto">
-            <BlockPalette onAddBlock={handleAddBlock} />
+            <BlockPalette
+              onAddBlock={handleAddBlock}
+              onOpenAI={() => setShowAIGenerator(true)}
+              onPostToLinkedIn={handlePostToLinkedIn}
+            />
           </div>
         )}
       </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Type, Image, Smile, Minus, User, Hash, List, Quote, AlignLeft } from 'lucide-react';
+import { Type, Image, Smile, Minus, User, Hash, List, Quote, AlignLeft, Sparkles, Linkedin } from 'lucide-react';
 import { BLOCK_TYPES, createBlock } from '../../utils/slideTemplates';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -17,8 +17,9 @@ const BLOCK_ICONS = {
   NUMBER: Hash,
 };
 
-const BlockPalette = ({ onAddBlock, disabled = false }) => {
+const BlockPalette = ({ onAddBlock, onOpenAI, onPostToLinkedIn, disabled = false }) => {
   const { language } = useLanguage();
+  const isDE = language === 'de';
 
   const handleDragStart = (e, blockType) => {
     e.dataTransfer.setData('blockType', blockType);
@@ -34,12 +35,34 @@ const BlockPalette = ({ onAddBlock, disabled = false }) => {
   };
 
   return (
-    <div className="p-3">
-      <p className="text-xs font-semibold uppercase tracking-wider text-white/30 mb-3 text-center">
-        {language === 'de' ? 'Bausteine' : 'Blocks'}
-      </p>
+    <div className="p-3 flex flex-col h-full">
+      {/* AI Generator Button - Prominent at top */}
+      {onOpenAI && (
+        <button
+          onClick={onOpenAI}
+          className="w-full mb-4 p-3 rounded-xl bg-gradient-to-r from-[#FF6B35] to-[#FF8C5A] text-[#0A0A0B] font-semibold text-sm hover:shadow-lg hover:shadow-[#FF6B35]/30 hover:scale-[1.02] transition-all group"
+        >
+          <div className="flex items-center justify-center gap-2">
+            <Sparkles className="h-5 w-5 group-hover:rotate-12 transition-transform" />
+            <span>{isDE ? 'KI Generator' : 'AI Generator'}</span>
+          </div>
+          <p className="text-[10px] mt-1 opacity-70 font-normal">
+            {isDE ? 'Carousel automatisch erstellen' : 'Auto-create carousel'}
+          </p>
+        </button>
+      )}
 
-      <div className="grid grid-cols-3 gap-2">
+      {/* Divider */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className="flex-1 h-px bg-white/10" />
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">
+          {isDE ? 'Bausteine' : 'Blocks'}
+        </p>
+        <div className="flex-1 h-px bg-white/10" />
+      </div>
+
+      {/* Block Grid */}
+      <div className="grid grid-cols-3 gap-2 flex-1">
         {Object.entries(BLOCK_TYPES).map(([key, block]) => {
           const Icon = BLOCK_ICONS[key] || Type;
 
@@ -58,11 +81,11 @@ const BlockPalette = ({ onAddBlock, disabled = false }) => {
                   : 'bg-white/5 border border-white/10 text-white/60 hover:bg-[#FF6B35]/10 hover:border-[#FF6B35]/40 hover:text-[#FF6B35] hover:scale-105 cursor-grab active:cursor-grabbing active:scale-95'
                 }
               `}
-              title={language === 'de' ? block.nameDE : block.name}
+              title={isDE ? block.nameDE : block.name}
             >
               <Icon className="h-5 w-5 transition-transform group-hover:scale-110 group-hover:text-[#FF6B35]" />
               <span className="text-[10px] font-medium leading-tight truncate w-full">
-                {(language === 'de' ? block.nameDE : block.name).split(' ')[0]}
+                {(isDE ? block.nameDE : block.name).split(' ')[0]}
               </span>
             </button>
           );
@@ -70,8 +93,24 @@ const BlockPalette = ({ onAddBlock, disabled = false }) => {
       </div>
 
       <p className="mt-3 text-center text-[10px] text-white/20">
-        {language === 'de' ? 'Klicken oder ziehen' : 'Click or drag'}
+        {isDE ? 'Klicken oder ziehen' : 'Click or drag'}
       </p>
+
+      {/* LinkedIn Post Button - At bottom */}
+      {onPostToLinkedIn && (
+        <button
+          onClick={onPostToLinkedIn}
+          className="w-full mt-4 p-3 rounded-xl bg-[#0A66C2] text-white font-semibold text-sm hover:bg-[#004182] hover:shadow-lg hover:shadow-[#0A66C2]/30 hover:scale-[1.02] transition-all group"
+        >
+          <div className="flex items-center justify-center gap-2">
+            <Linkedin className="h-5 w-5 group-hover:scale-110 transition-transform" />
+            <span>{isDE ? 'Auf LinkedIn posten' : 'Post to LinkedIn'}</span>
+          </div>
+          <p className="text-[10px] mt-1 opacity-70 font-normal">
+            {isDE ? 'Direkt veröffentlichen' : 'Publish directly'}
+          </p>
+        </button>
+      )}
     </div>
   );
 };
