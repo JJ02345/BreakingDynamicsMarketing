@@ -595,3 +595,12 @@ body, .font-body {
 .toast-error { background: var(--bd-error); color: var(--bd-white); }
 .toast-warning { background: var(--bd-warning); color: var(--bd-black); }
 .toast-info { background: var(--bd-gray-dark); color: var(--bd-white); border: 1px solid var(--bd-gray); }
+
+/* ============================================
+   DRAG & DROP
+   ============================================ */
+
+.drag-over > div:first-child {
+  border-color: var(--bd-linkedin) !important;
+  background: rgba(10, 102, 194, 0.05);
+}

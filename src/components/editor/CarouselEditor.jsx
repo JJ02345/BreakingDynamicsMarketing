@@ -295,17 +295,25 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
 
         <div
           className="flex-1 flex flex-col items-center justify-center p-6 bg-[#0A0A0B] relative overflow-auto"
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={handleDropBlock}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+          }}
+          onDragLeave={(e) => {
+            e.currentTarget.classList.remove('drag-over');
+          }}
+          onDrop={(e) => {
+            e.currentTarget.classList.remove('drag-over');
+            handleDropBlock(e);
+          }}
         >
-          <CarouselSlideControls
-            activeSlideIndex={activeSlideIndex}
-            totalSlides={slides.length}
-            onPrev={goToPrevSlide}
-            onNext={goToNextSlide}
-          />
+          {/* Drop Zone Visual Indicator */}
+          {!previewMode && (
+            <div className="absolute inset-6 rounded-2xl border-2 border-dashed border-[#0A66C2]/30 pointer-events-none transition-colors duration-200" />
+          )}
 
-          <div className="relative">
+          {/* Slide Canvas */}
+          <div className="relative z-10">
             <SlideCanvas
               ref={(el) => (slideRefs.current[activeSlideIndex] = el)}
               slide={activeSlide}
@@ -315,6 +323,14 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
               showControls={!previewMode}
             />
           </div>
+
+          {/* Slide Navigation - at bottom */}
+          <CarouselSlideControls
+            activeSlideIndex={activeSlideIndex}
+            totalSlides={slides.length}
+            onPrev={goToPrevSlide}
+            onNext={goToNextSlide}
+          />
 
           {!previewMode && (
             <CarouselBackgroundPanel

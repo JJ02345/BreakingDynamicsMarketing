@@ -17,9 +17,9 @@ const CarouselHeader = ({
 }) => {
   return (
     <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0A0A0B] flex-shrink-0">
-      <div className="flex items-center h-14 px-4 gap-4">
-        {/* Left: Home Button */}
-        <div className="flex-shrink-0">
+      <div className="relative flex items-center h-14 px-4">
+        {/* Left: Home Button - absolute positioned */}
+        <div className="absolute left-4 top-1/2 -translate-y-1/2">
           <Link
             to="/"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors"
@@ -31,19 +31,19 @@ const CarouselHeader = ({
           </Link>
         </div>
 
-        {/* Center: Title Input - absolutely centered */}
-        <div className="flex-1 flex justify-center">
+        {/* Center: Title Input - truly centered */}
+        <div className="w-full flex justify-center">
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder={t('carousel.titlePlaceholder')}
-            className="w-full max-w-xs bg-white/5 border border-white/10 rounded-lg px-4 py-1.5 text-sm text-white text-center focus:border-[#FF6B35]/50 focus:outline-none placeholder:text-white/30"
+            className="w-64 bg-white/5 border border-white/10 rounded-lg px-4 py-1.5 text-sm text-white text-center focus:border-[#FF6B35]/50 focus:outline-none placeholder:text-white/30"
           />
         </div>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        {/* Right: Actions - absolute positioned */}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
           <button
             onClick={onTogglePreview}
             className={`p-2 rounded-lg transition-colors ${
