@@ -633,6 +633,121 @@ export const db = {
     }
   },
 
+  // ============ ANALYTICS EVENTS ============
+
+  // Track analytics event (public - no auth required)
+  async trackEvent(eventName, eventData = {}) {
+    try {
+      const user = await auth.getUser();
+      const { error } = await supabase
+        .from('analytics_events')
+        .insert({
+          event_name: eventName,
+          event_data: eventData,
+          user_id: user?.id || null,
+          session_id: this.getSessionId(),
+          page_url: window.location.href,
+          referrer: document.referrer || null,
+          user_agent: navigator.userAgent,
+        });
+
+      if (error) {
+        console.error('Failed to track event:', error);
+      }
+    } catch (err) {
+      console.error('Analytics tracking error:', err);
+    }
+  },
+
+  // Get or create session ID for analytics
+  getSessionId() {
+    let sessionId = sessionStorage.getItem('bd_session_id');
+    if (!sessionId) {
+      sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      sessionStorage.setItem('bd_session_id', sessionId);
+    }
+    return sessionId;
+  },
+
+  // Common event trackers
+  async trackCarouselCreated(templateId) {
+    await this.trackEvent('carousel_created', { template: templateId });
+  },
+
+  async trackCarouselExported(slideCount) {
+    await this.trackEvent('carousel_exported', { slides: slideCount });
+    await this.incrementCarouselCount();
+  },
+
+  async trackAIGenerated(pattern, slideCount) {
+    await this.trackEvent('ai_carousel_generated', { pattern, slides: slideCount });
+  },
+
+  async trackSlideAdded(slideType) {
+    await this.trackEvent('slide_added', { type: slideType });
+  },
+
+  async trackTemplateUsed(templateId) {
+    await this.trackEvent('template_used', { template: templateId });
+  },
+
+  // ============ CUSTOM SLIDES (User Saved Templates) ============
+
+  // Save custom slide as template (requires auth)
+  async saveCustomSlide(slideData) {
+    const user = await auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('custom_slides')
+      .insert({
+        user_id: user.id,
+        name: slideData.name,
+        slide_data: slideData.slide,
+        preview_image: slideData.previewImage || null,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Get user's custom slides
+  async getCustomSlides() {
+    const user = await auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('custom_slides')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return (data || []).map(s => ({
+      id: s.id,
+      name: s.name,
+      slide: s.slide_data,
+      previewImage: s.preview_image,
+      createdAt: s.created_at,
+    }));
+  },
+
+  // Delete custom slide
+  async deleteCustomSlide(id) {
+    const user = await auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { error } = await supabase
+      .from('custom_slides')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+  },
+
   // ============ ANALYTICS ============
 
   // Get survey stats for current user

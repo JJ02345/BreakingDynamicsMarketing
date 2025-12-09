@@ -171,6 +171,8 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     setActiveSlideIndex(0);
     setShowTemplates(false);
     setShowAIGenerator(false);
+    // Track AI generation
+    db.trackAIGenerated(result.pattern || 'unknown', result.slides?.length || 0);
     addToast(isDE ? 'Carousel erfolgreich generiert!' : 'Carousel generated successfully!', 'success');
   }, [addToast, isDE]);
 
@@ -223,6 +225,8 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     setTitle('');
     setActiveSlideIndex(0);
     setShowTemplates(false);
+    // Track template usage
+    db.trackTemplateUsed(templateId);
   }, []);
 
   const handleSave = async () => {
@@ -266,8 +270,8 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
         width: 1080, height: 1080, quality: 2,
         onProgress: ({ percentage }) => setExportProgress(percentage),
       });
-      // Increment global carousel counter
-      db.incrementCarouselCount();
+      // Track analytics event
+      db.trackCarouselExported(slides.length);
       addToast(t('carousel.exported'), 'success');
     } catch (error) {
       console.error('Export failed:', error);
@@ -396,6 +400,7 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
             onDuplicateSlide={handleDuplicateSlide}
             onMoveSlide={handleMoveSlide}
             onSlidesChange={setSlides}
+            onShowLoginModal={() => setShowLoginModal(true)}
           />
         </div>
 
