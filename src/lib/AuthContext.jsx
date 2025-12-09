@@ -12,18 +12,18 @@ export function AuthProvider({ children }) {
     // Handle the OAuth/Email confirmation redirect
     const handleAuthRedirect = async () => {
       const hashParams = window.location.hash;
-      
+
       // Check if we have auth params in URL (from email confirmation or OAuth)
       if (hashParams && (
-        hashParams.includes('access_token') || 
-        hashParams.includes('type=signup') || 
+        hashParams.includes('access_token') ||
+        hashParams.includes('type=signup') ||
         hashParams.includes('type=recovery') ||
         hashParams.includes('type=magiclink')
       )) {
         try {
           // Supabase will automatically handle the hash and set the session
           const { data, error } = await supabase.auth.getSession();
-          
+
           if (error) {
             console.error('Auth redirect error:', error);
             setError(error.message);
@@ -39,12 +39,18 @@ export function AuthProvider({ children }) {
       }
     };
 
-    // Initialize auth state
+    // Initialize auth state with timeout to prevent hanging
     const initAuth = async () => {
+      // Set a timeout to ensure loading state doesn't hang forever
+      const timeoutId = setTimeout(() => {
+        console.warn('Auth initialization timeout - proceeding without auth');
+        setLoading(false);
+      }, 3000);
+
       try {
         // First handle any redirect params (email confirmation, OAuth, etc.)
         await handleAuthRedirect();
-        
+
         // Then check for existing session
         const session = await auth.getSession();
         setUser(session?.user || null);
@@ -52,6 +58,7 @@ export function AuthProvider({ children }) {
         console.error('Init auth error:', err);
         setError(err.message);
       } finally {
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     };

@@ -97,7 +97,7 @@ const LandingHero = () => {
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
               <span className="text-sm text-white/60">
                 <span className="font-semibold text-white">{carouselCount.toLocaleString()}</span>
-                {' '}{isDE ? 'Carousels erstellt' : 'Carousels created'}
+                {' '}{t('landing.carouselsCreated')}
               </span>
             </div>
           </div>

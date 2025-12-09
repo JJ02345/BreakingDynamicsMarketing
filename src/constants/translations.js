@@ -20,6 +20,7 @@ export const en = {
     communityBadge: 'Community', communityTitle: 'Join the', communityTitle2: 'Founder Community',
     communityDesc: 'Exclusive insights, beta access & direct exchange with other founders.', communityButton: 'Join Community',
     privacy: 'Privacy', terms: 'Terms', createCarouselNow: 'Create Carousel Now', noSignUp: 'No sign-up required',
+    carouselsCreated: 'Carousels created',
   },
   wip: { description: 'This feature is currently being developed. Check back soon!' },
   auth: {
@@ -141,6 +142,7 @@ export const de = {
     communityBadge: 'Community', communityTitle: 'Werde Teil der', communityTitle2: 'Gründer-Community',
     communityDesc: 'Exklusive Insights, Beta-Zugang & direkter Austausch mit anderen Gründern.', communityButton: 'Community beitreten',
     privacy: 'Datenschutz', terms: 'AGB', createCarouselNow: 'Jetzt Carousel erstellen', noSignUp: 'Keine Anmeldung nötig',
+    carouselsCreated: 'Carousels erstellt',
   },
   wip: { description: 'Diese Funktion wird gerade entwickelt. Schau bald wieder vorbei!' },
   auth: {
@@ -262,6 +264,7 @@ export const es = {
     communityBadge: 'Comunidad', communityTitle: 'Únete a la', communityTitle2: 'Comunidad de Fundadores',
     communityDesc: 'Insights exclusivos, acceso beta y contacto directo con otros fundadores.', communityButton: 'Unirse a la Comunidad',
     privacy: 'Privacidad', terms: 'Términos', createCarouselNow: 'Crear Carrusel Ahora', noSignUp: 'Sin registro necesario',
+    carouselsCreated: 'Carruseles creados',
   },
   wip: { description: 'Esta función está en desarrollo. ¡Vuelve pronto!' },
   auth: {
@@ -383,6 +386,7 @@ export const fr = {
     communityBadge: 'Communauté', communityTitle: 'Rejoignez la', communityTitle2: 'Communauté des Fondateurs',
     communityDesc: 'Insights exclusifs, accès bêta et échange direct avec d\'autres fondateurs.', communityButton: 'Rejoindre la Communauté',
     privacy: 'Confidentialité', terms: 'Conditions', createCarouselNow: 'Créer un Carrousel', noSignUp: 'Pas d\'inscription requise',
+    carouselsCreated: 'Carrousels créés',
   },
   wip: { description: 'Cette fonctionnalité est en cours de développement. Revenez bientôt!' },
   auth: {
