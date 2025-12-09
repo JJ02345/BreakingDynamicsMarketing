@@ -49,11 +49,23 @@ const MobileCarouselEditor = ({
   const [previewMode, setPreviewMode] = useState(false);
   const [activeTab, setActiveTab] = useState('slides'); // 'slides', 'blocks', 'style'
 
-  const activeSlide = slides[activeSlideIndex];
-
   // Swipe handling for slide navigation
   const touchStartX = useRef(null);
   const touchEndX = useRef(null);
+
+  const activeSlide = slides?.[activeSlideIndex];
+
+  // Safety check - if no slides, show loading
+  if (!slides || slides.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center safe-area-inset">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#FF6B35] border-t-transparent mx-auto mb-4" />
+          <p className="text-white/50">{isDE ? 'Wird geladen...' : 'Loading...'}</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleTouchStart = (e) => {
     touchStartX.current = e.targetTouches[0].clientX;

@@ -276,16 +276,12 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
         content: { emoji: emoji, size: 'xxxl' }
       });
 
-      // MASSIVE HEADLINE - Maximum impact, SHORT text only
+      // MASSIVE HEADLINE - Maximum impact
       if (cleanTitle) {
-        // Keep title very short - max 40 chars
-        const shortTitle = cleanTitle.length > 40
-          ? cleanTitle.split(' ').slice(0, 5).join(' ')
-          : cleanTitle;
         blocks.push({
           type: 'HEADING',
           content: {
-            text: shortTitle.toUpperCase(),
+            text: cleanTitle.toUpperCase(),
             fontSize: '80px',
             fontWeight: '900',
             textAlign: 'center',
@@ -320,18 +316,15 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
         }
       });
 
-      // Very short explanation - max 40 chars
+      // Explanation text
       const explanationText = statInContent
         ? apiSlide.content.replace(statInContent, '').trim()
         : (cleanTitle || '');
       if (explanationText && explanationText.length > 5) {
-        const shortText = explanationText.length > 40
-          ? explanationText.split(' ').slice(0, 5).join(' ')
-          : explanationText;
         blocks.push({
           type: 'HEADING',
           content: {
-            text: shortText,
+            text: explanationText,
             fontSize: '40px',
             textAlign: 'center',
             color: '#FFFFFF',
@@ -350,15 +343,12 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
         content: { emoji: emoji, size: 'xxl' }
       });
 
-      // Very short headline - max 25 chars
+      // Headline
       if (cleanTitle) {
-        const shortTitle = cleanTitle.length > 25
-          ? cleanTitle.split(' ').slice(0, 3).join(' ')
-          : cleanTitle;
         blocks.push({
           type: 'HEADING',
           content: {
-            text: shortTitle,
+            text: cleanTitle,
             fontSize: '48px',
             fontWeight: '800',
             textAlign: 'center',
@@ -368,10 +358,10 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
         });
       }
 
-      // Bullet list - max 3 items, VERY short, with emojis
+      // Bullet list - max 3 items with emojis
       const itemEmojis = ['→', '→', '→'];
       const shortItems = listItems.slice(0, 3).map((item, i) =>
-        `${itemEmojis[i]} ${item.length > 20 ? item.slice(0, 18) + '...' : item}`
+        `${itemEmojis[i]} ${item}`
       );
       blocks.push({
         type: 'BULLET_LIST',
@@ -392,14 +382,11 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
         content: { emoji: '💬', size: 'xxl' }
       });
 
-      // The quote itself - max 60 chars
-      const shortQuote = apiSlide.content.length > 60
-        ? apiSlide.content.slice(0, 57) + '..."'
-        : apiSlide.content;
+      // The quote itself - full text
       blocks.push({
         type: 'QUOTE',
         content: {
-          text: shortQuote,
+          text: apiSlide.content,
           author: '',
           fontSize: '36px',
           fontStyle: 'italic',
@@ -461,15 +448,12 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
         content: { emoji: emoji, size: 'xl' }
       });
 
-      // Very short headline - max 30 chars
+      // Headline - full text, centered
       if (cleanTitle) {
-        const shortTitle = cleanTitle.length > 30
-          ? cleanTitle.split(' ').slice(0, 4).join(' ')
-          : cleanTitle;
         blocks.push({
           type: 'HEADING',
           content: {
-            text: shortTitle,
+            text: cleanTitle,
             fontSize: '48px',
             fontWeight: '800',
             textAlign: 'center',
@@ -479,15 +463,12 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
         });
       }
 
-      // Content text - VERY short, max 50 chars
+      // Content text - full text, centered
       if (apiSlide.content) {
-        const shortContent = apiSlide.content.length > 50
-          ? apiSlide.content.split(' ').slice(0, 7).join(' ') + '...'
-          : apiSlide.content;
         blocks.push({
           type: 'PARAGRAPH',
           content: {
-            text: shortContent,
+            text: apiSlide.content,
             fontSize: '26px',
             textAlign: 'center',
             color: '#B0B0B0',

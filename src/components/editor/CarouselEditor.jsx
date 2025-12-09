@@ -567,6 +567,18 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     );
   }
 
+  // Safety check - if no slides but not showing templates, show loading or redirect to templates
+  if (slides.length === 0 && !showTemplates) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#FF6B35] border-t-transparent mx-auto mb-4" />
+          <p className="text-white/50">{isDE ? 'Wird geladen...' : 'Loading...'}</p>
+        </div>
+      </div>
+    );
+  }
+
   // Desktop/Tablet Editor View
   return (
     <div className="min-h-screen h-screen bg-[#0A0A0B] flex flex-col overflow-hidden">

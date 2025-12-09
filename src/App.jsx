@@ -24,9 +24,9 @@ const Datenschutz = lazy(() => import('./components/pages/Datenschutz'));
 const Impressum = lazy(() => import('./components/pages/Impressum'));
 const WorkInProgress = lazy(() => import('./components/pages/WorkInProgress'));
 
-// Loading fallback component
+// Loading fallback component - ensures visible background
 const PageLoader = () => (
-  <div className="flex min-h-screen items-center justify-center bg-[#0A0A0B]">
+  <div className="flex min-h-screen items-center justify-center bg-[#0A0A0B]" style={{ minHeight: '100vh', backgroundColor: '#0A0A0B' }}>
     <Loader2 className="h-8 w-8 animate-spin text-[#FF6B35]" />
   </div>
 );
