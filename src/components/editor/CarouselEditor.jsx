@@ -338,7 +338,18 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
         )}
       </div>
 
-      <div className="fixed -left-[9999px] top-0">
+      {/* Hidden slides for PDF export - completely invisible */}
+      <div
+        className="fixed pointer-events-none"
+        style={{
+          left: '-99999px',
+          top: '-99999px',
+          opacity: 0,
+          visibility: 'hidden',
+          zIndex: -9999
+        }}
+        aria-hidden="true"
+      >
         {slides.map((slide, index) => (
           <div key={slide.id} ref={(el) => (slideRefs.current[index] = el)} style={{ width: 1080, height: 1080 }}>
             <SlideCanvas slide={slide} onSlideChange={() => {}} isEditing={false} scale={1} showControls={false} />

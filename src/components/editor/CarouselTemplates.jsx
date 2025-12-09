@@ -66,24 +66,31 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI }) => {
   return (
     <div className="min-h-screen bg-[#0A0A0B] text-white">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0A0A0B]/90 backdrop-blur-xl">
-        <div className="flex h-16 items-center justify-between px-6 max-w-7xl mx-auto">
-          <Link
-            to="/"
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors"
-          >
-            <Home className="h-4 w-4 text-[#FF6B35]" />
-            <span className="text-sm font-medium text-white">
-              {isDE ? 'Startseite' : 'Home'}
-            </span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-[#FF6B35]" />
-            <span className="font-['Syne'] font-bold">
-              {isDE ? 'LinkedIn Carousel' : 'LinkedIn Carousel'}
+      <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0A0A0B]">
+        <div className="flex h-14 items-center px-6 max-w-7xl mx-auto">
+          {/* Left: Home */}
+          <div className="flex-shrink-0">
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors"
+            >
+              <Home className="h-4 w-4 text-[#FF6B35] flex-shrink-0" />
+              <span className="text-sm font-medium text-white hidden sm:inline">
+                {isDE ? 'Startseite' : 'Home'}
+              </span>
+            </Link>
+          </div>
+
+          {/* Center: Title */}
+          <div className="flex-1 flex items-center justify-center gap-2">
+            <Zap className="h-5 w-5 text-[#FF6B35] flex-shrink-0" />
+            <span className="font-['Syne'] font-bold text-sm sm:text-base">
+              LinkedIn Carousel
             </span>
           </div>
-          <div className="w-24" /> {/* Spacer for centering */}
+
+          {/* Right: Spacer for balance */}
+          <div className="w-20 sm:w-24 flex-shrink-0" />
         </div>
       </header>
 
