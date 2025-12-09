@@ -42,7 +42,7 @@ const BulletListBlock = ({ content, onChange, isEditing }) => {
 
   if (isEditing) {
     return (
-      <div className="flex flex-col gap-3 w-full">
+      <div className="flex flex-col items-center gap-3 w-full">
         {items.map((item, index) => (
           <div key={index} className="flex items-center gap-4 group">
             <BulletIcon className={`${ICON_SIZE} flex-shrink-0`} style={{ color: bulletColor }} />
@@ -51,7 +51,7 @@ const BulletListBlock = ({ content, onChange, isEditing }) => {
               value={item}
               onChange={(e) => handleItemChange(index, e.target.value)}
               placeholder={`Item ${index + 1}`}
-              className="flex-1 bg-transparent border-none focus:outline-none"
+              className="bg-transparent border-none focus:outline-none text-center"
               style={itemStyle}
             />
             {items.length > 1 && (
@@ -92,11 +92,11 @@ const BulletListBlock = ({ content, onChange, isEditing }) => {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col items-center gap-5">
       {items.map((item, index) => (
         <div key={index} className="flex items-center gap-4">
           <BulletIcon className={`${ICON_SIZE} flex-shrink-0`} style={{ color: bulletColor }} />
-          <span style={itemStyle}>{item}</span>
+          <span style={{ ...itemStyle, textAlign: 'center' }}>{item}</span>
         </div>
       ))}
     </div>

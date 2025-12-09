@@ -42,7 +42,7 @@ const TextBlock = ({ content, onChange, isEditing }) => {
         value={content.text || ''}
         onChange={(e) => onChange({ ...content, text: e.target.value })}
         style={{ ...style, background: 'transparent', border: 'none', outline: 'none', resize: 'none' }}
-        className="w-full min-h-[1em]"
+        className="w-full min-h-[1em] text-center"
         rows={2}
       />
     );

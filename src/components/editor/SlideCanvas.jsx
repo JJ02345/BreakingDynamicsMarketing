@@ -106,7 +106,7 @@ const SlideCanvas = forwardRef(({
         )}
         {/* Content Container */}
         <div
-          className="relative w-full h-full flex flex-col z-10"
+          className="relative w-full h-full flex flex-col items-center z-10"
           style={{
             padding,
             justifyContent: slide.styles?.verticalAlign === 'top' ? 'flex-start' :
