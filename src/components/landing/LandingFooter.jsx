@@ -16,9 +16,9 @@ const LandingFooter = () => {
             </div>
             <span className="font-['Syne'] font-bold">Breaking Dynamics</span>
           </div>
-          <div className="flex items-center gap-8 text-sm text-white/40">
+          <div className="flex items-center gap-6 text-sm text-white/40">
+            <Link to="/impressum" className="hover:text-white transition-colors">Impressum</Link>
             <Link to="/datenschutz" className="hover:text-white transition-colors">{t('landing.privacy')}</Link>
-            <Link to="/agb" className="hover:text-white transition-colors">{t('landing.terms')}</Link>
             <span>© 2025</span>
           </div>
         </div>

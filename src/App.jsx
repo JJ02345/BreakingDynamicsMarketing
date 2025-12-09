@@ -11,7 +11,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { EmailConfirmation } from './components/auth';
 import { Editor, CarouselEditor } from './components/editor';
 import { OfflineSurveyEditor, OnlineSurveyEditor } from './components/survey';
-import { Landing, Dashboard, LegalPage, WorkInProgress } from './components/pages';
+import { Landing, Dashboard, LegalPage, Datenschutz, Impressum, WorkInProgress } from './components/pages';
 import { FeedbackWidget, ProtectedRoute } from './components/common';
 
 // Admin Dashboard
@@ -66,7 +66,8 @@ const AppRoutes = function() {
           <AdminPage />
         </ProtectedRoute>
       } />
-      <Route path="/datenschutz" element={<LegalPage title="Datenschutz" />} />
+      <Route path="/datenschutz" element={<Datenschutz />} />
+      <Route path="/impressum" element={<Impressum />} />
       <Route path="/agb" element={<LegalPage title="AGB" />} />
       <Route path="/wip" element={<WorkInProgress />} />
       <Route path="*" element={<Navigate to="/" replace />} />
