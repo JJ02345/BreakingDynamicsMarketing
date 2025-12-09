@@ -200,8 +200,18 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     }
   }, [handleAddBlock]);
 
-  const handleBackgroundChange = useCallback((bgKey) => {
-    handleSlideChange({ ...activeSlide, styles: { ...activeSlide.styles, background: bgKey } });
+  const handleBackgroundChange = useCallback((bgKey, imageData = null) => {
+    const updatedStyles = { ...activeSlide.styles, background: bgKey };
+
+    // Handle image background
+    if (bgKey === 'custom-image' && imageData) {
+      updatedStyles.backgroundImage = imageData;
+    } else if (imageData === null) {
+      // Remove background image when switching to color/gradient
+      updatedStyles.backgroundImage = null;
+    }
+
+    handleSlideChange({ ...activeSlide, styles: updatedStyles });
   }, [activeSlide, handleSlideChange]);
 
   const goToPrevSlide = () => { if (activeSlideIndex > 0) setActiveSlideIndex(activeSlideIndex - 1); };
@@ -518,6 +528,7 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
               onPostToLinkedIn={handlePostToLinkedIn}
               onBackgroundChange={handleBackgroundChange}
               activeBackground={activeSlide?.styles?.background}
+              activeBackgroundImage={activeSlide?.styles?.backgroundImage}
             />
           </div>
         )}

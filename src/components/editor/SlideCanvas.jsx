@@ -18,10 +18,24 @@ const SlideCanvas = forwardRef(({
   if (!slide) return null;
 
   const backgroundStyle = BACKGROUND_STYLES[slide.styles?.background] || BACKGROUND_STYLES['solid-dark'];
+  const hasBackgroundImage = slide.styles?.backgroundImage?.url;
 
   const padding = slide.styles?.padding === 'sm' ? 40 :
                   slide.styles?.padding === 'lg' ? 80 :
                   slide.styles?.padding === 'xl' ? 100 : 60;
+
+  // Build background style - image takes priority
+  const getBackgroundStyles = () => {
+    if (hasBackgroundImage) {
+      return {
+        backgroundImage: `url(${slide.styles.backgroundImage.url})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      };
+    }
+    return backgroundStyle.style;
+  };
 
   const handleBlockChange = (blockId, newContent) => {
     const updatedBlocks = slide.blocks.map((block) =>
@@ -77,12 +91,21 @@ const SlideCanvas = forwardRef(({
           height: 1080,
           transform: `scale(${scale})`,
           transformOrigin: 'top left',
-          ...backgroundStyle.style,
+          ...getBackgroundStyles(),
         }}
       >
+        {/* Dark overlay for image backgrounds to ensure text readability */}
+        {hasBackgroundImage && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%)',
+            }}
+          />
+        )}
         {/* Content Container */}
         <div
-          className="w-full h-full flex flex-col"
+          className="relative w-full h-full flex flex-col z-10"
           style={{
             padding,
             justifyContent: slide.styles?.verticalAlign === 'top' ? 'flex-start' :

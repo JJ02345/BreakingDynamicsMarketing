@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Type, Image, Smile, Minus, User, Hash, List, Quote, AlignLeft, Sparkles, Linkedin, Palette, ChevronDown, Check } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Type, Image, Smile, Minus, User, Hash, List, Quote, AlignLeft, Sparkles, Linkedin, Palette, ChevronDown, Check, Upload, X, Loader2 } from 'lucide-react';
 import { BLOCK_TYPES, BACKGROUND_STYLES, createBlock } from '../../utils/slideTemplates';
 import { useLanguage } from '../../context/LanguageContext';
+import { db } from '../../lib/supabase';
+import { useAuth } from '../../lib/AuthContext';
 
 const BLOCK_ICONS = {
   HEADING: Type,
@@ -21,14 +23,22 @@ const BLOCK_ICONS = {
 const BACKGROUND_CATEGORIES = {
   solid: { name: 'Solid', nameDE: 'Einfarbig' },
   gradient: { name: 'Gradient', nameDE: 'Verlauf' },
-  mesh: { name: 'Premium', nameDE: 'Premium' }
+  mesh: { name: 'Premium', nameDE: 'Premium' },
+  image: { name: 'Image', nameDE: 'Bild' }
 };
 
-const BlockPalette = ({ onAddBlock, onOpenAI, onPostToLinkedIn, onBackgroundChange, activeBackground, disabled = false }) => {
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+const BlockPalette = ({ onAddBlock, onOpenAI, onPostToLinkedIn, onBackgroundChange, activeBackground, activeBackgroundImage, disabled = false }) => {
   const { language } = useLanguage();
+  const { isAuthenticated } = useAuth();
   const isDE = language === 'de';
   const [showBackgrounds, setShowBackgrounds] = useState(false);
   const [activeCategory, setActiveCategory] = useState('gradient');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const fileInputRef = useRef(null);
 
   const handleDragStart = (e, blockType) => {
     e.dataTransfer.setData('blockType', blockType);
@@ -50,6 +60,56 @@ const BlockPalette = ({ onAddBlock, onOpenAI, onPostToLinkedIn, onBackgroundChan
     acc[cat].push({ key, ...bg });
     return acc;
   }, {});
+
+  // Handle background image upload
+  const handleBackgroundImageUpload = async (file) => {
+    if (!file) return;
+
+    // Validate file
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setUploadError(isDE ? 'Nur JPG, PNG, GIF, WebP erlaubt' : 'Only JPG, PNG, GIF, WebP allowed');
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setUploadError(isDE ? 'Max. 5MB erlaubt' : 'Max 5MB allowed');
+      return;
+    }
+
+    setUploadError('');
+    setIsUploading(true);
+
+    try {
+      if (isAuthenticated) {
+        // Cloud upload
+        const result = await db.uploadImage(file, 'backgrounds');
+        onBackgroundChange('custom-image', { url: result.url, path: result.path });
+      } else {
+        // Local Base64
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          onBackgroundChange('custom-image', { url: reader.result });
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
+      setUploadError(isDE ? 'Upload fehlgeschlagen' : 'Upload failed');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileInputChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleBackgroundImageUpload(file);
+    }
+  };
+
+  const removeBackgroundImage = () => {
+    onBackgroundChange('solid-dark', null);
+  };
 
   return (
     <div className="p-3 flex flex-col h-full">
@@ -137,35 +197,115 @@ const BlockPalette = ({ onAddBlock, onOpenAI, onPostToLinkedIn, onBackgroundChan
                 ))}
               </div>
 
-              {/* Background Grid */}
-              <div className="grid grid-cols-4 gap-2">
-                {(backgroundsByCategory[activeCategory] || []).map((bg) => (
-                  <button
-                    key={bg.key}
-                    onClick={() => {
-                      onBackgroundChange(bg.key);
-                    }}
-                    className={`relative w-full aspect-square rounded-lg border-2 transition-all hover:scale-110 ${
-                      activeBackground === bg.key
-                        ? 'border-[#FF6B35] ring-2 ring-[#FF6B35]/30'
-                        : 'border-white/10 hover:border-white/30'
-                    }`}
-                    style={bg.style}
-                    title={isDE ? bg.nameDE : bg.name}
-                  >
-                    {activeBackground === bg.key && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Check className="h-4 w-4 text-[#FF6B35] drop-shadow-lg" />
+              {/* Background Grid - Colors/Gradients */}
+              {activeCategory !== 'image' && (
+                <div className="grid grid-cols-4 gap-2">
+                  {(backgroundsByCategory[activeCategory] || []).map((bg) => (
+                    <button
+                      key={bg.key}
+                      onClick={() => {
+                        onBackgroundChange(bg.key, null);
+                      }}
+                      className={`relative w-full aspect-square rounded-lg border-2 transition-all hover:scale-110 ${
+                        activeBackground === bg.key && !activeBackgroundImage
+                          ? 'border-[#FF6B35] ring-2 ring-[#FF6B35]/30'
+                          : 'border-white/10 hover:border-white/30'
+                      }`}
+                      style={bg.style}
+                      title={isDE ? bg.nameDE : bg.name}
+                    >
+                      {activeBackground === bg.key && !activeBackgroundImage && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Check className="h-4 w-4 text-[#FF6B35] drop-shadow-lg" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Image Upload Tab */}
+              {activeCategory === 'image' && (
+                <div className="space-y-3">
+                  {/* Current Background Image Preview */}
+                  {activeBackgroundImage?.url && (
+                    <div className="relative rounded-lg overflow-hidden border border-white/20">
+                      <img
+                        src={activeBackgroundImage.url}
+                        alt="Background"
+                        className="w-full h-24 object-cover"
+                      />
+                      <button
+                        onClick={removeBackgroundImage}
+                        className="absolute top-1.5 right-1.5 p-1 rounded-md bg-red-500/80 text-white hover:bg-red-500 transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                      <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/60 text-[9px] text-white/70">
+                        {isDE ? 'Aktuell' : 'Current'}
                       </div>
+                    </div>
+                  )}
+
+                  {/* Upload Area */}
+                  <div
+                    onClick={() => !isUploading && fileInputRef.current?.click()}
+                    className={`
+                      flex flex-col items-center justify-center p-4 rounded-lg border-2 border-dashed
+                      transition-all cursor-pointer
+                      ${isUploading
+                        ? 'border-[#FF6B35]/50 bg-[#FF6B35]/5'
+                        : 'border-white/20 bg-white/5 hover:border-[#FF6B35]/50 hover:bg-[#FF6B35]/5'
+                      }
+                    `}
+                  >
+                    {isUploading ? (
+                      <Loader2 className="h-6 w-6 text-[#FF6B35] animate-spin" />
+                    ) : (
+                      <>
+                        <Upload className="h-6 w-6 text-white/40 mb-1" />
+                        <span className="text-[10px] text-white/50">
+                          {isDE ? 'Bild hochladen' : 'Upload image'}
+                        </span>
+                        <span className="text-[8px] text-white/30 mt-0.5">
+                          JPG, PNG, WebP (max 5MB)
+                        </span>
+                      </>
                     )}
-                  </button>
-                ))}
-              </div>
+                  </div>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={ALLOWED_TYPES.join(',')}
+                    onChange={handleFileInputChange}
+                    className="hidden"
+                  />
+
+                  {/* Error */}
+                  {uploadError && (
+                    <p className="text-[10px] text-red-400 text-center">{uploadError}</p>
+                  )}
+
+                  {/* Hint */}
+                  <p className="text-[9px] text-white/30 text-center">
+                    {isAuthenticated
+                      ? (isDE ? 'Cloud-Speicher aktiv' : 'Cloud storage active')
+                      : (isDE ? 'Login für Cloud-Speicher' : 'Login for cloud storage')
+                    }
+                  </p>
+                </div>
+              )}
 
               {/* Background Name */}
-              <p className="mt-2 text-center text-[10px] text-white/40">
-                {BACKGROUND_STYLES[activeBackground]?.[isDE ? 'nameDE' : 'name'] || 'Dark'}
-              </p>
+              {activeCategory !== 'image' && (
+                <p className="mt-2 text-center text-[10px] text-white/40">
+                  {activeBackgroundImage
+                    ? (isDE ? 'Bild' : 'Image')
+                    : BACKGROUND_STYLES[activeBackground]?.[isDE ? 'nameDE' : 'name'] || 'Dark'
+                  }
+                </p>
+              )}
             </div>
           )}
         </div>
