@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../lib/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -14,23 +15,85 @@ import CarouselTemplates from './CarouselTemplates';
 import { createDefaultCarousel, createBlock, createSlide } from '../../utils/slideTemplates';
 import { generateAndDownloadPDF } from '../../lib/pdfGenerator';
 
+// LocalStorage key for carousel draft
+const CAROUSEL_DRAFT_KEY = 'carousel_draft';
+
 const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   const { user, isAuthenticated } = useAuth();
   const { addToast } = useToast();
   const { t, language } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
   const isDE = language === 'de';
 
-  // Show templates if no editCarousel is passed
-  const [showTemplates, setShowTemplates] = useState(!editCarousel);
-  const [slides, setSlides] = useState(() => editCarousel?.slides || []);
-  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
-  const [title, setTitle] = useState(editCarousel?.title || '');
+  // Load draft from LocalStorage on mount
+  const loadDraftFromStorage = useCallback(() => {
+    try {
+      const saved = localStorage.getItem(CAROUSEL_DRAFT_KEY);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Failed to load draft:', e);
+    }
+    return null;
+  }, []);
+
+  // Check URL params and LocalStorage for existing draft
+  const hasEditingParam = searchParams.get('editing') === 'true';
+  const savedDraft = loadDraftFromStorage();
+  const shouldRestoreDraft = hasEditingParam && savedDraft && !editCarousel;
+
+  // Show templates if no editCarousel is passed AND no draft to restore
+  const [showTemplates, setShowTemplates] = useState(!editCarousel && !shouldRestoreDraft);
+  const [slides, setSlides] = useState(() => {
+    if (editCarousel?.slides) return editCarousel.slides;
+    if (shouldRestoreDraft) return savedDraft.slides;
+    return [];
+  });
+  const [activeSlideIndex, setActiveSlideIndex] = useState(() => {
+    if (shouldRestoreDraft && savedDraft.activeSlideIndex !== undefined) {
+      return savedDraft.activeSlideIndex;
+    }
+    return 0;
+  });
+  const [title, setTitle] = useState(() => {
+    if (editCarousel?.title) return editCarousel.title;
+    if (shouldRestoreDraft) return savedDraft.title || '';
+    return '';
+  });
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [showStylePanel, setShowStylePanel] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const [showAIGenerator, setShowAIGenerator] = useState(false);
+
+  // Save draft to LocalStorage whenever slides or title change
+  useEffect(() => {
+    if (slides.length > 0 && !showTemplates) {
+      const draft = {
+        slides,
+        title,
+        activeSlideIndex,
+        lastModified: Date.now()
+      };
+      try {
+        localStorage.setItem(CAROUSEL_DRAFT_KEY, JSON.stringify(draft));
+        // Update URL to indicate we're editing
+        if (searchParams.get('editing') !== 'true') {
+          setSearchParams({ editing: 'true' }, { replace: true });
+        }
+      } catch (e) {
+        console.error('Failed to save draft:', e);
+      }
+    }
+  }, [slides, title, activeSlideIndex, showTemplates, searchParams, setSearchParams]);
+
+  // Clear draft when leaving templates mode to start fresh
+  const clearDraft = useCallback(() => {
+    localStorage.removeItem(CAROUSEL_DRAFT_KEY);
+    setSearchParams({}, { replace: true });
+  }, [setSearchParams]);
 
   const slideRefs = useRef([]);
   const canvasScale = 0.55;
@@ -171,6 +234,8 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
         await db.createCarousel(carouselData);
         addToast(t('carousel.created'), 'success');
       }
+      // Clear draft after successful save
+      clearDraft();
       if (loadCarousels) await loadCarousels();
     } catch (error) {
       console.error('Save failed:', error);
@@ -246,6 +311,18 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeSlideIndex, slides.length]);
 
+  // Handle resuming a draft from templates screen
+  const handleResumeDraft = useCallback(() => {
+    const draft = loadDraftFromStorage();
+    if (draft && draft.slides && draft.slides.length > 0) {
+      setSlides(draft.slides);
+      setTitle(draft.title || '');
+      setActiveSlideIndex(draft.activeSlideIndex || 0);
+      setShowTemplates(false);
+      setSearchParams({ editing: 'true' }, { replace: true });
+    }
+  }, [loadDraftFromStorage, setSearchParams]);
+
   // Template Selection View
   if (showTemplates) {
     return (
@@ -253,6 +330,7 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
         <CarouselTemplates
           onSelectTemplate={handleSelectTemplate}
           onOpenAI={() => setShowAIGenerator(true)}
+          onResumeDraft={handleResumeDraft}
         />
         <AIGeneratorModal
           isOpen={showAIGenerator}

@@ -36,23 +36,7 @@ const BlockPalette = ({ onAddBlock, onOpenAI, onPostToLinkedIn, disabled = false
 
   return (
     <div className="p-3 flex flex-col h-full">
-      {/* AI Generator Button - Prominent at top */}
-      {onOpenAI && (
-        <button
-          onClick={onOpenAI}
-          className="w-full mb-4 p-3 rounded-xl bg-gradient-to-r from-[#FF6B35] to-[#FF8C5A] text-[#0A0A0B] font-semibold text-sm hover:shadow-lg hover:shadow-[#FF6B35]/30 hover:scale-[1.02] transition-all group"
-        >
-          <div className="flex items-center justify-center gap-2">
-            <Sparkles className="h-5 w-5 group-hover:rotate-12 transition-transform" />
-            <span>{isDE ? 'KI Generator' : 'AI Generator'}</span>
-          </div>
-          <p className="text-[10px] mt-1 opacity-70 font-normal">
-            {isDE ? 'Carousel automatisch erstellen' : 'Auto-create carousel'}
-          </p>
-        </button>
-      )}
-
-      {/* Divider */}
+      {/* Bausteine Header */}
       <div className="flex items-center gap-2 mb-3">
         <div className="flex-1 h-px bg-white/10" />
         <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">
@@ -96,19 +80,29 @@ const BlockPalette = ({ onAddBlock, onOpenAI, onPostToLinkedIn, disabled = false
         {isDE ? 'Klicken oder ziehen' : 'Click or drag'}
       </p>
 
-      {/* LinkedIn Post Button - At bottom */}
+      {/* LinkedIn Post Button */}
       {onPostToLinkedIn && (
         <button
           onClick={onPostToLinkedIn}
-          className="w-full mt-4 p-3 rounded-xl bg-[#0A66C2] text-white font-semibold text-sm hover:bg-[#004182] hover:shadow-lg hover:shadow-[#0A66C2]/30 hover:scale-[1.02] transition-all group"
+          className="w-full mt-4 p-2.5 rounded-xl bg-[#0A66C2] text-white font-medium text-xs hover:bg-[#004182] hover:shadow-lg hover:shadow-[#0A66C2]/20 transition-all group"
         >
           <div className="flex items-center justify-center gap-2">
-            <Linkedin className="h-5 w-5 group-hover:scale-110 transition-transform" />
+            <Linkedin className="h-4 w-4 group-hover:scale-110 transition-transform" />
             <span>{isDE ? 'Auf LinkedIn posten' : 'Post to LinkedIn'}</span>
           </div>
-          <p className="text-[10px] mt-1 opacity-70 font-normal">
-            {isDE ? 'Direkt veröffentlichen' : 'Publish directly'}
-          </p>
+        </button>
+      )}
+
+      {/* AI Generator Button - Small at bottom */}
+      {onOpenAI && (
+        <button
+          onClick={onOpenAI}
+          className="w-full mt-2 p-2 rounded-lg bg-white/5 border border-white/10 text-white/60 text-xs hover:border-[#FF6B35]/30 hover:bg-white/[0.08] hover:text-white transition-all group"
+        >
+          <div className="flex items-center justify-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5 text-[#FF6B35] group-hover:rotate-12 transition-transform" />
+            <span>{isDE ? 'Mit KI generieren' : 'Generate with AI'}</span>
+          </div>
         </button>
       )}
     </div>
