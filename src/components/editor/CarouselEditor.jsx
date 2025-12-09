@@ -78,6 +78,7 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showLinkedInModal, setShowLinkedInModal] = useState(false);
   const [pendingAction, setPendingAction] = useState(null); // 'save' or 'linkedin'
+  const [contentLanguage, setContentLanguage] = useState('en'); // Slide content language
 
   // Resizable panels - smaller on tablet
   const [leftPanelWidth, setLeftPanelWidth] = useState(isTablet ? 120 : 160);
@@ -667,6 +668,8 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
               onBackgroundChange={handleBackgroundChange}
               activeBackground={activeSlide?.styles?.background}
               activeBackgroundImage={activeSlide?.styles?.backgroundImage}
+              contentLanguage={contentLanguage}
+              onContentLanguageChange={setContentLanguage}
             />
           </div>
         )}

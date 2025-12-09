@@ -44,13 +44,15 @@ export const generateCarouselPDF = async (slideRefs, options = {}) => {
         scale: quality,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: null,
+        backgroundColor: '#0A0A0B', // Dark background fallback
         logging: false,
         width: width,
         height: height,
         onclone: (clonedDoc, element) => {
           // Ensure fonts are loaded in cloned document
           element.style.fontFamily = "'Space Grotesk', 'Inter', sans-serif";
+          // Ensure background is visible
+          element.style.backgroundColor = element.style.backgroundColor || '#0A0A0B';
         },
       });
 

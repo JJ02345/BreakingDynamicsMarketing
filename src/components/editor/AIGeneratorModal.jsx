@@ -64,7 +64,7 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
         pattern,
         slideCount,
         tone,
-        language: language,
+        language: 'en', // Always generate in English - user can change in editor
         onProgress: setProgress
       });
 
