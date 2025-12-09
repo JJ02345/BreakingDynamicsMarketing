@@ -1,14 +1,14 @@
 import React from 'react';
-import { Gauge, Target, TrendingUp } from 'lucide-react';
+import { Zap, Linkedin, Palette } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 const LandingFeatures = () => {
   const { t } = useLanguage();
 
   const features = [
-    { icon: Gauge, title: t('landing.feature1Title'), desc: t('landing.feature1Desc'), accent: '#FF6B35' },
-    { icon: Target, title: t('landing.feature2Title'), desc: t('landing.feature2Desc'), accent: '#00D4FF' },
-    { icon: TrendingUp, title: t('landing.feature3Title'), desc: t('landing.feature3Desc'), accent: '#00E676' }
+    { icon: Zap, title: t('landing.feature1Title'), desc: t('landing.feature1Desc'), accent: '#FF6B35' },
+    { icon: Linkedin, title: t('landing.feature2Title'), desc: t('landing.feature2Desc'), accent: '#0A66C2' },
+    { icon: Palette, title: t('landing.feature3Title'), desc: t('landing.feature3Desc'), accent: '#00E676' }
   ];
 
   return (

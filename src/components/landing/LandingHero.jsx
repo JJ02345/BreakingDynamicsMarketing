@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, ChevronRight, Linkedin, CheckCircle2, Play } from 'lucide-react';
+import { Zap, ChevronRight, Linkedin, CheckCircle2, FileText, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 const LandingHero = () => {
   const { t, language } = useLanguage();
+  const isDE = language === 'de';
 
   return (
     <section className="relative min-h-screen flex items-center justify-center px-6 pt-20">
@@ -17,7 +18,7 @@ const LandingHero = () => {
       <div className="relative z-10 mx-auto max-w-4xl w-full text-center">
         {/* Badge */}
         <div className="animate-slide-up delay-0 mb-6 inline-flex items-center gap-2 badge-orange">
-          <Zap className="h-3.5 w-3.5" />
+          <Sparkles className="h-3.5 w-3.5" />
           <span>{t('landing.badge')}</span>
         </div>
 
@@ -39,24 +40,24 @@ const LandingHero = () => {
             className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg transition-all bg-gradient-to-r from-[#FF6B35] to-[#FF8C5A] text-[#0A0A0B] hover:scale-105 hover:shadow-2xl hover:shadow-[#FF6B35]/30"
           >
             <Linkedin className="h-5 w-5" />
-            {language === 'de' ? 'Jetzt Carousel erstellen' : 'Create Carousel Now'}
+            {isDE ? 'Jetzt Carousel erstellen' : 'Create Carousel Now'}
             <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <p className="mt-4 text-sm text-white/40">
-            {language === 'de' ? 'Kostenlos • Keine Anmeldung nötig' : 'Free • No sign-up required'}
+            {isDE ? 'Keine Anmeldung nötig' : 'No sign-up required'}
           </p>
         </div>
 
         {/* Feature Pills */}
-        <div className="animate-slide-up delay-400 flex flex-wrap items-center justify-center gap-4 mb-16">
+        <div className="animate-slide-up delay-400 flex flex-wrap items-center justify-center gap-3 mb-16">
           {[
-            language === 'de' ? 'LinkedIn-optimiert' : 'LinkedIn-optimized',
-            language === 'de' ? 'PDF Export' : 'PDF Export',
-            language === 'de' ? 'Drag & Drop' : 'Drag & Drop',
+            { icon: FileText, text: isDE ? 'PDF Export' : 'PDF Export' },
+            { icon: Linkedin, text: '1080x1080' },
+            { icon: Zap, text: 'Drag & Drop' },
           ].map((feature, i) => (
             <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-              <CheckCircle2 className="h-4 w-4 text-[#FF6B35]" />
-              <span className="text-sm text-white/70">{feature}</span>
+              <feature.icon className="h-4 w-4 text-[#FF6B35]" />
+              <span className="text-sm text-white/70">{feature.text}</span>
             </div>
           ))}
         </div>

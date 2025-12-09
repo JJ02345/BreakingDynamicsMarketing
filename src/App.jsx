@@ -17,6 +17,12 @@ import { FeedbackWidget, ProtectedRoute } from './components/common';
 // Admin Dashboard
 import AdminDashboard from './AdminDashboard';
 
+// ===========================================
+// FEATURE FLAG: Survey-Tools verstecken
+// Auf true setzen um Survey-Routen wieder anzuzeigen
+// ===========================================
+const SHOW_SURVEY_ROUTES = false;
+
 // ============================================
 // APP ROUTES COMPONENT
 // ============================================
@@ -39,10 +45,17 @@ const AppRoutes = function() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route path="/editor" element={<SurveyEditorPage />} />
-      <Route path="/survey" element={<OfflineSurveyEditorPage />} />
-      <Route path="/survey/online" element={<OnlineSurveyEditorPage />} />
       <Route path="/carousel" element={<CarouselEditorPage />} />
+
+      {/* Survey Routes - HIDDEN via Feature Flag */}
+      {SHOW_SURVEY_ROUTES && (
+        <>
+          <Route path="/editor" element={<SurveyEditorPage />} />
+          <Route path="/survey" element={<OfflineSurveyEditorPage />} />
+          <Route path="/survey/online" element={<OnlineSurveyEditorPage />} />
+        </>
+      )}
+
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <DashboardPage />

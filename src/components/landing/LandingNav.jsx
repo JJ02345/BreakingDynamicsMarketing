@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, LogIn, ChevronDown, FileText, ClipboardList, Globe, Wifi, WifiOff } from 'lucide-react';
 import { useAuth } from '../../lib/AuthContext';
-import { useLanguage, LanguageSwitcher } from '../../context/LanguageContext';
+import { useLanguage } from '../../context/LanguageContext';
+
+// ===========================================
+// FEATURE FLAG: Survey-Tools verstecken
+// Auf true setzen um Survey-Navigation wieder anzuzeigen
+// ===========================================
+const SHOW_SURVEY_TOOLS = false;
 
 const LandingNav = ({ onShowLogin }) => {
   const { isAuthenticated } = useAuth();
@@ -35,70 +41,70 @@ const LandingNav = ({ onShowLogin }) => {
             <span className="hidden md:inline">LinkedIn Carousel</span>
           </Link>
 
-          {/* Survey Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setShowSurveyDropdown(!showSurveyDropdown)}
-              onBlur={() => setTimeout(() => setShowSurveyDropdown(false), 150)}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white/70 hover:text-white transition-colors rounded-lg hover:bg-white/5"
-            >
-              <ClipboardList className="h-4 w-4 text-[#00D4FF]" />
-              <span className="hidden md:inline">{language === 'de' ? 'Umfragen' : 'Surveys'}</span>
-              <ChevronDown className={`h-4 w-4 transition-transform ${showSurveyDropdown ? 'rotate-180' : ''}`} />
-            </button>
+          {/* Survey Dropdown - HIDDEN via Feature Flag */}
+          {SHOW_SURVEY_TOOLS && (
+            <div className="relative">
+              <button
+                onClick={() => setShowSurveyDropdown(!showSurveyDropdown)}
+                onBlur={() => setTimeout(() => setShowSurveyDropdown(false), 150)}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white/70 hover:text-white transition-colors rounded-lg hover:bg-white/5"
+              >
+                <ClipboardList className="h-4 w-4 text-[#00D4FF]" />
+                <span className="hidden md:inline">{language === 'de' ? 'Umfragen' : 'Surveys'}</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${showSurveyDropdown ? 'rotate-180' : ''}`} />
+              </button>
 
-            {showSurveyDropdown && (
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-72 rounded-xl bg-[#1A1A1D] border border-white/10 shadow-2xl overflow-hidden animate-scale-in">
-                {/* Online Survey Option */}
-                <Link
-                  to="/survey/online"
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-[#00E676]/10 border border-[#00E676]/20 flex items-center justify-center">
-                    <Globe className="h-5 w-5 text-[#00E676]" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-white">
-                        {language === 'de' ? 'Online Umfragen' : 'Online Surveys'}
-                      </p>
-                      <Wifi className="h-3 w-3 text-[#00E676]" />
+              {showSurveyDropdown && (
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-72 rounded-xl bg-[#1A1A1D] border border-white/10 shadow-2xl overflow-hidden animate-scale-in">
+                  {/* Online Survey Option */}
+                  <Link
+                    to="/survey/online"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-[#00E676]/10 border border-[#00E676]/20 flex items-center justify-center">
+                      <Globe className="h-5 w-5 text-[#00E676]" />
                     </div>
-                    <p className="text-xs text-white/40">
-                      {language === 'de' ? 'Per Link teilen & Antworten sammeln' : 'Share via link & collect responses'}
-                    </p>
-                  </div>
-                </Link>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-white">
+                          {language === 'de' ? 'Online Umfragen' : 'Online Surveys'}
+                        </p>
+                        <Wifi className="h-3 w-3 text-[#00E676]" />
+                      </div>
+                      <p className="text-xs text-white/40">
+                        {language === 'de' ? 'Per Link teilen & Antworten sammeln' : 'Share via link & collect responses'}
+                      </p>
+                    </div>
+                  </Link>
 
-                {/* Offline Survey Option */}
-                <Link
-                  to="/survey"
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center">
-                    <ClipboardList className="h-5 w-5 text-[#00D4FF]" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-white">
-                        {language === 'de' ? 'Offline Umfragen' : 'Offline Surveys'}
-                      </p>
-                      <WifiOff className="h-3 w-3 text-[#00D4FF]" />
+                  {/* Offline Survey Option */}
+                  <Link
+                    to="/survey"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-t border-white/5"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center">
+                      <ClipboardList className="h-5 w-5 text-[#00D4FF]" />
                     </div>
-                    <p className="text-xs text-white/40">
-                      {language === 'de' ? 'Validierung vor Ort ohne Internet' : 'On-site validation without internet'}
-                    </p>
-                  </div>
-                </Link>
-              </div>
-            )}
-          </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-white">
+                          {language === 'de' ? 'Offline Umfragen' : 'Offline Surveys'}
+                        </p>
+                        <WifiOff className="h-3 w-3 text-[#00D4FF]" />
+                      </div>
+                      <p className="text-xs text-white/40">
+                        {language === 'de' ? 'Validierung vor Ort ohne Internet' : 'On-site validation without internet'}
+                      </p>
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Right Side */}
+        {/* Right Side - Login only, no language switcher for now */}
         <div className="flex items-center gap-3">
-          <LanguageSwitcher />
-
           {isAuthenticated ? (
             <Link to="/dashboard" className="btn-ghost text-sm">{t('nav.dashboard')}</Link>
           ) : (
