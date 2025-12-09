@@ -98,6 +98,12 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     setSearchParams({}, { replace: true });
   }, [setSearchParams]);
 
+  // Track editor opened on mount
+  useEffect(() => {
+    db.trackEditorOpened();
+    db.trackPageView('carousel_editor');
+  }, []);
+
   const slideRefs = useRef([]);
   const canvasScale = 0.55;
   const activeSlide = slides[activeSlideIndex];

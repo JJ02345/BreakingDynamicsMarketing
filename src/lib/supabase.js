@@ -691,6 +691,56 @@ export const db = {
     await this.trackEvent('template_used', { template: templateId });
   },
 
+  async trackPageView(pageName) {
+    await this.trackEvent('page_view', { page: pageName });
+  },
+
+  async trackUserSignedUp() {
+    await this.trackEvent('user_signed_up', {});
+  },
+
+  async trackEditorOpened() {
+    await this.trackEvent('editor_opened', {});
+  },
+
+  // ============ CONVERSION FUNNEL (Admin) ============
+
+  async getConversionFunnel(daysBack = 30) {
+    const user = await auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const isAdmin = await auth.isAdmin(user);
+    if (!isAdmin) throw new Error('Admin access required');
+
+    const { data, error } = await supabase.rpc('get_conversion_funnel', { days_back: daysBack });
+    if (error) throw error;
+    return data;
+  },
+
+  async getDailyStats(daysBack = 30) {
+    const user = await auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const isAdmin = await auth.isAdmin(user);
+    if (!isAdmin) throw new Error('Admin access required');
+
+    const { data, error } = await supabase.rpc('get_daily_stats', { days_back: daysBack });
+    if (error) throw error;
+    return data;
+  },
+
+  async getEventStats(daysBack = 30) {
+    const user = await auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const isAdmin = await auth.isAdmin(user);
+    if (!isAdmin) throw new Error('Admin access required');
+
+    const { data, error } = await supabase.rpc('get_event_stats', { days_back: daysBack });
+    if (error) throw error;
+    return data;
+  },
+
   // ============ CUSTOM SLIDES (User Saved Templates) ============
 
   // Save custom slide as template (requires auth)

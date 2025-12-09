@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, supabase } from './supabase';
+import { auth, supabase, db } from './supabase';
 
 const AuthContext = createContext(null);
 
@@ -86,6 +86,8 @@ export function AuthProvider({ children }) {
     setError(null);
     try {
       const data = await auth.signUp(email, password);
+      // Track registration event
+      db.trackUserSignedUp();
       return { success: true, data };
     } catch (err) {
       setError(err.message);
