@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, LogIn, ChevronDown, FileText, ClipboardList, Globe, Wifi, WifiOff } from 'lucide-react';
 import { useAuth } from '../../lib/AuthContext';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage, LanguageSwitcher } from '../../context/LanguageContext';
 
 // ===========================================
 // FEATURE FLAG: Survey-Tools verstecken
@@ -103,6 +103,9 @@ const LandingNav = ({ onShowLogin }) => {
               )}
             </div>
           )}
+
+          {/* Language Switcher */}
+          <LanguageSwitcher />
 
           {/* Divider */}
           <div className="w-px h-6 bg-white/10 mx-2" />

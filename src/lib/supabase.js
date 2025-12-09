@@ -139,8 +139,17 @@ export const auth = {
 
       if (error) {
         console.error('Admin check failed:', error);
+        console.error('User ID:', user.id);
+        // If it's a permission error (RLS blocks), that means user exists but can't read
+        // Try alternative: check if we can at least see our own record
+        if (error.code === 'PGRST116') {
+          // Permission denied - but user might still be admin, RLS blocking
+          console.warn('RLS may be blocking admin check, trying workaround...');
+        }
         return false;
       }
+
+      console.log('Admin check result for user', user.id, ':', data ? 'IS ADMIN' : 'NOT ADMIN');
 
       // Cache aktualisieren
       const isAdmin = !!data;
