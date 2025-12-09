@@ -4,6 +4,7 @@ import { useAuth } from '../../lib/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { db } from '../../lib/supabase';
+import useDeviceDetection from '../../hooks/useDeviceDetection';
 import SlideCanvas from './SlideCanvas';
 import SlideNavigator from './SlideNavigator';
 import BlockPalette from './BlockPalette';
@@ -11,6 +12,7 @@ import CarouselHeader from './CarouselHeader';
 import CarouselSlideControls from './CarouselSlideControls';
 import AIGeneratorModal from './AIGeneratorModal';
 import CarouselTemplates from './CarouselTemplates';
+import MobileCarouselEditor from './MobileCarouselEditor';
 import { createDefaultCarousel, createBlock, createSlide } from '../../utils/slideTemplates';
 import { generateAndDownloadPDF } from '../../lib/pdfGenerator';
 import { LoginModal } from '../auth';
@@ -24,6 +26,9 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   const { t, language } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const isDE = language === 'de';
+
+  // Device detection for responsive layout
+  const { isMobile, isTablet, deviceType } = useDeviceDetection();
 
   // Load draft from LocalStorage on mount
   const loadDraftFromStorage = useCallback(() => {
@@ -70,9 +75,9 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   const [showLinkedInModal, setShowLinkedInModal] = useState(false);
   const [pendingAction, setPendingAction] = useState(null); // 'save' or 'linkedin'
 
-  // Resizable panels
-  const [leftPanelWidth, setLeftPanelWidth] = useState(160); // default 160px (w-40)
-  const [rightPanelWidth, setRightPanelWidth] = useState(192); // default 192px (w-48)
+  // Resizable panels - smaller on tablet
+  const [leftPanelWidth, setLeftPanelWidth] = useState(isTablet ? 120 : 160);
+  const [rightPanelWidth, setRightPanelWidth] = useState(isTablet ? 160 : 192);
   const [isResizingLeft, setIsResizingLeft] = useState(false);
   const [isResizingRight, setIsResizingRight] = useState(false);
 
@@ -142,7 +147,8 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   }, []);
 
   const slideRefs = useRef([]);
-  const canvasScale = 0.55;
+  // Dynamic canvas scale based on device
+  const canvasScale = isTablet ? 0.45 : 0.55;
   const activeSlide = slides[activeSlideIndex];
 
   const handleSlideChange = useCallback((updatedSlide) => {
@@ -504,6 +510,60 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     );
   }
 
+  // Mobile Editor View
+  if (isMobile) {
+    return (
+      <>
+        <MobileCarouselEditor
+          slides={slides}
+          setSlides={setSlides}
+          activeSlideIndex={activeSlideIndex}
+          setActiveSlideIndex={setActiveSlideIndex}
+          title={title}
+          setTitle={setTitle}
+          onSave={handleSave}
+          onOpenAI={() => setShowAIGenerator(true)}
+          onPostToLinkedIn={handlePostToLinkedIn}
+          isAuthenticated={isAuthenticated}
+          saving={saving}
+          exporting={exporting}
+          exportProgress={exportProgress}
+          onExport={handleExportPDF}
+          slideRefs={slideRefs}
+        />
+
+        {/* Hidden slides for PDF export */}
+        <div
+          className="fixed pointer-events-none"
+          style={{ left: '-99999px', top: '-99999px', opacity: 0, visibility: 'hidden', zIndex: -9999 }}
+          aria-hidden="true"
+        >
+          {slides.map((slide, index) => (
+            <div key={slide.id} ref={(el) => (slideRefs.current[index] = el)} style={{ width: 1080, height: 1080 }}>
+              <SlideCanvas slide={slide} onSlideChange={() => {}} isEditing={false} scale={1} showControls={false} />
+            </div>
+          ))}
+        </div>
+
+        {/* AI Generator Modal */}
+        <AIGeneratorModal
+          isOpen={showAIGenerator}
+          onClose={() => setShowAIGenerator(false)}
+          onGenerated={handleAIGenerated}
+        />
+
+        {/* Login Modal */}
+        {showLoginModal && (
+          <LoginModal
+            onClose={() => { setShowLoginModal(false); setPendingAction(null); }}
+            onLogin={handleLoginSuccess}
+          />
+        )}
+      </>
+    );
+  }
+
+  // Desktop/Tablet Editor View
   return (
     <div className="min-h-screen h-screen bg-[#0A0A0B] flex flex-col overflow-hidden">
       <CarouselHeader
