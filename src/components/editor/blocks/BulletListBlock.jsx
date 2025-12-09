@@ -7,6 +7,9 @@ const BULLET_STYLES = {
   arrow: { icon: ChevronRight, color: '#0A66C2' },
 };
 
+// Larger icon size for visual impact
+const ICON_SIZE = 'h-8 w-8';
+
 const BulletListBlock = ({ content, onChange, isEditing }) => {
   const items = content.items || ['Item 1', 'Item 2', 'Item 3'];
   const bulletStyle = content.bulletStyle || 'check';
@@ -31,17 +34,18 @@ const BulletListBlock = ({ content, onChange, isEditing }) => {
   };
 
   const itemStyle = {
-    fontSize: '22px',
+    fontSize: '28px',
     color: content.color || '#FFFFFF',
-    lineHeight: 1.6,
+    lineHeight: 1.5,
+    fontWeight: '500',
   };
 
   if (isEditing) {
     return (
       <div className="flex flex-col gap-3 w-full">
         {items.map((item, index) => (
-          <div key={index} className="flex items-center gap-3 group">
-            <BulletIcon className="h-5 w-5 flex-shrink-0" style={{ color: bulletColor }} />
+          <div key={index} className="flex items-center gap-4 group">
+            <BulletIcon className={`${ICON_SIZE} flex-shrink-0`} style={{ color: bulletColor }} />
             <input
               type="text"
               value={item}
@@ -88,10 +92,10 @@ const BulletListBlock = ({ content, onChange, isEditing }) => {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-5">
       {items.map((item, index) => (
-        <div key={index} className="flex items-center gap-3">
-          <BulletIcon className="h-5 w-5 flex-shrink-0" style={{ color: bulletColor }} />
+        <div key={index} className="flex items-center gap-4">
+          <BulletIcon className={`${ICON_SIZE} flex-shrink-0`} style={{ color: bulletColor }} />
           <span style={itemStyle}>{item}</span>
         </div>
       ))}

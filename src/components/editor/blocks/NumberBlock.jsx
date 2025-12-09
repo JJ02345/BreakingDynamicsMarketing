@@ -2,18 +2,23 @@ import React from 'react';
 
 const NumberBlock = ({ content, onChange, isEditing }) => {
   const numberStyle = {
-    fontSize: '72px',
-    fontWeight: 'bold',
+    fontSize: '120px',
+    fontWeight: '800',
     color: content.color || '#FF6B35',
     lineHeight: 1,
     fontFamily: "'Space Grotesk', sans-serif",
+    letterSpacing: '-0.02em',
+    textShadow: '0 4px 20px rgba(0,0,0,0.3)',
   };
 
   const labelStyle = {
-    fontSize: '18px',
+    fontSize: '28px',
     color: '#FFFFFF',
-    opacity: 0.7,
-    marginTop: '8px',
+    opacity: 0.9,
+    marginTop: '16px',
+    fontWeight: '500',
+    letterSpacing: '0.05em',
+    textTransform: 'uppercase',
   };
 
   if (isEditing) {

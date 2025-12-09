@@ -42,14 +42,76 @@ const BACKGROUND_STYLES = [
 ];
 
 /**
+ * Extract emoji from title if present
+ */
+const extractEmoji = (text) => {
+  if (!text) return { emoji: null, cleanText: text };
+  const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu;
+  const matches = text.match(emojiRegex);
+  if (matches && matches.length > 0) {
+    const emoji = matches[0];
+    const cleanText = text.replace(emojiRegex, '').trim();
+    return { emoji, cleanText };
+  }
+  return { emoji: null, cleanText: text };
+};
+
+/**
+ * Detect if content contains a statistic/number
+ */
+const extractStatistic = (text) => {
+  if (!text) return null;
+  // Match patterns like: 87%, +500k, 3x, 10.000, $50M, 2-3x
+  const statRegex = /([+\-]?\d[\d.,]*[%xX]?|\d+[\-–]\d+[xX]?|\$?\d+[KkMmBb]?)/;
+  const match = text.match(statRegex);
+  if (match && match[0].length >= 2) {
+    return match[0];
+  }
+  return null;
+};
+
+/**
+ * Detect if content is a list (bullet points, numbered items)
+ */
+const extractListItems = (text) => {
+  if (!text) return null;
+  // Check for line breaks with bullet-like patterns
+  const lines = text.split(/\n/).filter(line => line.trim());
+  if (lines.length >= 2) {
+    // Check if lines start with bullets, numbers, emojis, or dashes
+    const listPattern = /^[\s]*([•\-\*\→✓✔☑️→▸▹►]|\d+[.\):]|[^\w\s])/;
+    const isList = lines.every(line => listPattern.test(line) || line.trim().length < 60);
+    if (isList) {
+      return lines.map(line => line.replace(/^[\s]*[•\-\*\→✓✔☑️→▸▹►\d+.\):]+\s*/, '').trim()).filter(Boolean);
+    }
+  }
+  return null;
+};
+
+/**
  * Convert AI API response to our slide format
+ * API returns: { slide: number, title: string, content: string }
+ *
+ * VISUAL OPTIMIZATION: Uses large typography, badges, stats blocks, and bullet lists
  */
 const convertApiResponseToSlides = (apiSlides, slideCount) => {
   const slides = [];
+  const totalSlides = Math.min(apiSlides.length, slideCount);
 
   apiSlides.slice(0, slideCount).forEach((apiSlide, index) => {
     const isFirst = index === 0;
-    const isLast = index === apiSlides.length - 1 || index === slideCount - 1;
+    const isLast = index === totalSlides - 1;
+
+    // Extract emoji from title if present
+    const { emoji, cleanText: cleanTitle } = extractEmoji(apiSlide.title);
+
+    // Check for statistics in title or content
+    const statInTitle = extractStatistic(apiSlide.title);
+    const statInContent = extractStatistic(apiSlide.content);
+    const hasStat = statInTitle || statInContent;
+
+    // Check if content is a list
+    const listItems = extractListItems(apiSlide.content);
 
     // Determine slide type and background
     let slideType = 'option';
@@ -61,9 +123,12 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
     } else if (isLast) {
       slideType = 'cta';
       background = 'gradient-orange';
-    } else if (apiSlide.type === 'stats' || apiSlide.heading?.includes('%')) {
+    } else if (hasStat) {
       slideType = 'stats';
       background = 'gradient-purple';
+    } else if (listItems) {
+      slideType = 'list';
+      background = 'gradient-dark';
     } else {
       background = BACKGROUND_STYLES[index % BACKGROUND_STYLES.length];
     }
@@ -71,105 +136,244 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
     // Build blocks from API response
     const blocks = [];
 
-    // Add emoji/icon if present
-    if (apiSlide.emoji) {
-      blocks.push({
-        type: 'ICON',
-        content: { emoji: apiSlide.emoji, size: isFirst ? 'xxl' : 'xl' }
-      });
-    }
+    // === COVER SLIDE (First) ===
+    if (isFirst) {
+      // Large emoji icon
+      if (emoji) {
+        blocks.push({
+          type: 'ICON',
+          content: { emoji: emoji, size: 'xxl' }
+        });
+      }
 
-    // Add slide number for middle slides
-    if (!isFirst && !isLast && index < 10) {
-      blocks.push({
-        type: 'NUMBER',
-        content: { number: `0${index}`, label: '', color: '#FF6B35' }
-      });
-    }
+      // BIG BOLD HEADLINE - RIESIG für Impact
+      if (cleanTitle) {
+        blocks.push({
+          type: 'HEADING',
+          content: {
+            text: cleanTitle.toUpperCase(),
+            fontSize: '72px',
+            fontWeight: '800',
+            textAlign: 'center',
+            color: '#FFFFFF',
+            lineHeight: 1.0
+          }
+        });
+      }
 
-    // Add heading
-    if (apiSlide.heading || apiSlide.title) {
+      // Subtitle/hook - auch größer
+      if (apiSlide.content) {
+        blocks.push({
+          type: 'PARAGRAPH',
+          content: {
+            text: apiSlide.content,
+            fontSize: '32px',
+            textAlign: 'center',
+            color: '#FF6B35',
+            fontWeight: '600'
+          }
+        });
+      }
+
+      // Swipe indicator badge
       blocks.push({
-        type: 'HEADING',
+        type: 'BADGE',
         content: {
-          text: apiSlide.heading || apiSlide.title,
-          fontSize: isFirst ? 'xxl' : 'xl',
-          fontWeight: 'bold',
-          textAlign: isFirst || isLast ? 'center' : 'left',
-          color: '#FFFFFF'
+          text: '→ SWIPE',
+          backgroundColor: '#FF6B35',
+          textColor: '#FFFFFF'
         }
       });
-    }
 
-    // Add subheading if present
-    if (apiSlide.subheading) {
-      blocks.push({
-        type: 'SUBHEADING',
-        content: {
-          text: apiSlide.subheading,
-          fontSize: 'lg',
-          fontWeight: 'normal',
-          textAlign: isFirst || isLast ? 'center' : 'left',
-          color: isFirst ? '#FF6B35' : '#B0B0B0'
-        }
-      });
-    }
-
-    // Add bullet points if present
-    if (apiSlide.bullets && Array.isArray(apiSlide.bullets) && apiSlide.bullets.length > 0) {
-      blocks.push({
-        type: 'BULLET_LIST',
-        content: {
-          items: apiSlide.bullets,
-          bulletStyle: 'check',
-          color: '#FFFFFF'
-        }
-      });
-    }
-
-    // Add body/description text
-    if (apiSlide.body || apiSlide.description || apiSlide.content) {
-      const text = apiSlide.body || apiSlide.description || apiSlide.content;
-      blocks.push({
-        type: 'PARAGRAPH',
-        content: {
-          text: text,
-          fontSize: 'base',
-          textAlign: isFirst || isLast ? 'center' : 'left',
-          color: isLast ? '#FF6B35' : '#B0B0B0'
-        }
-      });
-    }
-
-    // Add CTA elements for last slide
-    if (isLast) {
-      blocks.push({
-        type: 'DIVIDER',
-        content: { style: 'solid', opacity: 0.2, width: '60%' }
-      });
-      blocks.push({
-        type: 'PARAGRAPH',
-        content: {
-          text: '💬 Kommentieren\n♻️ Reposten\n🔔 Folgen für mehr',
-          fontSize: 'base',
-          textAlign: 'center',
-          color: '#FF6B35'
-        }
-      });
-    }
-
-    // Add branding for first and last slide
-    if (isFirst || isLast) {
       blocks.push({
         type: 'BRANDING',
         content: { name: 'Dein Name', handle: '@handle', showAvatar: true }
       });
     }
 
+    // === STATS SLIDE ===
+    else if (hasStat && !isLast) {
+      // Badge for context
+      if (cleanTitle && !statInTitle) {
+        blocks.push({
+          type: 'BADGE',
+          content: {
+            text: cleanTitle.toUpperCase().slice(0, 25),
+            backgroundColor: '#7C3AED',
+            textColor: '#FFFFFF'
+          }
+        });
+      }
+
+      // RIESIGE Statistik-Zahl
+      const statValue = statInTitle || statInContent;
+      blocks.push({
+        type: 'NUMBER',
+        content: {
+          number: statValue,
+          label: statInTitle ? cleanTitle : '',
+          color: '#00E676'  // Bright green for impact
+        }
+      });
+
+      // Kurzer Erklärungstext - größer
+      const explanationText = statInContent
+        ? apiSlide.content.replace(statInContent, '').trim()
+        : apiSlide.content;
+      if (explanationText && explanationText.length > 5) {
+        // Kürzen auf max 80 Zeichen für bessere Lesbarkeit
+        const shortText = explanationText.length > 80
+          ? explanationText.slice(0, 77) + '...'
+          : explanationText;
+        blocks.push({
+          type: 'PARAGRAPH',
+          content: {
+            text: shortText,
+            fontSize: '28px',
+            textAlign: 'center',
+            color: '#FFFFFF',
+            fontWeight: '500'
+          }
+        });
+      }
+    }
+
+    // === LIST SLIDE ===
+    else if (listItems && !isLast) {
+      // Icon if present - oben
+      if (emoji) {
+        blocks.push({
+          type: 'ICON',
+          content: { emoji: emoji, size: 'xl' }
+        });
+      }
+
+      // Große Überschrift
+      if (cleanTitle) {
+        blocks.push({
+          type: 'HEADING',
+          content: {
+            text: cleanTitle.toUpperCase(),
+            fontSize: '48px',
+            fontWeight: '700',
+            textAlign: 'left',
+            color: '#FFFFFF'
+          }
+        });
+      }
+
+      // Bullet list - max 4 kurze Items
+      const shortItems = listItems.slice(0, 4).map(item =>
+        item.length > 40 ? item.slice(0, 37) + '...' : item
+      );
+      blocks.push({
+        type: 'BULLET_LIST',
+        content: {
+          items: shortItems,
+          bulletStyle: 'check',
+          color: '#FFFFFF'
+        }
+      });
+    }
+
+    // === CTA SLIDE (Last) ===
+    else if (isLast) {
+      // RIESIGE Headline
+      blocks.push({
+        type: 'HEADING',
+        content: {
+          text: (cleanTitle || 'GEFÄLLT DIR?').toUpperCase(),
+          fontSize: '64px',
+          fontWeight: '800',
+          textAlign: 'center',
+          color: '#FFFFFF'
+        }
+      });
+
+      blocks.push({
+        type: 'DIVIDER',
+        content: { style: 'solid', opacity: 0.3, width: '50%' }
+      });
+
+      // CTA bullet list - größer und impactvoller
+      blocks.push({
+        type: 'BULLET_LIST',
+        content: {
+          items: [
+            '💬 Kommentiere',
+            '♻️ Teilen',
+            '🔔 Folgen'
+          ],
+          bulletStyle: 'arrow',
+          color: '#FF6B35'
+        }
+      });
+
+      blocks.push({
+        type: 'BRANDING',
+        content: { name: 'Dein Name', handle: '@handle', showAvatar: true }
+      });
+    }
+
+    // === REGULAR CONTENT SLIDE ===
+    else {
+      // Slide number badge
+      blocks.push({
+        type: 'BADGE',
+        content: {
+          text: `${index}/${totalSlides - 2}`,
+          backgroundColor: '#FF6B35',
+          textColor: '#FFFFFF'
+        }
+      });
+
+      // Icon if present - GROSS
+      if (emoji) {
+        blocks.push({
+          type: 'ICON',
+          content: { emoji: emoji, size: 'xxl' }
+        });
+      }
+
+      // GROSSE Überschrift - gut lesbar
+      if (cleanTitle) {
+        blocks.push({
+          type: 'HEADING',
+          content: {
+            text: cleanTitle.toUpperCase(),
+            fontSize: '52px',
+            fontWeight: '700',
+            textAlign: 'left',
+            color: '#FFFFFF',
+            lineHeight: 1.1
+          }
+        });
+      }
+
+      // Content - GRÖSSER und KÜRZER
+      if (apiSlide.content) {
+        // Max 100 Zeichen für gute Lesbarkeit
+        const shortContent = apiSlide.content.length > 100
+          ? apiSlide.content.slice(0, 97) + '...'
+          : apiSlide.content;
+        blocks.push({
+          type: 'PARAGRAPH',
+          content: {
+            text: shortContent,
+            fontSize: '32px',
+            textAlign: 'left',
+            color: '#E0E0E0',
+            lineHeight: 1.4,
+            fontWeight: '400'
+          }
+        });
+      }
+    }
+
     slides.push({
       type: slideType,
       blocks,
-      styles: { background, padding: 'lg' }
+      styles: { background, padding: 'xl' }  // More padding for breathing room
     });
   });
 
@@ -202,7 +406,8 @@ export const generateCarouselFromHypothesis = async ({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': AI_API_KEY
+        'X-API-Key': AI_API_KEY,
+        'ngrok-skip-browser-warning': 'true'
       },
       body: JSON.stringify({
         topic: hypothesis.trim(),
@@ -287,7 +492,10 @@ export const checkAIHealth = async () => {
     const healthUrl = AI_API_URL.replace('/api/carousel', '/health');
     const response = await fetch(healthUrl, {
       method: 'GET',
-      headers: { 'X-API-Key': AI_API_KEY }
+      headers: {
+        'X-API-Key': AI_API_KEY,
+        'ngrok-skip-browser-warning': 'true'
+      }
     });
     return response.ok;
   } catch {

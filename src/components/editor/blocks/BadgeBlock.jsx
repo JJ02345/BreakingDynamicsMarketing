@@ -13,13 +13,13 @@ const BadgeBlock = ({ content, onChange, isEditing }) => {
   const style = {
     display: 'inline-flex',
     alignItems: 'center',
-    padding: '8px 20px',
+    padding: '12px 28px',
     borderRadius: '9999px',
     backgroundColor: content.backgroundColor || '#FF6B35',
     color: content.textColor || '#FFFFFF',
-    fontSize: '14px',
-    fontWeight: '600',
-    letterSpacing: '0.05em',
+    fontSize: '18px',
+    fontWeight: '700',
+    letterSpacing: '0.08em',
     textTransform: 'uppercase',
   };
 
