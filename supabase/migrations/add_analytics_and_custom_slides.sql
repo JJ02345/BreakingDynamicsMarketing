@@ -24,6 +24,11 @@ CREATE INDEX IF NOT EXISTS idx_analytics_events_session ON analytics_events(sess
 -- RLS: Anyone can insert (for tracking), only admins can read all
 ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Anyone can insert analytics events" ON analytics_events;
+DROP POLICY IF EXISTS "Admins can read all analytics" ON analytics_events;
+DROP POLICY IF EXISTS "Users can read own analytics" ON analytics_events;
+
 -- Allow anyone to insert events (for anonymous tracking)
 CREATE POLICY "Anyone can insert analytics events" ON analytics_events
   FOR INSERT WITH CHECK (true);
@@ -62,6 +67,12 @@ CREATE INDEX IF NOT EXISTS idx_custom_slides_created ON custom_slides(created_at
 
 -- RLS: Users can only manage their own slides
 ALTER TABLE custom_slides ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can read own slides" ON custom_slides;
+DROP POLICY IF EXISTS "Users can insert own slides" ON custom_slides;
+DROP POLICY IF EXISTS "Users can update own slides" ON custom_slides;
+DROP POLICY IF EXISTS "Users can delete own slides" ON custom_slides;
 
 CREATE POLICY "Users can read own slides" ON custom_slides
   FOR SELECT USING (user_id = auth.uid());

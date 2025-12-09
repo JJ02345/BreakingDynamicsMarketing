@@ -286,15 +286,6 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   };
 
   // LinkedIn Post - Opens LinkedIn with pre-filled post (no login required)
-  const handlePostToLinkedIn = useCallback(async () => {
-    if (slides.length === 0) {
-      addToast(isDE ? 'Keine Slides zum Posten' : 'No slides to post', 'warning');
-      return;
-    }
-
-    await performPostToLinkedIn();
-  }, [slides.length, isDE, addToast, performPostToLinkedIn]);
-
   const performPostToLinkedIn = useCallback(async () => {
     // First export the PDF
     setExporting(true);
@@ -326,7 +317,16 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
       setExporting(false);
       setExportProgress(0);
     }
-  }, [slides, title, isDE, addToast]);
+  }, [title, isDE, addToast]);
+
+  // Wrapper for LinkedIn post with validation
+  const handlePostToLinkedIn = useCallback(async () => {
+    if (slides.length === 0) {
+      addToast(isDE ? 'Keine Slides zum Posten' : 'No slides to post', 'warning');
+      return;
+    }
+    await performPostToLinkedIn();
+  }, [slides.length, isDE, addToast, performPostToLinkedIn]);
 
   // Handle successful login - execute pending action
   const handleLoginSuccess = useCallback(async () => {
