@@ -1,11 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, ChevronRight, Linkedin, FileText, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { db } from '../../lib/supabase';
 
 const LandingHero = () => {
   const { t, language } = useLanguage();
   const isDE = language === 'de';
+  const [carouselCount, setCarouselCount] = useState(null);
+
+  // Load carousel count on mount
+  useEffect(() => {
+    const loadCount = async () => {
+      try {
+        const count = await db.getCarouselCount();
+        setCarouselCount(count);
+      } catch (err) {
+        console.error('Failed to load carousel count:', err);
+      }
+    };
+    loadCount();
+  }, []);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center px-6 pt-16">
@@ -75,6 +90,19 @@ const LandingHero = () => {
             </div>
           ))}
         </div>
+
+        {/* Carousel Counter - Social Proof */}
+        {carouselCount !== null && carouselCount > 0 && (
+          <div className="animate-slide-up delay-600 mt-8 flex items-center justify-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-sm text-white/60">
+                <span className="font-semibold text-white">{carouselCount.toLocaleString()}</span>
+                {' '}{isDE ? 'Carousels erstellt' : 'Carousels created'}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

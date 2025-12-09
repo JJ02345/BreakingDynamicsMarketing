@@ -563,8 +563,78 @@ export const db = {
     };
   },
 
+  // ============ NEWSLETTER SUBSCRIBERS ============
+
+  // Subscribe to newsletter (public - no auth required)
+  async subscribeNewsletter(email) {
+    // Check if already subscribed
+    const { data: existing } = await supabase
+      .from('newsletter_subscribers')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (existing) {
+      return { success: true, alreadySubscribed: true };
+    }
+
+    const { data, error } = await supabase
+      .from('newsletter_subscribers')
+      .insert({
+        email,
+        source: 'landing_page',
+        subscribed_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      // Handle unique constraint violation
+      if (error.code === '23505') {
+        return { success: true, alreadySubscribed: true };
+      }
+      throw error;
+    }
+
+    return { success: true, data };
+  },
+
+  // ============ CAROUSEL STATS (Public Counter) ============
+
+  // Increment carousel export counter (public)
+  async incrementCarouselCount() {
+    try {
+      const { error } = await supabase.rpc('increment_carousel_count');
+      if (error) {
+        console.error('Failed to increment carousel count:', error);
+      }
+    } catch (err) {
+      console.error('Carousel count increment error:', err);
+    }
+  },
+
+  // Get total carousel count (public)
+  async getCarouselCount() {
+    try {
+      const { data, error } = await supabase
+        .from('site_stats')
+        .select('value')
+        .eq('key', 'total_carousels')
+        .maybeSingle();
+
+      if (error || !data) {
+        return 0;
+      }
+
+      return parseInt(data.value) || 0;
+    } catch (err) {
+      console.error('Failed to get carousel count:', err);
+      return 0;
+    }
+  },
+
   // ============ ANALYTICS ============
-  
+
   // Get survey stats for current user
   async getSurveyStats() {
     const user = await auth.getUser();

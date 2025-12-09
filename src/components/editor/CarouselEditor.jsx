@@ -255,6 +255,8 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
         width: 1080, height: 1080, quality: 2,
         onProgress: ({ percentage }) => setExportProgress(percentage),
       });
+      // Increment global carousel counter
+      db.incrementCarouselCount();
       addToast(t('carousel.exported'), 'success');
     } catch (error) {
       console.error('Export failed:', error);

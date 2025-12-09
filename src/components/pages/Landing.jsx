@@ -5,6 +5,7 @@ import {
   LandingHero,
   LandingFeatures,
   LandingComingSoon,
+  LandingNewsletter,
   LandingCommunity,
   LandingFooter
 } from '../landing';
@@ -16,6 +17,7 @@ const Landing = function(props) {
       <LandingHero />
       <LandingFeatures />
       <LandingComingSoon />
+      <LandingNewsletter />
       <LandingCommunity />
       <LandingFooter />
       {props.loginModal && (
