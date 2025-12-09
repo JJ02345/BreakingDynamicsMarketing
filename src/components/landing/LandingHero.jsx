@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, ChevronRight, Linkedin, FileText, Sparkles } from 'lucide-react';
+import { ChevronRight, Linkedin, FileText, Sparkles, MousePointerClick } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { db } from '../../lib/supabase';
 
 const LandingHero = () => {
-  const { t, language } = useLanguage();
-  const isDE = language === 'de';
+  const { t } = useLanguage();
   const [carouselCount, setCarouselCount] = useState(null);
 
   // Load carousel count on mount
@@ -55,11 +54,11 @@ const LandingHero = () => {
             className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-base transition-all bg-gradient-to-r from-[#FF6B35] to-[#FF8C5A] text-[#0A0A0B] hover:scale-105 hover:shadow-2xl hover:shadow-[#FF6B35]/30"
           >
             <Linkedin className="h-5 w-5 flex-shrink-0" />
-            <span>{isDE ? 'Jetzt Carousel erstellen' : 'Create Carousel Now'}</span>
+            <span>{t('landing.createCarouselNow')}</span>
             <ChevronRight className="h-5 w-5 flex-shrink-0 group-hover:translate-x-1 transition-transform" />
           </Link>
           <p className="mt-4 text-sm text-white/40">
-            {isDE ? 'Keine Anmeldung nötig' : 'No sign-up required'}
+            {t('landing.noSignUp')}
           </p>
         </div>
 
@@ -68,7 +67,7 @@ const LandingHero = () => {
           {[
             { icon: FileText, text: 'PDF Export' },
             { icon: Linkedin, text: '1080×1080' },
-            { icon: Zap, text: 'Drag & Drop' },
+            { icon: MousePointerClick, text: 'Drag & Drop' },
           ].map((feature, i) => (
             <div key={i} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
               <feature.icon className="h-4 w-4 text-[#FF6B35] flex-shrink-0" />

@@ -37,8 +37,7 @@ const PATTERN_CONFIG = {
 };
 
 const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
-  const { t, language } = useLanguage();
-  const isDE = language === 'de';
+  const { t } = useLanguage();
   const [hypothesis, setHypothesis] = useState('');
   const [pattern, setPattern] = useState('problem_solution');
   const [slideCount, setSlideCount] = useState(5);
@@ -114,10 +113,8 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
     { id: 'provocative', label: t('aiGenerator.toneProvocative'), emoji: '🔥', color: '#EF4444' },
   ];
 
-  // Quick topic suggestions
-  const quickTopics = isDE
-    ? ['5 LinkedIn-Tipps', 'Produktivitäts-Hacks', 'Karriere-Mythen', 'Remote Work vs. Büro']
-    : ['5 LinkedIn Tips', 'Productivity Hacks', 'Career Myths', 'Remote vs. Office'];
+  // Quick topic suggestions (English - will be translated by slide language selector)
+  const quickTopics = ['5 LinkedIn Tips', 'Productivity Hacks', 'Career Myths', 'Remote vs. Office'];
 
   if (!isOpen) return null;
 
@@ -230,7 +227,7 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
                         {getPatternName(id)}
                       </span>
                       <p className="text-[10px] text-white/40 mt-1 line-clamp-1">
-                        {config.description[isDE ? 'de' : 'en']}
+                        {config.description.en}
                       </p>
                     </div>
                   </button>
@@ -312,7 +309,7 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-white">{getProgressText()}</p>
-                  <p className="text-xs text-white/50">{isDE ? 'Einen Moment Geduld...' : 'Just a moment...'}</p>
+                  <p className="text-xs text-white/50">{t('common.justAMoment')}</p>
                 </div>
                 <span className="text-lg font-bold text-[#FF6B35]">{progress.percentage}%</span>
               </div>

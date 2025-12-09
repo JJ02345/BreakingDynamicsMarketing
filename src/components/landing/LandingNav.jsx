@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, LogIn, ChevronDown, FileText, ClipboardList, Globe, Wifi, WifiOff } from 'lucide-react';
+import { LogIn, ChevronDown, FileText, ClipboardList, Globe, Wifi, WifiOff } from 'lucide-react';
 import { useAuth } from '../../lib/AuthContext';
 import { useLanguage, LanguageSwitcher } from '../../context/LanguageContext';
+import { BreakingDynamicsIcon } from '../common/BreakingDynamicsLogo';
 
 // ===========================================
 // FEATURE FLAG: Survey-Tools verstecken
@@ -21,7 +22,7 @@ const LandingNav = ({ onShowLogin }) => {
         {/* Logo - Links */}
         <Link to="/" className="flex items-center gap-3 flex-shrink-0">
           <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#FF6B35] to-[#FF8C5A] shadow-lg shadow-[#FF6B35]/20">
-            <Zap className="h-5 w-5 text-[#0A0A0B]" />
+            <BreakingDynamicsIcon size={22} color="#0A0A0B" />
           </div>
           <div className="hidden sm:block">
             <p className="font-['Syne'] text-base font-bold leading-tight">Breaking Dynamics</p>

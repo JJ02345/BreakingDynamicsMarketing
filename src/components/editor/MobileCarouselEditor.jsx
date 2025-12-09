@@ -39,9 +39,8 @@ const MobileCarouselEditor = ({
   onExport,
   slideRefs
 }) => {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
   const { addToast } = useToast();
-  const isDE = language === 'de';
 
   const [showMenu, setShowMenu] = useState(false);
   const [showBlocks, setShowBlocks] = useState(false);
@@ -61,7 +60,7 @@ const MobileCarouselEditor = ({
       <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center safe-area-inset">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#FF6B35] border-t-transparent mx-auto mb-4" />
-          <p className="text-white/50">{isDE ? 'Wird geladen...' : 'Loading...'}</p>
+          <p className="text-white/50">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -107,7 +106,7 @@ const MobileCarouselEditor = ({
 
   const handleDeleteSlide = () => {
     if (slides.length <= 1) {
-      addToast(isDE ? 'Mindestens 1 Slide erforderlich' : 'At least 1 slide required', 'warning');
+      addToast(t('common.atLeast1Slide'), 'warning');
       return;
     }
     setSlides((prev) => prev.filter((_, i) => i !== activeSlideIndex));
@@ -172,7 +171,7 @@ const MobileCarouselEditor = ({
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder={isDE ? 'Carousel Titel...' : 'Carousel title...'}
+            placeholder={t('carousel.titlePlaceholder')}
             className="flex-1 mx-3 px-3 py-1.5 bg-transparent text-white text-sm font-medium text-center border-b border-transparent focus:border-[#FF6B35] outline-none"
           />
 
@@ -193,7 +192,7 @@ const MobileCarouselEditor = ({
               className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:bg-white/5 text-left"
             >
               {previewMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              <span className="text-sm">{previewMode ? (isDE ? 'Bearbeiten' : 'Edit') : (isDE ? 'Vorschau' : 'Preview')}</span>
+              <span className="text-sm">{previewMode ? t('common.edit') : t('common.preview')}</span>
             </button>
 
             {isAuthenticated && (
@@ -203,7 +202,7 @@ const MobileCarouselEditor = ({
                 className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:bg-white/5 text-left disabled:opacity-50"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                <span className="text-sm">{isDE ? 'Speichern' : 'Save'}</span>
+                <span className="text-sm">{t('common.save')}</span>
               </button>
             )}
 
@@ -214,7 +213,7 @@ const MobileCarouselEditor = ({
             >
               {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
               <span className="text-sm">
-                {exporting ? `${exportProgress}%` : (isDE ? 'PDF Export' : 'Export PDF')}
+                {exporting ? `${exportProgress}%` : t('carousel.exportPDF')}
               </span>
             </button>
 
@@ -225,7 +224,7 @@ const MobileCarouselEditor = ({
               className="w-full flex items-center gap-3 px-4 py-3 text-[#FF6B35] hover:bg-[#FF6B35]/10 text-left"
             >
               <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-medium">{isDE ? 'Mit KI generieren' : 'Generate with AI'}</span>
+              <span className="text-sm font-medium">{t('editor.generateWithAI')}</span>
             </button>
 
             <button
@@ -233,7 +232,7 @@ const MobileCarouselEditor = ({
               className="w-full flex items-center gap-3 px-4 py-3 text-[#0077B5] hover:bg-[#0077B5]/10 text-left"
             >
               <Linkedin className="h-4 w-4" />
-              <span className="text-sm font-medium">{isDE ? 'Auf LinkedIn posten' : 'Post to LinkedIn'}</span>
+              <span className="text-sm font-medium">{t('editor.postToLinkedIn')}</span>
             </button>
           </div>
         )}
@@ -308,7 +307,7 @@ const MobileCarouselEditor = ({
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#FF6B35] text-white text-sm font-medium"
               >
                 <Plus className="h-4 w-4" />
-                {isDE ? 'Neue Slide' : 'Add Slide'}
+                {t('common.newSlide')}
               </button>
               <button
                 onClick={handleDuplicateSlide}
@@ -338,7 +337,7 @@ const MobileCarouselEditor = ({
                     >
                       <Icon className="h-5 w-5" />
                       <span className="text-[9px] truncate w-full text-center">
-                        {(isDE ? block.nameDE : block.name).split(' ')[0]}
+                        {block.name.split(' ')[0]}
                       </span>
                     </button>
                   );
@@ -349,7 +348,7 @@ const MobileCarouselEditor = ({
 
           {activeTab === 'style' && (
             <div className="px-4 py-3">
-              <p className="text-[10px] text-white/40 mb-2 text-center">{isDE ? 'Hintergrund' : 'Background'}</p>
+              <p className="text-[10px] text-white/40 mb-2 text-center">{t('common.background')}</p>
               <div className="grid grid-cols-6 gap-2">
                 {Object.entries(BACKGROUND_STYLES).slice(0, 12).map(([key, bg]) => (
                   <button
@@ -382,7 +381,7 @@ const MobileCarouselEditor = ({
               }`}
             >
               <Copy className="h-5 w-5" />
-              <span className="text-[10px]">{isDE ? 'Slides' : 'Slides'}</span>
+              <span className="text-[10px]">{t('common.slides')}</span>
             </button>
             <button
               onClick={() => setActiveTab('blocks')}
@@ -391,7 +390,7 @@ const MobileCarouselEditor = ({
               }`}
             >
               <Plus className="h-5 w-5" />
-              <span className="text-[10px]">{isDE ? 'Bausteine' : 'Blocks'}</span>
+              <span className="text-[10px]">{t('common.blocks')}</span>
             </button>
             <button
               onClick={() => setActiveTab('style')}
@@ -400,7 +399,7 @@ const MobileCarouselEditor = ({
               }`}
             >
               <Palette className="h-5 w-5" />
-              <span className="text-[10px]">{isDE ? 'Stil' : 'Style'}</span>
+              <span className="text-[10px]">{t('common.style')}</span>
             </button>
           </div>
         </div>

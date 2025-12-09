@@ -19,12 +19,12 @@ const BLOCK_ICONS = {
   NUMBER: Hash,
 };
 
-// Kategorien für die Hintergründe
+// Kategorien für die Hintergründe - keys match translation keys
 const BACKGROUND_CATEGORIES = {
-  solid: { name: 'Solid', nameDE: 'Einfarbig' },
-  gradient: { name: 'Gradient', nameDE: 'Verlauf' },
-  mesh: { name: 'Premium', nameDE: 'Premium' },
-  image: { name: 'Image', nameDE: 'Bild' }
+  solid: 'backgroundSolid',
+  gradient: 'backgroundGradient',
+  mesh: 'backgroundPremium',
+  image: 'backgroundImage'
 };
 
 // Slide content language options
@@ -50,9 +50,8 @@ const BlockPalette = ({
   isTranslating = false,
   disabled = false
 }) => {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
   const { isAuthenticated } = useAuth();
-  const isDE = language === 'de';
   const [showBackgrounds, setShowBackgrounds] = useState(false);
   const [activeCategory, setActiveCategory] = useState('gradient');
   const [isUploading, setIsUploading] = useState(false);
@@ -87,12 +86,12 @@ const BlockPalette = ({
 
     // Validate file
     if (!ALLOWED_TYPES.includes(file.type)) {
-      setUploadError(isDE ? 'Nur JPG, PNG, GIF, WebP erlaubt' : 'Only JPG, PNG, GIF, WebP allowed');
+      setUploadError(t('editor.onlyJpgPng'));
       return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setUploadError(isDE ? 'Max. 5MB erlaubt' : 'Max 5MB allowed');
+      setUploadError(t('editor.maxSize'));
       return;
     }
 
@@ -114,7 +113,7 @@ const BlockPalette = ({
       }
     } catch (err) {
       console.error('Upload error:', err);
-      setUploadError(isDE ? 'Upload fehlgeschlagen' : 'Upload failed');
+      setUploadError(t('editor.uploadFailed'));
     } finally {
       setIsUploading(false);
     }
@@ -141,7 +140,7 @@ const BlockPalette = ({
         <div className="flex items-center gap-2 mb-3">
           <div className="flex-1 h-px bg-white/10" />
           <p className="text-[10px] font-semibold uppercase tracking-wider text-[#FF6B35]">
-            {isDE ? 'Erstellen' : 'Create'}
+            {t('editor.create')}
           </p>
           <div className="flex-1 h-px bg-white/10" />
         </div>
@@ -154,7 +153,7 @@ const BlockPalette = ({
           >
             <div className="flex items-center justify-center gap-2">
               <Sparkles className="h-4 w-4 group-hover:rotate-12 transition-transform" />
-              <span>{isDE ? 'Mit KI generieren' : 'Generate with AI'}</span>
+              <span>{t('editor.generateWithAI')}</span>
             </div>
           </button>
         )}
@@ -167,7 +166,7 @@ const BlockPalette = ({
           >
             <div className="flex items-center justify-center gap-2">
               <Linkedin className="h-4 w-4 group-hover:scale-110 transition-transform" />
-              <span>{isDE ? 'Auf LinkedIn posten' : 'Post to LinkedIn'}</span>
+              <span>{t('editor.postToLinkedIn')}</span>
             </div>
           </button>
         )}
@@ -178,7 +177,7 @@ const BlockPalette = ({
         <div className="flex items-center gap-2 mb-3">
           <div className="flex-1 h-px bg-white/10" />
           <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">
-            {isDE ? 'Slide-Einstellungen' : 'Slide Settings'}
+            {t('editor.slideSettings')}
           </p>
           <div className="flex-1 h-px bg-white/10" />
         </div>
@@ -199,8 +198,8 @@ const BlockPalette = ({
                 )}
                 <span className="text-xs text-white/70">
                   {isTranslating
-                    ? (isDE ? 'Übersetze...' : 'Translating...')
-                    : (isDE ? 'Slide-Sprache' : 'Slide Language')
+                    ? t('editor.translating')
+                    : t('editor.slideLanguage')
                   }
                 </span>
               </div>
@@ -251,7 +250,7 @@ const BlockPalette = ({
                   style={BACKGROUND_STYLES[activeBackground]?.style || { backgroundColor: '#0A0A0B' }}
                 />
                 <span className="text-xs text-white/70">
-                  {isDE ? 'Hintergrund' : 'Background'}
+                  {t('editor.background')}
                 </span>
               </div>
               <ChevronDown className={`h-4 w-4 text-white/40 transition-transform ${showBackgrounds ? 'rotate-180' : ''}`} />
@@ -262,7 +261,7 @@ const BlockPalette = ({
               <div className="mt-2 p-3 rounded-xl bg-[#0A0A0B] border border-white/10">
                 {/* Category Tabs */}
                 <div className="flex gap-1 mb-3">
-                  {Object.entries(BACKGROUND_CATEGORIES).map(([catKey, cat]) => (
+                  {Object.entries(BACKGROUND_CATEGORIES).map(([catKey, translationKey]) => (
                     <button
                       key={catKey}
                       onClick={() => setActiveCategory(catKey)}
@@ -272,7 +271,7 @@ const BlockPalette = ({
                           : 'bg-white/5 text-white/50 hover:text-white hover:bg-white/10'
                       }`}
                     >
-                      {isDE ? cat.nameDE : cat.name}
+                      {t(`editor.${translationKey}`)}
                     </button>
                   ))}
                 </div>
@@ -290,7 +289,7 @@ const BlockPalette = ({
                             : 'border-white/10 hover:border-white/30'
                         }`}
                         style={bg.style}
-                        title={isDE ? bg.nameDE : bg.name}
+                        title={bg.name}
                       >
                         {activeBackground === bg.key && !activeBackgroundImage && (
                           <div className="absolute inset-0 flex items-center justify-center">
@@ -340,7 +339,7 @@ const BlockPalette = ({
                         <>
                           <Upload className="h-5 w-5 text-white/40 mb-1" />
                           <span className="text-[9px] text-white/50">
-                            {isDE ? 'Bild hochladen' : 'Upload image'}
+                            {t('editor.uploadImage')}
                           </span>
                         </>
                       )}
@@ -370,7 +369,7 @@ const BlockPalette = ({
         <div className="flex items-center gap-2 mb-3">
           <div className="flex-1 h-px bg-white/10" />
           <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">
-            {isDE ? 'Bausteine' : 'Blocks'}
+            {t('editor.blocks')}
           </p>
           <div className="flex-1 h-px bg-white/10" />
         </div>
@@ -395,11 +394,11 @@ const BlockPalette = ({
                     : 'bg-white/5 border border-white/10 text-white/60 hover:bg-[#FF6B35]/10 hover:border-[#FF6B35]/40 hover:text-[#FF6B35] hover:scale-105 cursor-grab active:cursor-grabbing active:scale-95'
                   }
                 `}
-                title={isDE ? block.nameDE : block.name}
+                title={block.name}
               >
                 <Icon className="h-4 w-4 transition-transform group-hover:scale-110 group-hover:text-[#FF6B35]" />
                 <span className="text-[8px] font-medium leading-tight truncate w-full">
-                  {(isDE ? block.nameDE : block.name).split(' ')[0]}
+                  {block.name.split(' ')[0]}
                 </span>
               </button>
             );
@@ -407,7 +406,7 @@ const BlockPalette = ({
         </div>
 
         <p className="mt-2 text-center text-[9px] text-white/20">
-          {isDE ? 'Klicken oder ziehen' : 'Click or drag'}
+          {t('editor.clickOrDrag')}
         </p>
       </div>
     </div>

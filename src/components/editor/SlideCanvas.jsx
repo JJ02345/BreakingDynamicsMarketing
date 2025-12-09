@@ -1,8 +1,9 @@
 import React, { forwardRef, useState } from 'react';
-import { GripVertical, Trash2, Plus, Settings2, Zap } from 'lucide-react';
+import { GripVertical, Trash2, Plus, Settings2 } from 'lucide-react';
 import { getBlockComponent } from './blocks';
 import { BACKGROUND_STYLES, BLOCK_TYPES } from '../../utils/slideTemplates';
 import BlockStylePanel from './BlockStylePanel';
+import { BreakingDynamicsIcon } from '../common/BreakingDynamicsLogo';
 
 const SlideCanvas = forwardRef(({
   slide,
@@ -181,7 +182,7 @@ const SlideCanvas = forwardRef(({
           })}
         </div>
 
-        {/* Breaking Dynamics Branding Watermark - Larger */}
+        {/* Breaking Dynamics Branding Watermark - With Custom Logo */}
         {showBranding && (
           <div
             className="absolute bottom-8 right-8 flex items-center gap-3 px-5 py-3 rounded-xl z-20"
@@ -190,7 +191,7 @@ const SlideCanvas = forwardRef(({
               backdropFilter: 'blur(12px)',
             }}
           >
-            <Zap className="w-6 h-6 text-[#FF6B35]" />
+            <BreakingDynamicsIcon size={28} color="#FF6B35" />
             <span className="text-base font-semibold text-white">Breaking Dynamics</span>
           </div>
         )}

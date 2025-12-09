@@ -25,9 +25,8 @@ const CAROUSEL_DRAFT_KEY = 'carousel_draft';
 const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   const { user, isAuthenticated } = useAuth();
   const { addToast } = useToast();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
-  const isDE = language === 'de';
 
   // Device detection for responsive layout
   const { isMobile, isTablet, deviceType } = useDeviceDetection();
@@ -96,19 +95,10 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
       });
       setSlides(translatedSlides);
       setContentLanguage(newLanguage);
-      addToast(
-        language === 'de' ? 'Slides übersetzt!' :
-        language === 'es' ? '¡Slides traducidos!' :
-        language === 'fr' ? 'Slides traduits!' :
-        'Slides translated!',
-        'success'
-      );
+      addToast(t('editor.slidesTranslated'), 'success');
     } catch (error) {
       console.error('Translation failed:', error);
-      addToast(
-        language === 'de' ? 'Übersetzung fehlgeschlagen' : 'Translation failed',
-        'error'
-      );
+      addToast(t('editor.translationFailed'), 'error');
       setContentLanguage(newLanguage); // Still change language even if translation fails
     } finally {
       setIsTranslating(false);
@@ -271,8 +261,8 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     setShowAIGenerator(false);
     // Track AI generation
     db.trackAIGenerated(result.pattern || 'unknown', result.slides?.length || 0);
-    addToast(isDE ? 'Carousel erfolgreich generiert!' : 'Carousel generated successfully!', 'success');
-  }, [addToast, isDE]);
+    addToast(t('carousel.created'), 'success');
+  }, [addToast, t]);
 
   // Handle template selection
   const handleSelectTemplate = useCallback((templateId) => {
@@ -457,25 +447,20 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
       const linkedInUrl = 'https://www.linkedin.com/feed/?shareActive=true';
       window.open(linkedInUrl, '_blank');
 
-      addToast(
-        isDE
-          ? 'PDF heruntergeladen! Lade es jetzt in deinen LinkedIn Post hoch.'
-          : 'PDF downloaded! Now upload it to your LinkedIn post.',
-        'success'
-      );
+      addToast(t('editor.pdfDownloaded'), 'success');
     } catch (error) {
       console.error('Post to LinkedIn failed:', error);
-      addToast(isDE ? 'Fehler beim Vorbereiten' : 'Preparation failed', 'error');
+      addToast(t('editor.preparationFailed'), 'error');
     } finally {
       setExporting(false);
       setExportProgress(0);
     }
-  }, [title, isDE, addToast]);
+  }, [title, t, addToast]);
 
   // Wrapper for LinkedIn post - show modal if not authenticated
   const handlePostToLinkedIn = useCallback(async () => {
     if (slides.length === 0) {
-      addToast(isDE ? 'Keine Slides zum Posten' : 'No slides to post', 'warning');
+      addToast(t('editor.noSlidesToPost'), 'warning');
       return;
     }
     // Show login prompt if not authenticated
@@ -484,7 +469,7 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
       return;
     }
     await performPostToLinkedIn();
-  }, [slides.length, isDE, addToast, performPostToLinkedIn, isAuthenticated]);
+  }, [slides.length, t, addToast, performPostToLinkedIn, isAuthenticated]);
 
   // Continue LinkedIn post without login
   const handleLinkedInWithoutLogin = useCallback(async () => {
@@ -609,7 +594,7 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
       <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#FF6B35] border-t-transparent mx-auto mb-4" />
-          <p className="text-white/50">{isDE ? 'Wird geladen...' : 'Loading...'}</p>
+          <p className="text-white/50">{t('editor.loading')}</p>
         </div>
       </div>
     );
@@ -759,12 +744,10 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-white mb-2">
-                {isDE ? 'Auf LinkedIn posten' : 'Post to LinkedIn'}
+                {t('editor.postToLinkedIn')}
               </h3>
               <p className="text-white/60 text-sm">
-                {isDE
-                  ? 'Registriere dich um deine Carousels zu speichern und später zu bearbeiten.'
-                  : 'Register to save your carousels and edit them later.'}
+                {t('editor.registerToSave')}
               </p>
             </div>
 
@@ -773,14 +756,14 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
                 onClick={handleLinkedInWithLogin}
                 className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#FF6B35] to-[#FF8C5A] text-white font-semibold hover:opacity-90 transition-opacity"
               >
-                {isDE ? 'Registrieren / Anmelden' : 'Register / Sign in'}
+                {t('editor.registerSignIn')}
               </button>
 
               <button
                 onClick={handleLinkedInWithoutLogin}
                 className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-colors"
               >
-                {isDE ? 'Ohne Registrierung fortfahren' : 'Continue without registration'}
+                {t('editor.continueWithoutReg')}
               </button>
             </div>
 

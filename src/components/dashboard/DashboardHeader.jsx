@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, Shield, LogOut } from 'lucide-react';
+import { Shield, LogOut } from 'lucide-react';
 import { useLanguage, LanguageSwitcher } from '../../context/LanguageContext';
+import { BreakingDynamicsIcon } from '../common/BreakingDynamicsLogo';
 
 const DashboardHeader = ({ user, isAdmin, onLogout }) => {
   const { t } = useLanguage();
@@ -11,7 +12,7 @@ const DashboardHeader = ({ user, isAdmin, onLogout }) => {
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
         <Link to="/" className="flex items-center gap-3 group">
           <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#FF6B35] to-[#FF8C5A] shadow-lg shadow-[#FF6B35]/20 transition-transform group-hover:scale-105">
-            <Zap className="h-6 w-6 text-[#0A0A0B]" />
+            <BreakingDynamicsIcon size={24} color="#0A0A0B" />
           </div>
           <span className="font-['Syne'] text-lg font-bold">Breaking Dynamics</span>
         </Link>
