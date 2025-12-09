@@ -1,11 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Linkedin, ChevronRight, Sparkles } from 'lucide-react';
+import { Linkedin, ChevronRight, Sparkles, Save, FolderOpen, Zap } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 const LandingCommunity = () => {
   const { language } = useLanguage();
   const isDE = language === 'de';
+
+  const accountBenefits = [
+    { icon: Save, text: isDE ? 'Carousels speichern' : 'Save carousels' },
+    { icon: FolderOpen, text: isDE ? 'Jederzeit bearbeiten' : 'Edit anytime' },
+    { icon: Zap, text: isDE ? 'Früher Zugang zu neuen Tools' : 'Early access to new tools' },
+  ];
 
   return (
     <section className="relative py-32 px-6">
@@ -33,6 +39,21 @@ const LandingCommunity = () => {
           {isDE ? 'Carousel erstellen' : 'Create Carousel'}
           <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
         </Link>
+
+        {/* Account Benefits */}
+        <div className="mt-10 pt-8 border-t border-white/5">
+          <p className="text-xs text-white/30 uppercase tracking-wider mb-4">
+            {isDE ? 'Mit kostenlosem Account' : 'With free account'}
+          </p>
+          <div className="flex items-center justify-center gap-6 flex-wrap">
+            {accountBenefits.map((benefit, i) => (
+              <div key={i} className="flex items-center gap-2 text-white/50">
+                <benefit.icon className="h-4 w-4 text-[#FF6B35]" />
+                <span className="text-sm">{benefit.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

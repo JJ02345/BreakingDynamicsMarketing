@@ -4,6 +4,7 @@ import {
   LandingNav,
   LandingHero,
   LandingFeatures,
+  LandingComingSoon,
   LandingCommunity,
   LandingFooter
 } from '../landing';
@@ -14,6 +15,7 @@ const Landing = function(props) {
       <LandingNav onShowLogin={props.showLogin} />
       <LandingHero />
       <LandingFeatures />
+      <LandingComingSoon />
       <LandingCommunity />
       <LandingFooter />
       {props.loginModal && (
