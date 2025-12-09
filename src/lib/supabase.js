@@ -110,7 +110,7 @@ export const auth = {
   },
 
   // ============================================
-  // SECURE ADMIN CHECK - Prüft gegen Datenbank
+  // SECURE ADMIN CHECK - Uses RPC function to bypass RLS
   // ============================================
   async isAdmin(user = null) {
     try {
@@ -118,7 +118,7 @@ export const auth = {
       if (!user) {
         user = await this.getUser();
       }
-      
+
       if (!user) return false;
 
       // Cache prüfen
@@ -130,23 +130,28 @@ export const auth = {
         return adminStatusCache.isAdmin;
       }
 
-      // Aus Datenbank laden
-      const { data, error } = await supabase
-        .from('admin_users')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      // Use RPC function to check admin status (bypasses RLS)
+      const { data, error } = await supabase.rpc('is_admin', {
+        check_user_id: user.id
+      });
 
       if (error) {
-        console.error('Admin check failed:', error);
-        console.error('User ID:', user.id);
-        // If it's a permission error (RLS blocks), that means user exists but can't read
-        // Try alternative: check if we can at least see our own record
-        if (error.code === 'PGRST116') {
-          // Permission denied - but user might still be admin, RLS blocking
-          console.warn('RLS may be blocking admin check, trying workaround...');
+        console.error('Admin check RPC failed:', error);
+        // Fallback: try direct query
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (fallbackError) {
+          console.error('Admin check fallback also failed:', fallbackError);
+          return false;
         }
-        return false;
+
+        const isAdmin = !!fallbackData;
+        adminStatusCache = { userId: user.id, isAdmin, timestamp: now };
+        return isAdmin;
       }
 
       console.log('Admin check result for user', user.id, ':', data ? 'IS ADMIN' : 'NOT ADMIN');

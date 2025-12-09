@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Trash2, Copy, ChevronUp, ChevronDown, Save, Bookmark, Lock, Loader2 } from 'lucide-react';
 import { SLIDE_TEMPLATES, BACKGROUND_STYLES, createSlide } from '../../utils/slideTemplates';
 import { useLanguage } from '../../context/LanguageContext';
@@ -26,6 +26,19 @@ const SlideNavigator = ({
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveSlideIndex, setSaveSlideIndex] = useState(null);
   const [slideName, setSlideName] = useState('');
+  const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowTemplateDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Load custom slides when authenticated
   useEffect(() => {
@@ -252,14 +265,22 @@ const SlideNavigator = ({
 
       {/* Add Slide Button */}
       <div className="p-3 border-t border-white/10">
-        <div className="relative group">
-          <button className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border-2 border-dashed border-white/20 text-white/50 hover:border-[#FF6B35]/50 hover:text-[#FF6B35] transition-colors">
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
+            className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg border-2 border-dashed transition-colors ${
+              showTemplateDropdown
+                ? 'border-[#FF6B35]/50 text-[#FF6B35]'
+                : 'border-white/20 text-white/50 hover:border-[#FF6B35]/50 hover:text-[#FF6B35]'
+            }`}
+          >
             <Plus className="h-4 w-4" />
             <span className="text-sm">{t('carousel.addSlide')}</span>
           </button>
 
-          {/* Template Dropdown */}
-          <div className="absolute bottom-full left-0 right-0 mb-2 hidden group-hover:block z-20">
+          {/* Template Dropdown - Click to open, click outside to close */}
+          {showTemplateDropdown && (
+          <div className="absolute bottom-full left-0 right-0 mb-2 z-20">
             <div className="bg-[#1A1A1D] rounded-xl border border-white/10 shadow-2xl p-2 max-h-80 overflow-y-auto">
               {/* Standard Templates */}
               <div className="text-[10px] uppercase tracking-wider text-white/30 px-3 py-1">
@@ -268,7 +289,10 @@ const SlideNavigator = ({
               {Object.entries(SLIDE_TEMPLATES).map(([id, template]) => (
                 <button
                   key={id}
-                  onClick={() => handleAddSlide(id)}
+                  onClick={() => {
+                    handleAddSlide(id);
+                    setShowTemplateDropdown(false);
+                  }}
                   className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-white/5 transition-colors"
                 >
                   <div
@@ -327,7 +351,10 @@ const SlideNavigator = ({
                       className="group/custom w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-white/5 transition-colors"
                     >
                       <button
-                        onClick={() => handleAddCustomSlide(customSlide)}
+                        onClick={() => {
+                          handleAddCustomSlide(customSlide);
+                          setShowTemplateDropdown(false);
+                        }}
                         className="flex items-center gap-3 flex-1"
                       >
                         <div
@@ -355,6 +382,7 @@ const SlideNavigator = ({
               </div>
             </div>
           </div>
+          )}
         </div>
       </div>
 

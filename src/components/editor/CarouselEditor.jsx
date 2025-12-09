@@ -71,6 +71,44 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [pendingAction, setPendingAction] = useState(null); // 'save' or 'linkedin'
 
+  // Resizable panels
+  const [leftPanelWidth, setLeftPanelWidth] = useState(160); // default 160px (w-40)
+  const [rightPanelWidth, setRightPanelWidth] = useState(192); // default 192px (w-48)
+  const [isResizingLeft, setIsResizingLeft] = useState(false);
+  const [isResizingRight, setIsResizingRight] = useState(false);
+
+  // Handle panel resizing
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (isResizingLeft) {
+        const newWidth = Math.min(Math.max(e.clientX, 120), 300); // min 120, max 300
+        setLeftPanelWidth(newWidth);
+      } else if (isResizingRight) {
+        const newWidth = Math.min(Math.max(window.innerWidth - e.clientX, 150), 350); // min 150, max 350
+        setRightPanelWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizingLeft(false);
+      setIsResizingRight(false);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    if (isResizingLeft || isResizingRight) {
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizingLeft, isResizingRight]);
+
   // Save draft to LocalStorage whenever slides or title change
   useEffect(() => {
     if (slides.length > 0 && !showTemplates) {
@@ -396,7 +434,11 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
       />
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-40 flex-shrink-0 border-r border-white/5 bg-[#111113] overflow-hidden flex flex-col">
+        {/* Left Panel - Slide Navigator (Resizable) */}
+        <div
+          className="flex-shrink-0 border-r border-white/5 bg-[#111113] overflow-hidden flex flex-col relative"
+          style={{ width: leftPanelWidth }}
+        >
           <SlideNavigator
             slides={slides}
             activeSlideIndex={activeSlideIndex}
@@ -408,8 +450,14 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
             onSlidesChange={setSlides}
             onShowLoginModal={() => setShowLoginModal(true)}
           />
+          {/* Left resize handle */}
+          <div
+            className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-[#FF6B35]/50 transition-colors z-10"
+            onMouseDown={() => setIsResizingLeft(true)}
+          />
         </div>
 
+        {/* Main Canvas Area */}
         <div
           className="flex-1 flex flex-col items-center justify-center p-6 bg-[#0A0A0B] relative overflow-auto"
           onDragOver={(e) => e.preventDefault()}
@@ -447,8 +495,17 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
           )}
         </div>
 
+        {/* Right Panel - Block Palette (Resizable) */}
         {!previewMode && (
-          <div className="w-48 flex-shrink-0 border-l border-white/5 bg-[#111113] overflow-y-auto">
+          <div
+            className="flex-shrink-0 border-l border-white/5 bg-[#111113] overflow-y-auto relative"
+            style={{ width: rightPanelWidth }}
+          >
+            {/* Right resize handle */}
+            <div
+              className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-[#FF6B35]/50 transition-colors z-10"
+              onMouseDown={() => setIsResizingRight(true)}
+            />
             <BlockPalette
               onAddBlock={handleAddBlock}
               onOpenAI={() => setShowAIGenerator(true)}
