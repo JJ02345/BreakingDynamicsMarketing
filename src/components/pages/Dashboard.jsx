@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Home, History, LineChart, ChevronRight, AlertCircle, Loader2, Sparkles } from 'lucide-react';
+import { Plus, Home, History, LineChart, ChevronRight, AlertCircle, Loader2, Sparkles, Settings, ToggleLeft, ToggleRight, Zap } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { auth } from '../../lib/supabase';
+import { useBrandingSettings } from '../../hooks/useBrandingSettings';
 import {
   SurveyDetailModal,
   DashboardHeader,
@@ -12,11 +13,15 @@ import {
 } from '../dashboard';
 
 const Dashboard = function(props) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isDE = language === 'de';
   const navigate = useNavigate();
   const [tab, setTab] = useState('home');
   const [detailSurvey, setDetailSurvey] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Branding settings
+  const { showBranding, setShowBranding } = useBrandingSettings(!!props.user);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -51,7 +56,12 @@ const Dashboard = function(props) {
       <div className="mx-auto max-w-7xl px-6 py-8">
         <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex rounded-xl border border-white/10 bg-[#111113] p-1">
-            {[{ k: 'home', i: Home, l: t('dashboard.home') }, { k: 'history', i: History, l: t('dashboard.history') }, { k: 'analyse', i: LineChart, l: t('dashboard.analysis') }].map(item => (
+            {[
+              { k: 'home', i: Home, l: t('dashboard.home') },
+              { k: 'history', i: History, l: t('dashboard.history') },
+              { k: 'analyse', i: LineChart, l: t('dashboard.analysis') },
+              { k: 'settings', i: Settings, l: isDE ? 'Einstellungen' : 'Settings' }
+            ].map(item => (
               <button key={item.k} onClick={() => setTab(item.k)} className={"flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all " + (tab === item.k ? 'bg-gradient-to-r from-[#FF6B35] to-[#FF8C5A] text-[#0A0A0B]' : 'text-white/60 hover:text-white hover:bg-white/5')}>
                 <item.i className="h-4 w-4" />{item.l}
               </button>
@@ -125,6 +135,81 @@ const Dashboard = function(props) {
                 <div className="mt-6 inline-flex items-center gap-2 badge-cyan">
                   <Sparkles className="h-3.5 w-3.5" />
                   <span>In Entwicklung</span>
+                </div>
+              </div>
+            )}
+
+            {tab === 'settings' && (
+              <div className="space-y-6">
+                <div className="card-dark p-6">
+                  <h3 className="font-['Syne'] text-lg font-bold text-white mb-6 flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-[#FF6B35]" />
+                    {isDE ? 'Carousel Einstellungen' : 'Carousel Settings'}
+                  </h3>
+
+                  {/* Branding Toggle */}
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-[#FF6B35]/10 border border-[#FF6B35]/20 flex items-center justify-center">
+                          <span className="text-lg font-bold text-[#FF6B35]">BD</span>
+                        </div>
+                        <div>
+                          <h4 className="text-white font-medium">
+                            {isDE ? 'Breaking Dynamics Branding' : 'Breaking Dynamics Branding'}
+                          </h4>
+                          <p className="text-sm text-white/50">
+                            {isDE
+                              ? 'Zeigt "Made with Breaking Dynamics" unten rechts auf deinen Slides'
+                              : 'Shows "Made with Breaking Dynamics" at bottom right of your slides'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setShowBranding(!showBranding)}
+                      className={`ml-4 p-1 rounded-full transition-colors ${
+                        showBranding
+                          ? 'bg-[#FF6B35] text-white'
+                          : 'bg-white/10 text-white/40'
+                      }`}
+                    >
+                      {showBranding ? (
+                        <ToggleRight className="h-8 w-8" />
+                      ) : (
+                        <ToggleLeft className="h-8 w-8" />
+                      )}
+                    </button>
+                  </div>
+
+                  {showBranding && (
+                    <div className="mt-4 p-4 rounded-xl bg-[#FF6B35]/5 border border-[#FF6B35]/20">
+                      <p className="text-sm text-[#FF6B35]">
+                        {isDE
+                          ? '✨ Danke! Das Branding wird auf allen neuen Slides angezeigt.'
+                          : '✨ Thanks! Branding will appear on all new slides.'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Preview */}
+                <div className="card-dark p-6">
+                  <h4 className="text-sm font-medium text-white/50 mb-4">
+                    {isDE ? 'Vorschau' : 'Preview'}
+                  </h4>
+                  <div className="aspect-square max-w-[200px] rounded-xl bg-gradient-to-br from-[#1a1a2e] to-[#0A0A0B] border border-white/10 relative overflow-hidden">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-white/20 text-sm">Slide</span>
+                    </div>
+                    {showBranding && (
+                      <div className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-1 rounded bg-black/50 backdrop-blur-sm">
+                        <Zap className="h-2.5 w-2.5 text-[#FF6B35]" />
+                        <span className="text-[8px] text-white/70">Breaking Dynamics</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

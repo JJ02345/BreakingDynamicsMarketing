@@ -276,71 +276,40 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
         content: { emoji: emoji, size: 'xxxl' }
       });
 
-      // MASSIVE HEADLINE - Maximum impact
+      // MASSIVE HEADLINE - Maximum impact, SHORT text only
       if (cleanTitle) {
+        // Keep title very short - max 40 chars
+        const shortTitle = cleanTitle.length > 40
+          ? cleanTitle.split(' ').slice(0, 5).join(' ')
+          : cleanTitle;
         blocks.push({
           type: 'HEADING',
           content: {
-            text: cleanTitle.toUpperCase(),
-            fontSize: '76px',
+            text: shortTitle.toUpperCase(),
+            fontSize: '80px',
             fontWeight: '900',
             textAlign: 'center',
             color: '#FFFFFF',
-            lineHeight: 0.95,
-            letterSpacing: '-2px'
+            lineHeight: 0.9,
+            letterSpacing: '-3px'
           }
         });
       }
 
-      // Subtitle with accent color
-      if (apiSlide.content) {
-        const shortSubtitle = apiSlide.content.length > 60
-          ? apiSlide.content.slice(0, 57) + '...'
-          : apiSlide.content;
-        blocks.push({
-          type: 'PARAGRAPH',
-          content: {
-            text: shortSubtitle,
-            fontSize: '26px',
-            textAlign: 'center',
-            color: accent.primary,
-            fontWeight: '600',
-            lineHeight: 1.3
-          }
-        });
-      }
-
-      // Swipe CTA Badge
+      // Swipe CTA - no subtitle, just action
       blocks.push({
         type: 'BADGE',
         content: {
-          text: 'SWIPE →',
+          text: '→ SWIPE',
           backgroundColor: accent.primary,
           textColor: '#FFFFFF'
         }
-      });
-
-      // Branding at bottom
-      blocks.push({
-        type: 'BRANDING',
-        content: { name: 'Dein Name', handle: '@handle', showAvatar: true }
       });
     }
 
     // === STATS SLIDE ===
     else if (slideType === 'stats') {
-      // Context badge
-      const badgeText = cleanTitle && cleanTitle.length <= 20 ? cleanTitle.toUpperCase() : 'FAKT';
-      blocks.push({
-        type: 'BADGE',
-        content: {
-          text: badgeText,
-          backgroundColor: accent.primary,
-          textColor: '#FFFFFF'
-        }
-      });
-
-      // MASSIVE Number - the star of the show
+      // MASSIVE Number - hero element, no distractions
       const statValue = statInTitle || statInContent;
       blocks.push({
         type: 'NUMBER',
@@ -351,32 +320,26 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
         }
       });
 
-      // Explanation below the number
+      // Very short explanation - max 40 chars
       const explanationText = statInContent
         ? apiSlide.content.replace(statInContent, '').trim()
-        : (cleanTitle || apiSlide.content);
+        : (cleanTitle || '');
       if (explanationText && explanationText.length > 5) {
-        const shortText = explanationText.length > 70
-          ? explanationText.slice(0, 67) + '...'
+        const shortText = explanationText.length > 40
+          ? explanationText.split(' ').slice(0, 5).join(' ')
           : explanationText;
         blocks.push({
           type: 'HEADING',
           content: {
             text: shortText,
-            fontSize: '36px',
+            fontSize: '40px',
             textAlign: 'center',
             color: '#FFFFFF',
-            fontWeight: '600',
-            lineHeight: 1.2
+            fontWeight: '700',
+            lineHeight: 1.1
           }
         });
       }
-
-      // Divider for visual separation
-      blocks.push({
-        type: 'DIVIDER',
-        content: { style: 'solid', opacity: 0.2, width: '40%', color: accent.primary }
-      });
     }
 
     // === LIST SLIDE ===
@@ -384,42 +347,39 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
       // Emoji at top
       blocks.push({
         type: 'ICON',
-        content: { emoji: emoji, size: 'xl' }
+        content: { emoji: emoji, size: 'xxl' }
       });
 
-      // Bold headline
+      // Very short headline - max 25 chars
       if (cleanTitle) {
+        const shortTitle = cleanTitle.length > 25
+          ? cleanTitle.split(' ').slice(0, 3).join(' ')
+          : cleanTitle;
         blocks.push({
           type: 'HEADING',
           content: {
-            text: cleanTitle,
-            fontSize: '42px',
+            text: shortTitle,
+            fontSize: '48px',
             fontWeight: '800',
-            textAlign: 'left',
+            textAlign: 'center',
             color: '#FFFFFF',
-            lineHeight: 1.1
+            lineHeight: 1.0
           }
         });
       }
 
-      // Divider
-      blocks.push({
-        type: 'DIVIDER',
-        content: { style: 'solid', opacity: 0.15, width: '100%' }
-      });
-
-      // Bullet list - max 4 items, with emojis
-      const itemEmojis = ['✓', '✓', '✓', '✓'];
-      const shortItems = listItems.slice(0, 4).map((item, i) =>
-        `${itemEmojis[i]} ${item.length > 35 ? item.slice(0, 32) + '...' : item}`
+      // Bullet list - max 3 items, VERY short, with emojis
+      const itemEmojis = ['→', '→', '→'];
+      const shortItems = listItems.slice(0, 3).map((item, i) =>
+        `${itemEmojis[i]} ${item.length > 20 ? item.slice(0, 18) + '...' : item}`
       );
       blocks.push({
         type: 'BULLET_LIST',
         content: {
           items: shortItems,
           bulletStyle: 'none',
-          color: '#FFFFFF',
-          fontSize: '26px'
+          color: '#E5E5E5',
+          fontSize: '28px'
         }
       });
     }
@@ -429,25 +389,22 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
       // Large quote marks
       blocks.push({
         type: 'ICON',
-        content: { emoji: '💬', size: 'xl' }
+        content: { emoji: '💬', size: 'xxl' }
       });
 
-      // The quote itself
+      // The quote itself - max 60 chars
+      const shortQuote = apiSlide.content.length > 60
+        ? apiSlide.content.slice(0, 57) + '..."'
+        : apiSlide.content;
       blocks.push({
         type: 'QUOTE',
         content: {
-          text: apiSlide.content,
-          author: cleanTitle || '',
-          fontSize: '32px',
+          text: shortQuote,
+          author: '',
+          fontSize: '36px',
           fontStyle: 'italic',
           color: '#FFFFFF'
         }
-      });
-
-      // Subtle divider
-      blocks.push({
-        type: 'DIVIDER',
-        content: { style: 'solid', opacity: 0.2, width: '30%' }
       });
     }
 
@@ -456,59 +413,45 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
       // Celebration emoji
       blocks.push({
         type: 'ICON',
-        content: { emoji: '🎯', size: 'xxl' }
+        content: { emoji: '🎯', size: 'xxxl' }
       });
 
-      // Big CTA headline
-      const ctaTitle = cleanTitle || 'Was denkst du?';
+      // Big CTA headline - very short
       blocks.push({
         type: 'HEADING',
         content: {
-          text: ctaTitle.toUpperCase(),
-          fontSize: '52px',
+          text: 'FOLGE MIR',
+          fontSize: '72px',
           fontWeight: '900',
           textAlign: 'center',
           color: '#FFFFFF',
-          lineHeight: 1.0
+          lineHeight: 0.9
         }
       });
 
-      // Divider
-      blocks.push({
-        type: 'DIVIDER',
-        content: { style: 'solid', opacity: 0.25, width: '60%' }
-      });
-
-      // Action items with emojis - styled as text for better control
+      // Action row with emojis
       blocks.push({
         type: 'PARAGRAPH',
         content: {
-          text: '💬 Kommentieren  •  ♻️ Teilen  •  🔔 Folgen',
-          fontSize: '22px',
+          text: '💬  ♻️  🔔',
+          fontSize: '36px',
           textAlign: 'center',
           color: accent.primary,
           fontWeight: '600'
         }
       });
-
-      // Branding
-      blocks.push({
-        type: 'BRANDING',
-        content: { name: 'Dein Name', handle: '@handle', showAvatar: true }
-      });
     }
 
     // === REGULAR CONTENT SLIDE ===
     else {
-      // Slide number badge - styled nicely
-      const slideNum = index;
-      const totalContent = totalSlides - 2; // exclude cover & cta
+      // Slide number - big and bold
+      const slideNum = index.toString().padStart(2, '0');
       blocks.push({
-        type: 'BADGE',
+        type: 'NUMBER',
         content: {
-          text: `${slideNum}/${totalContent}`,
-          backgroundColor: accent.primary,
-          textColor: '#FFFFFF'
+          number: slideNum,
+          label: '',
+          color: accent.primary
         }
       });
 
@@ -518,41 +461,38 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
         content: { emoji: emoji, size: 'xl' }
       });
 
-      // Strong headline
+      // Very short headline - max 30 chars
       if (cleanTitle) {
+        const shortTitle = cleanTitle.length > 30
+          ? cleanTitle.split(' ').slice(0, 4).join(' ')
+          : cleanTitle;
         blocks.push({
           type: 'HEADING',
           content: {
-            text: cleanTitle,
-            fontSize: '44px',
+            text: shortTitle,
+            fontSize: '48px',
             fontWeight: '800',
-            textAlign: 'left',
+            textAlign: 'center',
             color: '#FFFFFF',
-            lineHeight: 1.15
+            lineHeight: 1.0
           }
         });
       }
 
-      // Divider for structure
-      blocks.push({
-        type: 'DIVIDER',
-        content: { style: 'solid', opacity: 0.1, width: '100%' }
-      });
-
-      // Content text - optimized for readability
+      // Content text - VERY short, max 50 chars
       if (apiSlide.content) {
-        const shortContent = apiSlide.content.length > 120
-          ? apiSlide.content.slice(0, 117) + '...'
+        const shortContent = apiSlide.content.length > 50
+          ? apiSlide.content.split(' ').slice(0, 7).join(' ') + '...'
           : apiSlide.content;
         blocks.push({
           type: 'PARAGRAPH',
           content: {
             text: shortContent,
-            fontSize: '28px',
-            textAlign: 'left',
-            color: '#E5E5E5',
-            lineHeight: 1.5,
-            fontWeight: '400'
+            fontSize: '26px',
+            textAlign: 'center',
+            color: '#B0B0B0',
+            lineHeight: 1.4,
+            fontWeight: '500'
           }
         });
       }

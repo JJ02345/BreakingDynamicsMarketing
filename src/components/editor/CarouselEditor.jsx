@@ -5,6 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { db } from '../../lib/supabase';
 import useDeviceDetection from '../../hooks/useDeviceDetection';
+import { useBrandingSettings } from '../../hooks/useBrandingSettings';
 import SlideCanvas from './SlideCanvas';
 import SlideNavigator from './SlideNavigator';
 import BlockPalette from './BlockPalette';
@@ -29,6 +30,9 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
 
   // Device detection for responsive layout
   const { isMobile, isTablet, deviceType } = useDeviceDetection();
+
+  // Branding settings
+  const { showBranding } = useBrandingSettings(isAuthenticated);
 
   // Load draft from LocalStorage on mount
   const loadDraftFromStorage = useCallback(() => {
@@ -620,6 +624,7 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
               isEditing={!previewMode}
               scale={canvasScale}
               showControls={!previewMode}
+              showBranding={showBranding}
             />
           </div>
 
@@ -669,7 +674,7 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
       >
         {slides.map((slide, index) => (
           <div key={slide.id} ref={(el) => (slideRefs.current[index] = el)} style={{ width: 1080, height: 1080 }}>
-            <SlideCanvas slide={slide} onSlideChange={() => {}} isEditing={false} scale={1} showControls={false} />
+            <SlideCanvas slide={slide} onSlideChange={() => {}} isEditing={false} scale={1} showControls={false} showBranding={showBranding} />
           </div>
         ))}
       </div>

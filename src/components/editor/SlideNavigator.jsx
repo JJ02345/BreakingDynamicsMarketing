@@ -176,26 +176,116 @@ const SlideNavigator = ({
                 {index + 1}
               </div>
 
-              {/* Thumbnail Preview */}
+              {/* Thumbnail Preview - Real Content */}
               <div
                 className="aspect-square w-full relative overflow-hidden"
-                style={bgStyle.style}
+                style={{
+                  ...bgStyle.style,
+                  ...(slide.styles?.backgroundImage?.url ? {
+                    backgroundImage: `url(${slide.styles.backgroundImage.url})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  } : {})
+                }}
               >
-                {/* Mini preview of blocks */}
-                <div className="absolute inset-0 p-2 flex flex-col items-center justify-center gap-1 scale-[0.15] origin-center">
-                  {slide.blocks.slice(0, 4).map((block) => (
-                    <div
-                      key={block.id}
-                      className="bg-white/20 rounded h-4 w-full"
-                    />
-                  ))}
-                </div>
+                {/* Dark overlay for background images */}
+                {slide.styles?.backgroundImage?.url && (
+                  <div className="absolute inset-0 bg-black/40" />
+                )}
 
-                {/* Template type label */}
-                <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1">
-                  <span className="text-[10px] text-white/70 truncate block">
-                    {language === 'de' ? template?.nameDE : template?.name}
-                  </span>
+                {/* Real content preview - scaled down */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-1.5 overflow-hidden">
+                  {slide.blocks.slice(0, 4).map((block) => {
+                    // Render actual content preview based on block type
+                    switch (block.type) {
+                      case 'HEADING':
+                      case 'SUBHEADING':
+                        return (
+                          <p
+                            key={block.id}
+                            className="text-[6px] font-bold text-white text-center leading-tight truncate w-full px-1"
+                            style={{ color: block.content?.color || '#FFFFFF' }}
+                          >
+                            {block.content?.text?.substring(0, 30) || '...'}
+                          </p>
+                        );
+                      case 'PARAGRAPH':
+                        return (
+                          <p
+                            key={block.id}
+                            className="text-[4px] text-white/70 text-center leading-tight truncate w-full px-1"
+                          >
+                            {block.content?.text?.substring(0, 40) || '...'}
+                          </p>
+                        );
+                      case 'ICON':
+                        return (
+                          <span key={block.id} className="text-[10px]">
+                            {block.content?.emoji || '🎯'}
+                          </span>
+                        );
+                      case 'NUMBER':
+                        return (
+                          <span
+                            key={block.id}
+                            className="text-[8px] font-bold"
+                            style={{ color: block.content?.color || '#FF6B35' }}
+                          >
+                            {block.content?.number || '01'}
+                          </span>
+                        );
+                      case 'BADGE':
+                        return (
+                          <span
+                            key={block.id}
+                            className="text-[4px] px-1 py-0.5 rounded"
+                            style={{
+                              backgroundColor: block.content?.backgroundColor || '#FF6B35',
+                              color: block.content?.textColor || '#FFFFFF'
+                            }}
+                          >
+                            {block.content?.text?.substring(0, 15) || 'Badge'}
+                          </span>
+                        );
+                      case 'QUOTE':
+                        return (
+                          <p
+                            key={block.id}
+                            className="text-[4px] italic text-white/80 text-center leading-tight truncate w-full px-1"
+                          >
+                            {block.content?.text?.substring(0, 35) || '"..."'}
+                          </p>
+                        );
+                      case 'BULLET_LIST':
+                        return (
+                          <div key={block.id} className="text-[3px] text-white/60 w-full px-2">
+                            {(block.content?.items || []).slice(0, 2).map((item, i) => (
+                              <div key={i} className="truncate">• {item}</div>
+                            ))}
+                          </div>
+                        );
+                      case 'DIVIDER':
+                        return (
+                          <div
+                            key={block.id}
+                            className="w-1/2 h-px bg-white/30 my-0.5"
+                          />
+                        );
+                      case 'BRANDING':
+                        return (
+                          <div key={block.id} className="text-[4px] text-white/50 mt-auto">
+                            @{block.content?.handle || 'handle'}
+                          </div>
+                        );
+                      default:
+                        return (
+                          <div
+                            key={block.id}
+                            className="bg-white/10 rounded h-2 w-3/4"
+                          />
+                        );
+                    }
+                  })}
                 </div>
               </div>
 

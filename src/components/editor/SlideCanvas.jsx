@@ -1,5 +1,5 @@
 import React, { forwardRef, useState } from 'react';
-import { GripVertical, Trash2, Plus, Settings2 } from 'lucide-react';
+import { GripVertical, Trash2, Plus, Settings2, Zap } from 'lucide-react';
 import { getBlockComponent } from './blocks';
 import { BACKGROUND_STYLES, BLOCK_TYPES } from '../../utils/slideTemplates';
 import BlockStylePanel from './BlockStylePanel';
@@ -9,7 +9,8 @@ const SlideCanvas = forwardRef(({
   onSlideChange,
   isEditing = true,
   scale = 0.5,
-  showControls = true
+  showControls = true,
+  showBranding = false
 }, ref) => {
   const [activeBlockId, setActiveBlockId] = useState(null);
   const [draggedBlockIndex, setDraggedBlockIndex] = useState(null);
@@ -179,6 +180,20 @@ const SlideCanvas = forwardRef(({
             );
           })}
         </div>
+
+        {/* Breaking Dynamics Branding Watermark */}
+        {showBranding && (
+          <div
+            className="absolute bottom-6 right-6 flex items-center gap-2 px-3 py-1.5 rounded-lg z-20"
+            style={{
+              background: 'rgba(0, 0, 0, 0.6)',
+              backdropFilter: 'blur(8px)',
+            }}
+          >
+            <Zap className="w-4 h-4 text-[#FF6B35]" />
+            <span className="text-xs font-medium text-white/80">Breaking Dynamics</span>
+          </div>
+        )}
       </div>
 
       {/* Add Block Indicator (when empty) */}
