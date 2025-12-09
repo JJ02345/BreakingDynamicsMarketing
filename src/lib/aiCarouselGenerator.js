@@ -406,8 +406,7 @@ export const generateCarouselFromHypothesis = async ({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': AI_API_KEY,
-        'ngrok-skip-browser-warning': 'true'
+        'X-API-Key': AI_API_KEY
       },
       body: JSON.stringify({
         topic: hypothesis.trim(),
@@ -493,8 +492,7 @@ export const checkAIHealth = async () => {
     const response = await fetch(healthUrl, {
       method: 'GET',
       headers: {
-        'X-API-Key': AI_API_KEY,
-        'ngrok-skip-browser-warning': 'true'
+        'X-API-Key': AI_API_KEY
       }
     });
     return response.ok;
