@@ -3,11 +3,12 @@
  * Uses the same API endpoint as carousel generator
  */
 
-// API Configuration - same as carousel generator
-const AI_API_URL = import.meta.env.VITE_AI_API_URL || 'https://nonlogistic-unnative-dominique.ngrok-free.dev/api/carousel';
+// API Configuration - Homeserver translate endpoint (primary)
+const AI_BASE_URL = import.meta.env.VITE_AI_API_URL || 'https://nonlogistic-unnative-dominique.ngrok-free.dev/api/carousel';
+const AI_TRANSLATE_URL = AI_BASE_URL.replace('/api/carousel', '/api/translate');
 const AI_API_KEY = import.meta.env.VITE_AI_API_KEY || 'lk-carousel-j4k5ch-2024-prod';
 
-// OpenRouter API for translation (reliable fallback)
+// OpenRouter API for translation (fallback)
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 
@@ -192,10 +193,12 @@ const translateWithOpenRouter = async (texts, targetLangName) => {
 };
 
 /**
- * Call main carousel API for translation
+ * Call homeserver /api/translate endpoint (primary method)
  */
-const translateWithCarouselAPI = async (texts, targetLangName) => {
-  const response = await fetch(AI_API_URL, {
+const translateWithHomeserver = async (texts, targetLangName) => {
+  console.log('Translating with Homeserver...', AI_TRANSLATE_URL);
+
+  const response = await fetch(AI_TRANSLATE_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -203,14 +206,13 @@ const translateWithCarouselAPI = async (texts, targetLangName) => {
       'ngrok-skip-browser-warning': 'true',
     },
     body: JSON.stringify({
-      action: 'translate',
       texts: texts,
       targetLanguage: targetLangName,
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`Carousel API error: ${response.status}`);
+    throw new Error(`Homeserver API error: ${response.status}`);
   }
 
   const data = await response.json();
@@ -256,22 +258,20 @@ export const translateSlides = async (slides, targetLanguage, onProgress) => {
   const textsToTranslate = needsAITranslation.map(t => t.value);
   let aiTranslations = null;
 
-  // Try OpenRouter first (most reliable), then carousel API, then local fallback
+  // Try Homeserver first, then OpenRouter as fallback
   try {
-    if (OPENROUTER_API_KEY) {
-      console.log('Translating with OpenRouter...');
-      aiTranslations = await translateWithOpenRouter(textsToTranslate, targetLangName);
-    }
+    aiTranslations = await translateWithHomeserver(textsToTranslate, targetLangName);
   } catch (error) {
-    console.warn('OpenRouter translation failed:', error.message);
-  }
+    console.warn('Homeserver translation failed:', error.message);
 
-  if (!aiTranslations) {
-    try {
-      console.log('Trying carousel API for translation...');
-      aiTranslations = await translateWithCarouselAPI(textsToTranslate, targetLangName);
-    } catch (error) {
-      console.warn('Carousel API translation failed:', error.message);
+    // Fallback to OpenRouter if available
+    if (OPENROUTER_API_KEY) {
+      try {
+        console.log('Falling back to OpenRouter...');
+        aiTranslations = await translateWithOpenRouter(textsToTranslate, targetLangName);
+      } catch (openRouterError) {
+        console.warn('OpenRouter translation also failed:', openRouterError.message);
+      }
     }
   }
 
