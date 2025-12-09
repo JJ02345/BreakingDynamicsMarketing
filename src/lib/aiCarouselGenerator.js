@@ -4,7 +4,7 @@
 // ============================================
 
 // API Configuration
-const AI_API_URL = import.meta.env.VITE_AI_API_URL || 'http://192.168.0.161:3001/api/carousel';
+const AI_API_URL = import.meta.env.VITE_AI_API_URL || 'https://nonlogistic-unnative-dominique.ngrok-free.dev/api/carousel';
 const AI_API_KEY = import.meta.env.VITE_AI_API_KEY || 'lk-carousel-j4k5ch-2024-prod';
 
 // Template patterns for different carousel types
