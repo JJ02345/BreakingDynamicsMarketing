@@ -244,10 +244,10 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
       case 'storySelling':
         newSlides = [
           createSlide('cover', 1),
-          createSlide('option', 2),
-          createSlide('option', 3),
-          createSlide('quote', 4),
-          createSlide('stats', 5),
+          createSlide('journey', 2),
+          createSlide('journey', 3),
+          createSlide('journey', 4),
+          createSlide('quote', 5),
           createSlide('cta', 6)
         ];
         break;
@@ -256,16 +256,77 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
           createSlide('cover', 1),
           createSlide('stats', 2),
           createSlide('stats', 3),
-          createSlide('cta', 4)
+          createSlide('stats', 4),
+          createSlide('cta', 5)
         ];
         break;
       case 'tipsList':
         newSlides = [
           createSlide('cover', 1),
-          createSlide('option', 2),
-          createSlide('option', 3),
-          createSlide('option', 4),
+          createSlide('tip', 2),
+          createSlide('tip', 3),
+          createSlide('tip', 4),
+          createSlide('tip', 5),
+          createSlide('tip', 6),
+          createSlide('cta', 7)
+        ];
+        break;
+      case 'howToGuide':
+        newSlides = [
+          createSlide('cover', 1),
+          createSlide('step', 2),
+          createSlide('step', 3),
+          createSlide('step', 4),
+          createSlide('result', 5),
+          createSlide('cta', 6)
+        ];
+        break;
+      case 'mythVsReality':
+        newSlides = [
+          createSlide('cover', 1),
+          createSlide('myth', 2),
+          createSlide('reality', 3),
+          createSlide('myth', 4),
+          createSlide('reality', 5),
+          createSlide('cta', 6)
+        ];
+        break;
+      case 'beforeAfter':
+        newSlides = [
+          createSlide('cover', 1),
+          createSlide('before', 2),
+          createSlide('journey', 3),
+          createSlide('after', 4),
           createSlide('cta', 5)
+        ];
+        break;
+      case 'lessonsLearned':
+        newSlides = [
+          createSlide('cover', 1),
+          createSlide('journey', 2),
+          createSlide('lesson', 3),
+          createSlide('lesson', 4),
+          createSlide('lesson', 5),
+          createSlide('cta', 6)
+        ];
+        break;
+      case 'unpopularOpinion':
+        newSlides = [
+          createSlide('cover', 1),
+          createSlide('opinion', 2),
+          createSlide('proof', 3),
+          createSlide('proof', 4),
+          createSlide('cta', 5)
+        ];
+        break;
+      case 'aboutMe':
+        newSlides = [
+          createSlide('aboutIntro', 1),
+          createSlide('aboutWho', 2),
+          createSlide('aboutWhat', 3),
+          createSlide('aboutWhy', 4),
+          createSlide('funFact', 5),
+          createSlide('cta', 6)
         ];
         break;
       case 'blank':

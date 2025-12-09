@@ -258,6 +258,264 @@ export const SLIDE_TEMPLATES = {
       background: 'gradient-dark',
       padding: 'lg'
     }
+  },
+  // === NEUE TEMPLATES ===
+  tip: {
+    id: 'tip',
+    name: 'Tip Slide',
+    nameDE: 'Tipp Slide',
+    description: 'Share one actionable tip',
+    descriptionDE: 'Teile einen umsetzbaren Tipp',
+    defaultBlocks: [
+      { type: 'NUMBER', content: { number: '01', label: '', color: '#FF6B35' } },
+      { type: 'HEADING', content: { text: 'Tipp Titel hier', fontSize: 'xl', fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF' } },
+      { type: 'PARAGRAPH', content: { text: 'Erkläre warum dieser Tipp funktioniert und wie man ihn anwenden kann.', fontSize: 'base', textAlign: 'left', color: '#B0B0B0' } }
+    ],
+    defaultStyles: {
+      background: 'solid-dark',
+      padding: 'lg'
+    }
+  },
+  step: {
+    id: 'step',
+    name: 'Step Slide',
+    nameDE: 'Schritt Slide',
+    description: 'Show a process step',
+    descriptionDE: 'Zeige einen Prozess-Schritt',
+    defaultBlocks: [
+      { type: 'BADGE', content: { text: 'Schritt 1', backgroundColor: '#FF6B35', textColor: '#FFFFFF' } },
+      { type: 'HEADING', content: { text: 'Was du tun musst', fontSize: 'xl', fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF' } },
+      { type: 'PARAGRAPH', content: { text: 'Beschreibe den Schritt klar und verständlich. Was soll das Ergebnis sein?', fontSize: 'base', textAlign: 'left', color: '#B0B0B0' } },
+      { type: 'ICON', content: { emoji: '→', size: 'lg' } }
+    ],
+    defaultStyles: {
+      background: 'gradient-dark',
+      padding: 'lg'
+    }
+  },
+  result: {
+    id: 'result',
+    name: 'Result Slide',
+    nameDE: 'Ergebnis Slide',
+    description: 'Show the outcome',
+    descriptionDE: 'Zeige das Ergebnis',
+    defaultBlocks: [
+      { type: 'ICON', content: { emoji: '✅', size: 'xxl' } },
+      { type: 'HEADING', content: { text: 'Das Ergebnis', fontSize: 'xl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' } },
+      { type: 'PARAGRAPH', content: { text: 'Was hast du erreicht? Was hat sich verändert?', fontSize: 'base', textAlign: 'center', color: '#B0B0B0' } }
+    ],
+    defaultStyles: {
+      background: 'gradient-emerald',
+      padding: 'lg'
+    }
+  },
+  myth: {
+    id: 'myth',
+    name: 'Myth Slide',
+    nameDE: 'Mythos Slide',
+    description: 'Present a common myth',
+    descriptionDE: 'Präsentiere einen verbreiteten Mythos',
+    defaultBlocks: [
+      { type: 'BADGE', content: { text: '❌ Mythos', backgroundColor: '#EF4444', textColor: '#FFFFFF' } },
+      { type: 'HEADING', content: { text: '"Das stimmt doch gar nicht..."', fontSize: 'xl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' } },
+      { type: 'PARAGRAPH', content: { text: 'Beschreibe den verbreiteten Irrglauben.', fontSize: 'base', textAlign: 'center', color: '#B0B0B0' } }
+    ],
+    defaultStyles: {
+      background: 'gradient-fire',
+      padding: 'lg'
+    }
+  },
+  reality: {
+    id: 'reality',
+    name: 'Reality Slide',
+    nameDE: 'Realität Slide',
+    description: 'Reveal the truth',
+    descriptionDE: 'Enthülle die Wahrheit',
+    defaultBlocks: [
+      { type: 'BADGE', content: { text: '✓ Realität', backgroundColor: '#10B981', textColor: '#FFFFFF' } },
+      { type: 'HEADING', content: { text: 'So ist es wirklich', fontSize: 'xl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' } },
+      { type: 'PARAGRAPH', content: { text: 'Erkläre die Wahrheit und warum es wichtig ist, sie zu kennen.', fontSize: 'base', textAlign: 'center', color: '#B0B0B0' } }
+    ],
+    defaultStyles: {
+      background: 'gradient-emerald',
+      padding: 'lg'
+    }
+  },
+  before: {
+    id: 'before',
+    name: 'Before Slide',
+    nameDE: 'Vorher Slide',
+    description: 'Show the starting point',
+    descriptionDE: 'Zeige den Ausgangspunkt',
+    defaultBlocks: [
+      { type: 'BADGE', content: { text: 'VORHER', backgroundColor: '#6B7280', textColor: '#FFFFFF' } },
+      { type: 'HEADING', content: { text: 'Die Situation vorher', fontSize: 'xl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' } },
+      { type: 'BULLET_LIST', content: { items: ['Problem 1', 'Problem 2', 'Problem 3'], bulletStyle: 'x', color: '#EF4444' } }
+    ],
+    defaultStyles: {
+      background: 'solid-dark',
+      padding: 'lg'
+    }
+  },
+  after: {
+    id: 'after',
+    name: 'After Slide',
+    nameDE: 'Nachher Slide',
+    description: 'Show the transformation',
+    descriptionDE: 'Zeige die Transformation',
+    defaultBlocks: [
+      { type: 'BADGE', content: { text: 'NACHHER', backgroundColor: '#10B981', textColor: '#FFFFFF' } },
+      { type: 'HEADING', content: { text: 'Die Situation heute', fontSize: 'xl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' } },
+      { type: 'BULLET_LIST', content: { items: ['Erfolg 1', 'Erfolg 2', 'Erfolg 3'], bulletStyle: 'check', color: '#10B981' } }
+    ],
+    defaultStyles: {
+      background: 'gradient-emerald',
+      padding: 'lg'
+    }
+  },
+  journey: {
+    id: 'journey',
+    name: 'Journey Slide',
+    nameDE: 'Reise Slide',
+    description: 'Part of your story',
+    descriptionDE: 'Teil deiner Geschichte',
+    defaultBlocks: [
+      { type: 'ICON', content: { emoji: '📍', size: 'xl' } },
+      { type: 'HEADING', content: { text: 'Kapitel deiner Geschichte', fontSize: 'xl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' } },
+      { type: 'PARAGRAPH', content: { text: 'Erzähle was passiert ist und was du dabei gefühlt hast.', fontSize: 'base', textAlign: 'center', color: '#B0B0B0' } }
+    ],
+    defaultStyles: {
+      background: 'gradient-purple',
+      padding: 'lg'
+    }
+  },
+  lesson: {
+    id: 'lesson',
+    name: 'Lesson Slide',
+    nameDE: 'Lektion Slide',
+    description: 'Share a key learning',
+    descriptionDE: 'Teile eine wichtige Erkenntnis',
+    defaultBlocks: [
+      { type: 'NUMBER', content: { number: '01', label: '', color: '#F59E0B' } },
+      { type: 'HEADING', content: { text: 'Was ich gelernt habe', fontSize: 'xl', fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF' } },
+      { type: 'PARAGRAPH', content: { text: 'Beschreibe die Lektion und warum sie wichtig für dein Publikum ist.', fontSize: 'base', textAlign: 'left', color: '#B0B0B0' } }
+    ],
+    defaultStyles: {
+      background: 'gradient-gold',
+      padding: 'lg'
+    }
+  },
+  opinion: {
+    id: 'opinion',
+    name: 'Opinion Slide',
+    nameDE: 'Meinung Slide',
+    description: 'State your controversial view',
+    descriptionDE: 'Teile deine kontroverse Ansicht',
+    defaultBlocks: [
+      { type: 'ICON', content: { emoji: '🔥', size: 'xl' } },
+      { type: 'HEADING', content: { text: 'Meine unpopuläre Meinung:', fontSize: 'lg', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' } },
+      { type: 'QUOTE', content: { text: '"Hier steht deine kontroverse Aussage"', author: '', fontSize: 'xl', fontStyle: 'normal' } }
+    ],
+    defaultStyles: {
+      background: 'gradient-fire',
+      padding: 'lg'
+    }
+  },
+  proof: {
+    id: 'proof',
+    name: 'Proof Slide',
+    nameDE: 'Beweis Slide',
+    description: 'Back up your claim',
+    descriptionDE: 'Untermauere deine Aussage',
+    defaultBlocks: [
+      { type: 'BADGE', content: { text: 'BEWEIS', backgroundColor: '#3B82F6', textColor: '#FFFFFF' } },
+      { type: 'HEADING', content: { text: 'Darum stimmt das', fontSize: 'xl', fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF' } },
+      { type: 'BULLET_LIST', content: { items: ['Argument 1', 'Argument 2', 'Argument 3'], bulletStyle: 'arrow', color: '#FFFFFF' } }
+    ],
+    defaultStyles: {
+      background: 'gradient-blue',
+      padding: 'lg'
+    }
+  },
+  aboutIntro: {
+    id: 'aboutIntro',
+    name: 'About Intro',
+    nameDE: 'Über Mich Intro',
+    description: 'Introduce yourself',
+    descriptionDE: 'Stelle dich vor',
+    defaultBlocks: [
+      { type: 'ICON', content: { emoji: '👋', size: 'xxl' } },
+      { type: 'HEADING', content: { text: 'Hey, ich bin [Name]!', fontSize: 'xl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' } },
+      { type: 'SUBHEADING', content: { text: 'Swipe um mehr über mich zu erfahren →', fontSize: 'base', fontWeight: 'normal', textAlign: 'center', color: '#FF6B35' } }
+    ],
+    defaultStyles: {
+      background: 'gradient-orange',
+      padding: 'lg'
+    }
+  },
+  aboutWho: {
+    id: 'aboutWho',
+    name: 'Who I Am',
+    nameDE: 'Wer ich bin',
+    description: 'Share your identity',
+    descriptionDE: 'Teile deine Identität',
+    defaultBlocks: [
+      { type: 'BADGE', content: { text: 'WER', backgroundColor: '#0EA5E9', textColor: '#FFFFFF' } },
+      { type: 'HEADING', content: { text: 'Das bin ich', fontSize: 'xl', fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF' } },
+      { type: 'PARAGRAPH', content: { text: 'Kurze Bio: Rolle, Erfahrung, Besonderheit.', fontSize: 'base', textAlign: 'left', color: '#B0B0B0' } }
+    ],
+    defaultStyles: {
+      background: 'gradient-blue',
+      padding: 'lg'
+    }
+  },
+  aboutWhat: {
+    id: 'aboutWhat',
+    name: 'What I Do',
+    nameDE: 'Was ich mache',
+    description: 'Share your work',
+    descriptionDE: 'Teile deine Arbeit',
+    defaultBlocks: [
+      { type: 'BADGE', content: { text: 'WAS', backgroundColor: '#8B5CF6', textColor: '#FFFFFF' } },
+      { type: 'HEADING', content: { text: 'Das mache ich', fontSize: 'xl', fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF' } },
+      { type: 'BULLET_LIST', content: { items: ['Expertise 1', 'Expertise 2', 'Expertise 3'], bulletStyle: 'check', color: '#8B5CF6' } }
+    ],
+    defaultStyles: {
+      background: 'gradient-purple',
+      padding: 'lg'
+    }
+  },
+  aboutWhy: {
+    id: 'aboutWhy',
+    name: 'Why I Do It',
+    nameDE: 'Warum ich das mache',
+    description: 'Share your motivation',
+    descriptionDE: 'Teile deine Motivation',
+    defaultBlocks: [
+      { type: 'BADGE', content: { text: 'WARUM', backgroundColor: '#EC4899', textColor: '#FFFFFF' } },
+      { type: 'HEADING', content: { text: 'Meine Mission', fontSize: 'xl', fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF' } },
+      { type: 'QUOTE', content: { text: '"Ich helfe [Zielgruppe] dabei, [Ergebnis] zu erreichen."', author: '', fontSize: 'lg', fontStyle: 'normal' } }
+    ],
+    defaultStyles: {
+      background: 'gradient-rose',
+      padding: 'lg'
+    }
+  },
+  funFact: {
+    id: 'funFact',
+    name: 'Fun Fact',
+    nameDE: 'Fun Fact',
+    description: 'Share something fun',
+    descriptionDE: 'Teile etwas Lustiges',
+    defaultBlocks: [
+      { type: 'ICON', content: { emoji: '🎉', size: 'xl' } },
+      { type: 'HEADING', content: { text: 'Fun Fact über mich:', fontSize: 'lg', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' } },
+      { type: 'PARAGRAPH', content: { text: 'Etwas Persönliches das dich menschlich macht.', fontSize: 'base', textAlign: 'center', color: '#B0B0B0' } }
+    ],
+    defaultStyles: {
+      background: 'mesh-vibrant',
+      padding: 'lg'
+    }
   }
 };
 
