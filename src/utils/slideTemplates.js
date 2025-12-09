@@ -247,12 +247,15 @@ export const SLIDE_TEMPLATES = {
   blank: {
     id: 'blank',
     name: 'Blank Slide',
-    nameDE: 'Leere Slide',
-    description: 'Start from scratch',
-    descriptionDE: 'Von Grund auf neu',
-    defaultBlocks: [],
+    nameDE: 'Eigenes Design',
+    description: 'Start with basic elements',
+    descriptionDE: 'Starte mit Basis-Elementen',
+    defaultBlocks: [
+      { type: 'HEADING', content: { text: 'Deine Überschrift', fontSize: 'xxl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' } },
+      { type: 'SUBHEADING', content: { text: 'Dein Untertitel hier', fontSize: 'lg', fontWeight: 'normal', textAlign: 'center', color: '#B0B0B0' } }
+    ],
     defaultStyles: {
-      background: 'solid-dark',
+      background: 'gradient-dark',
       padding: 'lg'
     }
   }

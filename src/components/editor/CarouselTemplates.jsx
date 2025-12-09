@@ -110,9 +110,7 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI }) => {
 
         {/* Template Grid */}
         <div className="grid gap-4 md:grid-cols-2">
-          {Object.entries(CAROUSEL_PRESETS)
-            .filter(([id]) => id !== 'blank')
-            .map(([id, template]) => {
+          {Object.entries(CAROUSEL_PRESETS).map(([id, template]) => {
               const Icon = template.icon;
               return (
                 <button
@@ -147,62 +145,15 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI }) => {
             })}
         </div>
 
-        {/* Divider */}
-        <div className="flex items-center gap-4 my-10">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-white/30 text-sm">{isDE ? 'oder' : 'or'}</span>
-          <div className="flex-1 h-px bg-white/10" />
-        </div>
-
-        {/* Section: KI-Unterstützung */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-[#FF6B35]/10 border border-[#FF6B35]/20 flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-[#FF6B35]" />
-            </div>
-            <div>
-              <h2 className="font-['Syne'] text-xl font-bold text-white">
-                {isDE ? 'KI-Unterstützung' : 'AI Assistance'}
-              </h2>
-              <p className="text-sm text-white/40">
-                {isDE ? 'Lass dir bei der Erstellung helfen' : 'Get help creating your carousel'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* AI Generator Card */}
-        <button
-          onClick={onOpenAI}
-          className="w-full p-5 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-[#FF6B35]/30 transition-all group text-left"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#FF6B35]/20 to-[#FF8C5A]/20 border border-[#FF6B35]/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Sparkles className="h-6 w-6 text-[#FF6B35]" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-white mb-1 group-hover:text-[#FF6B35] transition-colors">
-                {isDE ? 'Carousel generieren lassen' : 'Generate carousel'}
-              </h3>
-              <p className="text-sm text-white/40">
-                {isDE
-                  ? 'Beschreibe dein Thema und erhalte ein fertiges Carousel'
-                  : 'Describe your topic and get a complete carousel'}
-              </p>
-            </div>
-            <div className="px-3 py-1.5 rounded-lg bg-[#FF6B35]/10 border border-[#FF6B35]/20 text-[#FF6B35] text-sm font-medium">
-              {isDE ? 'Starten' : 'Start'}
-            </div>
-          </div>
-        </button>
-
-        {/* Footer Info */}
-        <div className="mt-12 text-center">
-          <p className="text-white/30 text-sm">
-            {isDE
-              ? 'Du behältst immer die volle Kontrolle. Die KI unterstützt dich nur bei Bedarf.'
-              : 'You always keep full control. AI only assists when needed.'}
-          </p>
+        {/* AI Generator - small button at bottom */}
+        <div className="mt-10 flex justify-center">
+          <button
+            onClick={onOpenAI}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:border-[#FF6B35]/30 hover:bg-white/[0.08] transition-all text-sm text-white/60 hover:text-white"
+          >
+            <Sparkles className="h-4 w-4 text-[#FF6B35]" />
+            <span>{isDE ? 'Mit KI generieren' : 'Generate with AI'}</span>
+          </button>
         </div>
       </div>
     </div>
