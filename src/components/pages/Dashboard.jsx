@@ -60,7 +60,7 @@ const Dashboard = function(props) {
               { k: 'home', i: Home, l: t('dashboard.home') },
               { k: 'history', i: History, l: t('dashboard.history') },
               { k: 'analyse', i: LineChart, l: t('dashboard.analysis') },
-              { k: 'settings', i: Settings, l: isDE ? 'Einstellungen' : 'Settings' }
+              { k: 'settings', i: Settings, l: t('dashboard.settings') }
             ].map(item => (
               <button key={item.k} onClick={() => setTab(item.k)} className={"flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all " + (tab === item.k ? 'bg-gradient-to-r from-[#FF6B35] to-[#FF8C5A] text-[#0A0A0B]' : 'text-white/60 hover:text-white hover:bg-white/5')}>
                 <item.i className="h-4 w-4" />{item.l}
