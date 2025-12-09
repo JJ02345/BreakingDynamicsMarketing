@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Loader2, Zap, MessageSquare, List, GitCompare, HelpCircle, ChevronRight } from 'lucide-react';
 import { generateCarouselFromHypothesis, getCarouselPatterns } from '../../lib/aiCarouselGenerator';
+import { useLanguage } from '../../context/LanguageContext';
 
 const PATTERN_ICONS = {
   problem_solution: Zap,
@@ -10,13 +11,8 @@ const PATTERN_ICONS = {
   myth_busting: HelpCircle
 };
 
-const TONE_OPTIONS = [
-  { id: 'professional', label: 'Professionell', emoji: '👔' },
-  { id: 'casual', label: 'Locker', emoji: '😊' },
-  { id: 'provocative', label: 'Provokativ', emoji: '🔥' },
-];
-
 const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
+  const { t, language } = useLanguage();
   const [hypothesis, setHypothesis] = useState('');
   const [pattern, setPattern] = useState('problem_solution');
   const [slideCount, setSlideCount] = useState(5);
@@ -29,7 +25,7 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
 
   const handleGenerate = async () => {
     if (!hypothesis.trim()) {
-      setError('Bitte gib eine Hypothese ein.');
+      setError(t('aiGenerator.errorEmpty'));
       return;
     }
 
@@ -42,7 +38,7 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
         pattern,
         slideCount,
         tone,
-        language: 'de',
+        language: language,
         onProgress: setProgress
       });
 
@@ -50,7 +46,7 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
       onClose();
       resetForm();
     } catch (err) {
-      setError(err.message || 'Fehler bei der Generierung.');
+      setError(err.message || t('aiGenerator.errorGeneric'));
     } finally {
       setIsGenerating(false);
       setProgress({ stage: '', percentage: 0 });
@@ -67,13 +63,30 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
 
   const getProgressText = () => {
     switch (progress.stage) {
-      case 'analyzing': return 'Analysiere Hypothese...';
-      case 'generating': return 'Generiere Inhalte...';
-      case 'formatting': return 'Formatiere Slides...';
-      case 'complete': return 'Fertig!';
-      default: return 'Starte...';
+      case 'analyzing': return t('aiGenerator.progressAnalyzing');
+      case 'generating': return t('aiGenerator.progressGenerating');
+      case 'formatting': return t('aiGenerator.progressFormatting');
+      case 'complete': return t('aiGenerator.progressComplete');
+      default: return t('aiGenerator.progressStarting');
     }
   };
+
+  const getPatternName = (patternId) => {
+    const patternMap = {
+      problem_solution: t('aiGenerator.patternProblemSolution'),
+      listicle: t('aiGenerator.patternListicle'),
+      story: t('aiGenerator.patternStory'),
+      comparison: t('aiGenerator.patternComparison'),
+      myth_busting: t('aiGenerator.patternMythBusting'),
+    };
+    return patternMap[patternId] || patternId;
+  };
+
+  const toneOptions = [
+    { id: 'professional', label: t('aiGenerator.toneProfessional'), emoji: '👔' },
+    { id: 'casual', label: t('aiGenerator.toneCasual'), emoji: '😊' },
+    { id: 'provocative', label: t('aiGenerator.toneProvocative'), emoji: '🔥' },
+  ];
 
   if (!isOpen) return null;
 
@@ -87,8 +100,8 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h2 className="font-semibold text-white">KI Carousel Generator</h2>
-              <p className="text-xs text-white/50">Erstelle ein Carousel aus deiner Hypothese</p>
+              <h2 className="font-semibold text-white">{t('aiGenerator.title')}</h2>
+              <p className="text-xs text-white/50">{t('aiGenerator.subtitle')}</p>
             </div>
           </div>
           <button
@@ -105,19 +118,19 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
           {/* Hypothesis Input */}
           <div>
             <label className="block text-sm font-medium text-white mb-2">
-              Deine Hypothese / These
+              {t('aiGenerator.hypothesisLabel')}
             </label>
             <textarea
               value={hypothesis}
               onChange={(e) => setHypothesis(e.target.value)}
-              placeholder="z.B. 'Remote Work macht Teams produktiver als Büroarbeit' oder 'Die meisten Startups scheitern an mangelnder Kundenvalidierung'"
+              placeholder={t('aiGenerator.hypothesisPlaceholder')}
               className="w-full h-24 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:border-[#FF6B35]/50 focus:outline-none resize-none"
               disabled={isGenerating}
             />
             <div className="flex justify-between mt-1">
-              <span className="text-xs text-white/40">Mind. 10 Zeichen</span>
+              <span className="text-xs text-white/40">{t('aiGenerator.minChars')}</span>
               <span className={`text-xs ${hypothesis.length >= 10 ? 'text-green-400' : 'text-white/40'}`}>
-                {hypothesis.length} Zeichen
+                {hypothesis.length} {t('aiGenerator.characters')}
               </span>
             </div>
           </div>
@@ -125,10 +138,10 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
           {/* Pattern Selection */}
           <div>
             <label className="block text-sm font-medium text-white mb-2">
-              Carousel-Struktur
+              {t('aiGenerator.structureLabel')}
             </label>
             <div className="grid grid-cols-2 gap-2">
-              {Object.entries(patterns).map(([id, { name }]) => {
+              {Object.keys(patterns).map((id) => {
                 const Icon = PATTERN_ICONS[id] || Zap;
                 return (
                   <button
@@ -142,7 +155,7 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
                     } disabled:opacity-50`}
                   >
                     <Icon className="h-4 w-4 flex-shrink-0" />
-                    <span className="text-sm">{name}</span>
+                    <span className="text-sm">{getPatternName(id)}</span>
                   </button>
                 );
               })}
@@ -152,7 +165,7 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
           {/* Slide Count */}
           <div>
             <label className="block text-sm font-medium text-white mb-2">
-              Anzahl Slides: {slideCount}
+              {t('aiGenerator.slideCountLabel')}: {slideCount}
             </label>
             <input
               type="range"
@@ -164,18 +177,18 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
               className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#FF6B35] disabled:opacity-50"
             />
             <div className="flex justify-between text-xs text-white/40 mt-1">
-              <span>3 (kurz)</span>
-              <span>10 (ausführlich)</span>
+              <span>3 ({t('aiGenerator.short')})</span>
+              <span>10 ({t('aiGenerator.detailed')})</span>
             </div>
           </div>
 
           {/* Tone Selection */}
           <div>
             <label className="block text-sm font-medium text-white mb-2">
-              Tonalität
+              {t('aiGenerator.toneLabel')}
             </label>
             <div className="flex gap-2">
-              {TONE_OPTIONS.map(({ id, label, emoji }) => (
+              {toneOptions.map(({ id, label, emoji }) => (
                 <button
                   key={id}
                   onClick={() => setTone(id)}
@@ -225,7 +238,7 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
               disabled={isGenerating}
               className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"
             >
-              Abbrechen
+              {t('aiGenerator.cancel')}
             </button>
             <button
               onClick={handleGenerate}
@@ -235,19 +248,19 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
               {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Generiere...
+                  {t('aiGenerator.generating')}
                 </>
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  Carousel generieren
+                  {t('aiGenerator.generate')}
                   <ChevronRight className="h-4 w-4" />
                 </>
               )}
             </button>
           </div>
           <p className="text-center text-xs text-white/30 mt-3">
-            💡 Die generierten Inhalte können nach der Erstellung bearbeitet werden
+            {t('aiGenerator.editHint')}
           </p>
         </div>
       </div>

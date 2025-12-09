@@ -14,6 +14,7 @@ import AIGeneratorModal from './AIGeneratorModal';
 import CarouselTemplates from './CarouselTemplates';
 import { createDefaultCarousel, createBlock, createSlide } from '../../utils/slideTemplates';
 import { generateAndDownloadPDF } from '../../lib/pdfGenerator';
+import { LoginModal } from '../auth';
 
 // LocalStorage key for carousel draft
 const CAROUSEL_DRAFT_KEY = 'carousel_draft';
@@ -67,6 +68,8 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   const [showStylePanel, setShowStylePanel] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const [showAIGenerator, setShowAIGenerator] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null); // 'save' or 'linkedin'
 
   // Save draft to LocalStorage whenever slides or title change
   useEffect(() => {
@@ -223,7 +226,15 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   }, []);
 
   const handleSave = async () => {
-    if (!isAuthenticated) { addToast(t('carousel.loginToSave'), 'warning'); return; }
+    if (!isAuthenticated) {
+      setPendingAction('save');
+      setShowLoginModal(true);
+      return;
+    }
+    await performSave();
+  };
+
+  const performSave = async () => {
     setSaving(true);
     try {
       const carouselData = { title: title || t('carousel.untitled'), slides, settings: { width: 1080, height: 1080 } };
@@ -271,6 +282,17 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
       return;
     }
 
+    // Show login modal if not authenticated (soft login)
+    if (!isAuthenticated) {
+      setPendingAction('linkedin');
+      setShowLoginModal(true);
+      return;
+    }
+
+    await performPostToLinkedIn();
+  }, [slides.length, isAuthenticated, isDE, addToast]);
+
+  const performPostToLinkedIn = useCallback(async () => {
     // First export the PDF
     setExporting(true);
     setExportProgress(0);
@@ -302,6 +324,17 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
       setExportProgress(0);
     }
   }, [slides, title, isDE, addToast]);
+
+  // Handle successful login - execute pending action
+  const handleLoginSuccess = useCallback(async () => {
+    setShowLoginModal(false);
+    if (pendingAction === 'save') {
+      await performSave();
+    } else if (pendingAction === 'linkedin') {
+      await performPostToLinkedIn();
+    }
+    setPendingAction(null);
+  }, [pendingAction, performSave, performPostToLinkedIn]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -446,6 +479,17 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
         onClose={() => setShowAIGenerator(false)}
         onGenerated={handleAIGenerated}
       />
+
+      {/* Login Modal for soft login */}
+      {showLoginModal && (
+        <LoginModal
+          onClose={() => {
+            setShowLoginModal(false);
+            setPendingAction(null);
+          }}
+          onLogin={handleLoginSuccess}
+        />
+      )}
     </div>
   );
 };

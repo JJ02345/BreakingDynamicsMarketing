@@ -59,7 +59,7 @@ const FeedbackWidget = function() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-56 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#FF6B35] to-[#FF8C5A] text-[#0A0A0B] shadow-lg shadow-[#FF6B35]/30 transition-all hover:scale-110 hover:shadow-xl hover:shadow-[#FF6B35]/40 active:scale-95"
+        className="fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#FF6B35] to-[#FF8C5A] text-[#0A0A0B] shadow-lg shadow-[#FF6B35]/30 transition-all hover:scale-110 hover:shadow-xl hover:shadow-[#FF6B35]/40 active:scale-95"
         title={t('feedback.title')}
       >
         <MessageSquare className="h-5 w-5" />
