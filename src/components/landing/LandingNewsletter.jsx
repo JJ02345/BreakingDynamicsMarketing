@@ -39,7 +39,7 @@ const LandingNewsletter = () => {
   };
 
   return (
-    <section className="relative py-16 px-6">
+    <section className="relative py-20 px-6">
       <div className="relative z-10 mx-auto max-w-xl text-center">
         {/* Icon */}
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#FF6B35]/10 border border-[#FF6B35]/20 mb-4">

@@ -12,7 +12,7 @@ const LandingFeatures = () => {
   ];
 
   return (
-    <section className="relative py-32 px-6">
+    <section className="relative py-24 px-6">
       <div className="absolute inset-0 bg-diagonal" />
       <div className="relative z-10 mx-auto max-w-6xl">
         <div className="text-center mb-16">

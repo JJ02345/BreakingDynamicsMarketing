@@ -22,7 +22,7 @@ const LandingHero = () => {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-6 pt-16">
+    <section className="relative min-h-screen flex items-center justify-center px-6 pt-24 pb-16">
       <div className="absolute inset-0 bg-grid opacity-30" />
       <div className="absolute inset-0 bg-glow-top" />
       <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[#FF6B35]/5 rounded-full blur-[120px]" />

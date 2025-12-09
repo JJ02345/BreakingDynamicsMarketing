@@ -14,7 +14,7 @@ const LandingCommunity = () => {
   ];
 
   return (
-    <section className="relative py-32 px-6">
+    <section className="relative py-24 px-6">
       <div className="absolute inset-0 bg-glow-center" />
       <div className="relative z-10 mx-auto max-w-3xl text-center">
         <div className="badge-cyan mb-6 inline-flex items-center gap-2">

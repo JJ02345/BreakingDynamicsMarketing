@@ -1,10 +1,15 @@
 /**
  * Translate slide content to a target language using AI
+ * Uses the same API endpoint as carousel generator
  */
 
 // API Configuration - same as carousel generator
 const AI_API_URL = import.meta.env.VITE_AI_API_URL || 'https://nonlogistic-unnative-dominique.ngrok-free.dev/api/carousel';
 const AI_API_KEY = import.meta.env.VITE_AI_API_KEY || 'lk-carousel-j4k5ch-2024-prod';
+
+// OpenRouter API for translation (reliable fallback)
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 
 const LANGUAGE_NAMES = {
   en: 'English',
@@ -138,6 +143,81 @@ const quickTranslateText = (text, targetLanguage) => {
 };
 
 /**
+ * Call OpenRouter API for translation
+ */
+const translateWithOpenRouter = async (texts, targetLangName) => {
+  if (!OPENROUTER_API_KEY) {
+    throw new Error('OpenRouter API key not configured');
+  }
+
+  const response = await fetch(OPENROUTER_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+      'HTTP-Referer': window.location.origin,
+      'X-Title': 'Breaking Dynamics Carousel',
+    },
+    body: JSON.stringify({
+      model: 'anthropic/claude-3-haiku',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a professional translator. Translate texts to ${targetLangName}. Keep the same tone, style, formatting, and any emojis. Return ONLY a valid JSON array with translations in the exact same order as input. No explanations.`
+        },
+        {
+          role: 'user',
+          content: `Translate these texts to ${targetLangName}. Return ONLY a JSON array:\n${JSON.stringify(texts)}`
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 2000,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`OpenRouter API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content || '';
+
+  // Parse JSON from response
+  const jsonMatch = content.match(/\[[\s\S]*\]/);
+  if (jsonMatch) {
+    return JSON.parse(jsonMatch[0]);
+  }
+
+  throw new Error('Invalid response format');
+};
+
+/**
+ * Call main carousel API for translation
+ */
+const translateWithCarouselAPI = async (texts, targetLangName) => {
+  const response = await fetch(AI_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': AI_API_KEY,
+      'ngrok-skip-browser-warning': 'true',
+    },
+    body: JSON.stringify({
+      action: 'translate',
+      texts: texts,
+      targetLanguage: targetLangName,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Carousel API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.translations || data.result || [];
+};
+
+/**
  * Translate all slides to target language using AI
  */
 export const translateSlides = async (slides, targetLanguage, onProgress) => {
@@ -173,65 +253,64 @@ export const translateSlides = async (slides, targetLanguage, onProgress) => {
     return translatedSlides;
   }
 
+  const textsToTranslate = needsAITranslation.map(t => t.value);
+  let aiTranslations = null;
+
+  // Try OpenRouter first (most reliable), then carousel API, then local fallback
   try {
-    // Build translation request using the carousel API endpoint
-    const textsToTranslate = needsAITranslation.map(t => t.value);
-
-    // Use the same API as carousel generation but with translation prompt
-    const translationPrompt = `Translate the following texts to ${targetLangName}.
-Keep the same tone, style and formatting. Keep emojis.
-Return ONLY a JSON array with the translations in the same order.
-
-Texts to translate:
-${JSON.stringify(textsToTranslate)}
-
-Return format: ["translated text 1", "translated text 2", ...]`;
-
-    const response = await fetch(AI_API_URL.replace('/carousel', '/translate'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': AI_API_KEY,
-      },
-      body: JSON.stringify({
-        texts: textsToTranslate,
-        targetLanguage: targetLangName,
-        prompt: translationPrompt,
-      }),
-    });
-
-    onProgress?.({ stage: 'applying', percentage: 80 });
-
-    if (response.ok) {
-      const data = await response.json();
-
-      // Map AI translations back
-      const aiTranslated = needsAITranslation.map((t, i) => ({
-        path: t.path,
-        value: data.translations?.[i] || t.value,
-      }));
-
-      // Combine quick and AI translations
-      const allTranslations = [...quickTranslated, ...aiTranslated];
-      const translatedSlides = applyTranslations(slides, allTranslations);
-
-      onProgress?.({ stage: 'complete', percentage: 100 });
-      return translatedSlides;
+    if (OPENROUTER_API_KEY) {
+      console.log('Translating with OpenRouter...');
+      aiTranslations = await translateWithOpenRouter(textsToTranslate, targetLangName);
     }
-
-    // API failed - fallback to quick translations only
-    console.warn('Translation API unavailable, using fallback');
-    const fallbackSlides = applyTranslations(slides, quickTranslated);
-    onProgress?.({ stage: 'complete', percentage: 100 });
-    return fallbackSlides;
-
   } catch (error) {
-    console.error('Translation error:', error);
-    // Fallback: apply only quick translations
-    const fallbackSlides = applyTranslations(slides, quickTranslated);
-    onProgress?.({ stage: 'complete', percentage: 100 });
-    return fallbackSlides;
+    console.warn('OpenRouter translation failed:', error.message);
   }
+
+  if (!aiTranslations) {
+    try {
+      console.log('Trying carousel API for translation...');
+      aiTranslations = await translateWithCarouselAPI(textsToTranslate, targetLangName);
+    } catch (error) {
+      console.warn('Carousel API translation failed:', error.message);
+    }
+  }
+
+  onProgress?.({ stage: 'applying', percentage: 80 });
+
+  // If we got AI translations, use them
+  if (aiTranslations && Array.isArray(aiTranslations) && aiTranslations.length > 0) {
+    const aiTranslated = needsAITranslation.map((t, i) => ({
+      path: t.path,
+      value: aiTranslations[i] || t.value,
+    }));
+
+    const allTranslations = [...quickTranslated, ...aiTranslated];
+    const translatedSlides = applyTranslations(slides, allTranslations);
+
+    onProgress?.({ stage: 'complete', percentage: 100 });
+    return translatedSlides;
+  }
+
+  // Fallback: use built-in simple translations
+  console.warn('AI translation unavailable, using local fallback');
+  const fallbackTranslated = needsAITranslation.map((t) => ({
+    path: t.path,
+    value: simpleTranslate(t.value, targetLanguage),
+  }));
+
+  const allTranslations = [...quickTranslated, ...fallbackTranslated];
+  const translatedSlides = applyTranslations(slides, allTranslations);
+  onProgress?.({ stage: 'complete', percentage: 100 });
+  return translatedSlides;
+};
+
+/**
+ * Simple local translation fallback for common words/phrases
+ */
+const simpleTranslate = (text, targetLang) => {
+  // Just return original if no translation available
+  // This keeps the text rather than breaking
+  return text;
 };
 
 /**

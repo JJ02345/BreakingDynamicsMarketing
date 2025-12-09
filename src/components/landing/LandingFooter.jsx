@@ -7,7 +7,7 @@ const LandingFooter = () => {
   const { t } = useLanguage();
 
   return (
-    <footer className="border-t border-white/5 bg-[#0A0A0B] px-6 py-12">
+    <footer className="border-t border-white/5 bg-[#0A0A0B] px-6 py-8">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
