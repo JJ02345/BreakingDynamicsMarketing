@@ -9,7 +9,6 @@ import SlideNavigator from './SlideNavigator';
 import BlockPalette from './BlockPalette';
 import CarouselHeader from './CarouselHeader';
 import CarouselSlideControls from './CarouselSlideControls';
-import CarouselBackgroundPanel from './CarouselBackgroundPanel';
 import AIGeneratorModal from './AIGeneratorModal';
 import CarouselTemplates from './CarouselTemplates';
 import { createDefaultCarousel, createBlock, createSlide } from '../../utils/slideTemplates';
@@ -65,7 +64,6 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
-  const [showStylePanel, setShowStylePanel] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -204,7 +202,6 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
 
   const handleBackgroundChange = useCallback((bgKey) => {
     handleSlideChange({ ...activeSlide, styles: { ...activeSlide.styles, background: bgKey } });
-    setShowStylePanel(false);
   }, [activeSlide, handleSlideChange]);
 
   const goToPrevSlide = () => { if (activeSlideIndex > 0) setActiveSlideIndex(activeSlideIndex - 1); };
@@ -502,16 +499,6 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
             onPrev={goToPrevSlide}
             onNext={goToNextSlide}
           />
-
-          {!previewMode && (
-            <CarouselBackgroundPanel
-              show={showStylePanel}
-              onToggle={() => setShowStylePanel(!showStylePanel)}
-              activeBackground={activeSlide?.styles?.background}
-              onBackgroundChange={handleBackgroundChange}
-              t={t}
-            />
-          )}
         </div>
 
         {/* Right Panel - Block Palette (Resizable) */}
@@ -529,6 +516,8 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
               onAddBlock={handleAddBlock}
               onOpenAI={() => setShowAIGenerator(true)}
               onPostToLinkedIn={handlePostToLinkedIn}
+              onBackgroundChange={handleBackgroundChange}
+              activeBackground={activeSlide?.styles?.background}
             />
           </div>
         )}

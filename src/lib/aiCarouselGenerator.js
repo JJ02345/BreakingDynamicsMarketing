@@ -31,15 +31,92 @@ const CAROUSEL_PATTERNS = {
   }
 };
 
-// Background styles mapping
-const BACKGROUND_STYLES = [
-  'gradient-orange',
-  'solid-dark',
-  'gradient-dark',
-  'gradient-purple',
-  'gradient-blue',
-  'gradient-green'
-];
+// ============================================
+// VISUAL DESIGN SYSTEM - Premium Look
+// ============================================
+
+// Premium background sequences for different moods
+const BACKGROUND_SEQUENCES = {
+  warm: ['gradient-orange', 'gradient-fire', 'mesh-sunset', 'gradient-gold', 'gradient-rose'],
+  cool: ['gradient-blue', 'gradient-cyan', 'mesh-cool', 'gradient-aurora', 'gradient-purple'],
+  dark: ['solid-dark', 'gradient-dark', 'solid-charcoal', 'solid-navy', 'gradient-purple'],
+  vibrant: ['mesh-vibrant', 'gradient-purple', 'gradient-emerald', 'gradient-aurora', 'mesh-cool'],
+  professional: ['solid-dark', 'gradient-dark', 'solid-charcoal', 'gradient-blue', 'solid-navy']
+};
+
+// Color accents that pair well with backgrounds
+const ACCENT_COLORS = {
+  orange: { primary: '#FF6B35', secondary: '#FF8C5A', text: '#FFFFFF', muted: '#FFB899' },
+  purple: { primary: '#8B5CF6', secondary: '#A78BFA', text: '#FFFFFF', muted: '#C4B5FD' },
+  green: { primary: '#10B981', secondary: '#34D399', text: '#FFFFFF', muted: '#6EE7B7' },
+  blue: { primary: '#3B82F6', secondary: '#60A5FA', text: '#FFFFFF', muted: '#93C5FD' },
+  rose: { primary: '#F43F5E', secondary: '#FB7185', text: '#FFFFFF', muted: '#FDA4AF' },
+  gold: { primary: '#F59E0B', secondary: '#FBBF24', text: '#1A1A1D', muted: '#FCD34D' },
+  cyan: { primary: '#06B6D4', secondary: '#22D3EE', text: '#FFFFFF', muted: '#67E8F9' }
+};
+
+// Visual layouts for different slide types
+const SLIDE_LAYOUTS = {
+  // Cover: Big bold hook with visual impact
+  cover: {
+    backgrounds: ['gradient-orange', 'mesh-vibrant', 'gradient-aurora'],
+    accent: 'orange',
+    emoji: true,
+    uppercase: true,
+    fontSize: { title: '80px', subtitle: '28px' }
+  },
+  // Stats: Number-focused with high contrast
+  stats: {
+    backgrounds: ['gradient-purple', 'mesh-cool', 'gradient-blue'],
+    accent: 'green',
+    emoji: false,
+    uppercase: false,
+    fontSize: { number: '120px', label: '24px' }
+  },
+  // List: Clean readable layout
+  list: {
+    backgrounds: ['gradient-dark', 'solid-charcoal', 'gradient-blue'],
+    accent: 'cyan',
+    emoji: true,
+    uppercase: false,
+    fontSize: { title: '44px', item: '24px' }
+  },
+  // Quote: Elegant typography
+  quote: {
+    backgrounds: ['gradient-purple', 'mesh-sunset', 'gradient-rose'],
+    accent: 'purple',
+    emoji: false,
+    uppercase: false,
+    fontSize: { quote: '36px', author: '20px' }
+  },
+  // CTA: Action-oriented finale
+  cta: {
+    backgrounds: ['gradient-orange', 'mesh-vibrant', 'gradient-fire'],
+    accent: 'orange',
+    emoji: true,
+    uppercase: true,
+    fontSize: { title: '56px', action: '28px' }
+  },
+  // Content: Standard info slide
+  content: {
+    backgrounds: ['solid-dark', 'gradient-dark', 'solid-charcoal', 'gradient-blue', 'gradient-emerald'],
+    accent: 'blue',
+    emoji: true,
+    uppercase: false,
+    fontSize: { title: '48px', body: '26px' }
+  }
+};
+
+// Emoji sets for visual variety
+const EMOJI_SETS = {
+  business: ['💼', '📈', '🎯', '💡', '🚀', '⚡', '✨', '🏆'],
+  tech: ['💻', '🔧', '⚙️', '🤖', '📱', '🔮', '💾', '🌐'],
+  growth: ['📊', '📈', '🌱', '🔥', '⬆️', '💪', '🎯', '🏅'],
+  creative: ['🎨', '✏️', '💭', '🧠', '💫', '🌟', '🎭', '🎪'],
+  social: ['👥', '🤝', '💬', '❤️', '👋', '🙌', '🎉', '🌍'],
+  warning: ['⚠️', '🚨', '❌', '🔴', '⛔', '💥', '😱', '🤔'],
+  success: ['✅', '🎉', '🏆', '🥇', '💯', '🌟', '👑', '🎊']
+};
 
 /**
  * Extract emoji from title if present
@@ -89,21 +166,79 @@ const extractListItems = (text) => {
 };
 
 /**
+ * Get a smart emoji based on slide content/position
+ */
+const getSmartEmoji = (slideIndex, totalSlides, content, existingEmoji) => {
+  if (existingEmoji) return existingEmoji;
+
+  const contentLower = (content || '').toLowerCase();
+
+  // Detect content type and return appropriate emoji
+  if (slideIndex === 0) {
+    return EMOJI_SETS.business[Math.floor(Math.random() * EMOJI_SETS.business.length)];
+  }
+  if (slideIndex === totalSlides - 1) {
+    return EMOJI_SETS.success[Math.floor(Math.random() * EMOJI_SETS.success.length)];
+  }
+
+  // Content-based detection
+  if (contentLower.includes('fehler') || contentLower.includes('problem') || contentLower.includes('mistake')) {
+    return EMOJI_SETS.warning[Math.floor(Math.random() * EMOJI_SETS.warning.length)];
+  }
+  if (contentLower.includes('tipp') || contentLower.includes('lösung') || contentLower.includes('solution')) {
+    return EMOJI_SETS.success[Math.floor(Math.random() * EMOJI_SETS.success.length)];
+  }
+  if (contentLower.includes('wachstum') || contentLower.includes('growth') || contentLower.includes('%')) {
+    return EMOJI_SETS.growth[Math.floor(Math.random() * EMOJI_SETS.growth.length)];
+  }
+
+  // Fallback: cycle through business emojis
+  return EMOJI_SETS.business[slideIndex % EMOJI_SETS.business.length];
+};
+
+/**
+ * Get accent color based on slide position for visual variety
+ */
+const getSlideAccent = (slideIndex, totalSlides, slideType) => {
+  const accentSequence = ['orange', 'blue', 'purple', 'green', 'cyan', 'rose'];
+
+  if (slideType === 'cover' || slideType === 'cta') return ACCENT_COLORS.orange;
+  if (slideType === 'stats') return ACCENT_COLORS.green;
+
+  const accentKey = accentSequence[slideIndex % accentSequence.length];
+  return ACCENT_COLORS[accentKey];
+};
+
+/**
+ * Get background for slide with visual variety
+ */
+const getSlideBackground = (slideIndex, totalSlides, slideType, usedBackgrounds) => {
+  const layout = SLIDE_LAYOUTS[slideType] || SLIDE_LAYOUTS.content;
+
+  // Pick from layout's preferred backgrounds, avoiding recent duplicates
+  const available = layout.backgrounds.filter(bg => !usedBackgrounds.includes(bg));
+  const choices = available.length > 0 ? available : layout.backgrounds;
+
+  return choices[slideIndex % choices.length];
+};
+
+/**
  * Convert AI API response to our slide format
  * API returns: { slide: number, title: string, content: string }
  *
- * VISUAL OPTIMIZATION: Uses large typography, badges, stats blocks, and bullet lists
+ * VISUAL OPTIMIZATION V2: Premium layouts, smart colors, better typography
  */
 const convertApiResponseToSlides = (apiSlides, slideCount) => {
   const slides = [];
   const totalSlides = Math.min(apiSlides.length, slideCount);
+  const usedBackgrounds = [];
 
   apiSlides.slice(0, slideCount).forEach((apiSlide, index) => {
     const isFirst = index === 0;
     const isLast = index === totalSlides - 1;
 
     // Extract emoji from title if present
-    const { emoji, cleanText: cleanTitle } = extractEmoji(apiSlide.title);
+    const { emoji: extractedEmoji, cleanText: cleanTitle } = extractEmoji(apiSlide.title);
 
     // Check for statistics in title or content
     const statInTitle = extractStatistic(apiSlide.title);
@@ -113,78 +248,79 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
     // Check if content is a list
     const listItems = extractListItems(apiSlide.content);
 
-    // Determine slide type and background
-    let slideType = 'option';
-    let background = 'solid-dark';
+    // Check if it looks like a quote
+    const isQuote = apiSlide.content?.startsWith('"') || apiSlide.content?.includes('„');
 
-    if (isFirst) {
-      slideType = 'cover';
-      background = 'gradient-orange';
-    } else if (isLast) {
-      slideType = 'cta';
-      background = 'gradient-orange';
-    } else if (hasStat) {
-      slideType = 'stats';
-      background = 'gradient-purple';
-    } else if (listItems) {
-      slideType = 'list';
-      background = 'gradient-dark';
-    } else {
-      background = BACKGROUND_STYLES[index % BACKGROUND_STYLES.length];
-    }
+    // Determine slide type
+    let slideType = 'content';
+    if (isFirst) slideType = 'cover';
+    else if (isLast) slideType = 'cta';
+    else if (hasStat) slideType = 'stats';
+    else if (listItems) slideType = 'list';
+    else if (isQuote) slideType = 'quote';
+
+    // Get visual settings
+    const background = getSlideBackground(index, totalSlides, slideType, usedBackgrounds.slice(-2));
+    usedBackgrounds.push(background);
+    const accent = getSlideAccent(index, totalSlides, slideType);
+    const emoji = getSmartEmoji(index, totalSlides, apiSlide.content, extractedEmoji);
 
     // Build blocks from API response
     const blocks = [];
 
     // === COVER SLIDE (First) ===
     if (isFirst) {
-      // Large emoji icon
-      if (emoji) {
-        blocks.push({
-          type: 'ICON',
-          content: { emoji: emoji, size: 'xxl' }
-        });
-      }
+      // Large emoji with glow effect
+      blocks.push({
+        type: 'ICON',
+        content: { emoji: emoji, size: 'xxxl' }
+      });
 
-      // BIG BOLD HEADLINE - RIESIG für Impact
+      // MASSIVE HEADLINE - Maximum impact
       if (cleanTitle) {
         blocks.push({
           type: 'HEADING',
           content: {
             text: cleanTitle.toUpperCase(),
-            fontSize: '72px',
-            fontWeight: '800',
+            fontSize: '76px',
+            fontWeight: '900',
             textAlign: 'center',
             color: '#FFFFFF',
-            lineHeight: 1.0
+            lineHeight: 0.95,
+            letterSpacing: '-2px'
           }
         });
       }
 
-      // Subtitle/hook - auch größer
+      // Subtitle with accent color
       if (apiSlide.content) {
+        const shortSubtitle = apiSlide.content.length > 60
+          ? apiSlide.content.slice(0, 57) + '...'
+          : apiSlide.content;
         blocks.push({
           type: 'PARAGRAPH',
           content: {
-            text: apiSlide.content,
-            fontSize: '32px',
+            text: shortSubtitle,
+            fontSize: '26px',
             textAlign: 'center',
-            color: '#FF6B35',
-            fontWeight: '600'
+            color: accent.primary,
+            fontWeight: '600',
+            lineHeight: 1.3
           }
         });
       }
 
-      // Swipe indicator badge
+      // Swipe CTA Badge
       blocks.push({
         type: 'BADGE',
         content: {
-          text: '→ SWIPE',
-          backgroundColor: '#FF6B35',
+          text: 'SWIPE →',
+          backgroundColor: accent.primary,
           textColor: '#FFFFFF'
         }
       });
 
+      // Branding at bottom
       blocks.push({
         type: 'BRANDING',
         content: { name: 'Dein Name', handle: '@handle', showAvatar: true }
@@ -192,123 +328,170 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
     }
 
     // === STATS SLIDE ===
-    else if (hasStat && !isLast) {
-      // Badge for context
-      if (cleanTitle && !statInTitle) {
-        blocks.push({
-          type: 'BADGE',
-          content: {
-            text: cleanTitle.toUpperCase().slice(0, 25),
-            backgroundColor: '#7C3AED',
-            textColor: '#FFFFFF'
-          }
-        });
-      }
+    else if (slideType === 'stats') {
+      // Context badge
+      const badgeText = cleanTitle && cleanTitle.length <= 20 ? cleanTitle.toUpperCase() : 'FAKT';
+      blocks.push({
+        type: 'BADGE',
+        content: {
+          text: badgeText,
+          backgroundColor: accent.primary,
+          textColor: '#FFFFFF'
+        }
+      });
 
-      // RIESIGE Statistik-Zahl
+      // MASSIVE Number - the star of the show
       const statValue = statInTitle || statInContent;
       blocks.push({
         type: 'NUMBER',
         content: {
           number: statValue,
-          label: statInTitle ? cleanTitle : '',
-          color: '#00E676'  // Bright green for impact
+          label: '',
+          color: ACCENT_COLORS.green.primary
         }
       });
 
-      // Kurzer Erklärungstext - größer
+      // Explanation below the number
       const explanationText = statInContent
         ? apiSlide.content.replace(statInContent, '').trim()
-        : apiSlide.content;
+        : (cleanTitle || apiSlide.content);
       if (explanationText && explanationText.length > 5) {
-        // Kürzen auf max 80 Zeichen für bessere Lesbarkeit
-        const shortText = explanationText.length > 80
-          ? explanationText.slice(0, 77) + '...'
+        const shortText = explanationText.length > 70
+          ? explanationText.slice(0, 67) + '...'
           : explanationText;
         blocks.push({
-          type: 'PARAGRAPH',
+          type: 'HEADING',
           content: {
             text: shortText,
-            fontSize: '28px',
+            fontSize: '36px',
             textAlign: 'center',
             color: '#FFFFFF',
-            fontWeight: '500'
+            fontWeight: '600',
+            lineHeight: 1.2
           }
         });
       }
+
+      // Divider for visual separation
+      blocks.push({
+        type: 'DIVIDER',
+        content: { style: 'solid', opacity: 0.2, width: '40%', color: accent.primary }
+      });
     }
 
     // === LIST SLIDE ===
-    else if (listItems && !isLast) {
-      // Icon if present - oben
-      if (emoji) {
-        blocks.push({
-          type: 'ICON',
-          content: { emoji: emoji, size: 'xl' }
-        });
-      }
+    else if (slideType === 'list') {
+      // Emoji at top
+      blocks.push({
+        type: 'ICON',
+        content: { emoji: emoji, size: 'xl' }
+      });
 
-      // Große Überschrift
+      // Bold headline
       if (cleanTitle) {
         blocks.push({
           type: 'HEADING',
           content: {
-            text: cleanTitle.toUpperCase(),
-            fontSize: '48px',
-            fontWeight: '700',
+            text: cleanTitle,
+            fontSize: '42px',
+            fontWeight: '800',
             textAlign: 'left',
-            color: '#FFFFFF'
+            color: '#FFFFFF',
+            lineHeight: 1.1
           }
         });
       }
 
-      // Bullet list - max 4 kurze Items
-      const shortItems = listItems.slice(0, 4).map(item =>
-        item.length > 40 ? item.slice(0, 37) + '...' : item
+      // Divider
+      blocks.push({
+        type: 'DIVIDER',
+        content: { style: 'solid', opacity: 0.15, width: '100%' }
+      });
+
+      // Bullet list - max 4 items, with emojis
+      const itemEmojis = ['✓', '✓', '✓', '✓'];
+      const shortItems = listItems.slice(0, 4).map((item, i) =>
+        `${itemEmojis[i]} ${item.length > 35 ? item.slice(0, 32) + '...' : item}`
       );
       blocks.push({
         type: 'BULLET_LIST',
         content: {
           items: shortItems,
-          bulletStyle: 'check',
+          bulletStyle: 'none',
+          color: '#FFFFFF',
+          fontSize: '26px'
+        }
+      });
+    }
+
+    // === QUOTE SLIDE ===
+    else if (slideType === 'quote') {
+      // Large quote marks
+      blocks.push({
+        type: 'ICON',
+        content: { emoji: '💬', size: 'xl' }
+      });
+
+      // The quote itself
+      blocks.push({
+        type: 'QUOTE',
+        content: {
+          text: apiSlide.content,
+          author: cleanTitle || '',
+          fontSize: '32px',
+          fontStyle: 'italic',
           color: '#FFFFFF'
         }
+      });
+
+      // Subtle divider
+      blocks.push({
+        type: 'DIVIDER',
+        content: { style: 'solid', opacity: 0.2, width: '30%' }
       });
     }
 
     // === CTA SLIDE (Last) ===
     else if (isLast) {
-      // RIESIGE Headline
+      // Celebration emoji
+      blocks.push({
+        type: 'ICON',
+        content: { emoji: '🎯', size: 'xxl' }
+      });
+
+      // Big CTA headline
+      const ctaTitle = cleanTitle || 'Was denkst du?';
       blocks.push({
         type: 'HEADING',
         content: {
-          text: (cleanTitle || 'GEFÄLLT DIR?').toUpperCase(),
-          fontSize: '64px',
-          fontWeight: '800',
+          text: ctaTitle.toUpperCase(),
+          fontSize: '52px',
+          fontWeight: '900',
           textAlign: 'center',
-          color: '#FFFFFF'
+          color: '#FFFFFF',
+          lineHeight: 1.0
         }
       });
 
+      // Divider
       blocks.push({
         type: 'DIVIDER',
-        content: { style: 'solid', opacity: 0.3, width: '50%' }
+        content: { style: 'solid', opacity: 0.25, width: '60%' }
       });
 
-      // CTA bullet list - größer und impactvoller
+      // Action items with emojis - styled as text for better control
       blocks.push({
-        type: 'BULLET_LIST',
+        type: 'PARAGRAPH',
         content: {
-          items: [
-            '💬 Kommentiere',
-            '♻️ Teilen',
-            '🔔 Folgen'
-          ],
-          bulletStyle: 'arrow',
-          color: '#FF6B35'
+          text: '💬 Kommentieren  •  ♻️ Teilen  •  🔔 Folgen',
+          fontSize: '22px',
+          textAlign: 'center',
+          color: accent.primary,
+          fontWeight: '600'
         }
       });
 
+      // Branding
       blocks.push({
         type: 'BRANDING',
         content: { name: 'Dein Name', handle: '@handle', showAvatar: true }
@@ -317,53 +500,58 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
 
     // === REGULAR CONTENT SLIDE ===
     else {
-      // Slide number badge
+      // Slide number badge - styled nicely
+      const slideNum = index;
+      const totalContent = totalSlides - 2; // exclude cover & cta
       blocks.push({
         type: 'BADGE',
         content: {
-          text: `${index}/${totalSlides - 2}`,
-          backgroundColor: '#FF6B35',
+          text: `${slideNum}/${totalContent}`,
+          backgroundColor: accent.primary,
           textColor: '#FFFFFF'
         }
       });
 
-      // Icon if present - GROSS
-      if (emoji) {
-        blocks.push({
-          type: 'ICON',
-          content: { emoji: emoji, size: 'xxl' }
-        });
-      }
+      // Emoji for visual interest
+      blocks.push({
+        type: 'ICON',
+        content: { emoji: emoji, size: 'xl' }
+      });
 
-      // GROSSE Überschrift - gut lesbar
+      // Strong headline
       if (cleanTitle) {
         blocks.push({
           type: 'HEADING',
           content: {
-            text: cleanTitle.toUpperCase(),
-            fontSize: '52px',
-            fontWeight: '700',
+            text: cleanTitle,
+            fontSize: '44px',
+            fontWeight: '800',
             textAlign: 'left',
             color: '#FFFFFF',
-            lineHeight: 1.1
+            lineHeight: 1.15
           }
         });
       }
 
-      // Content - GRÖSSER und KÜRZER
+      // Divider for structure
+      blocks.push({
+        type: 'DIVIDER',
+        content: { style: 'solid', opacity: 0.1, width: '100%' }
+      });
+
+      // Content text - optimized for readability
       if (apiSlide.content) {
-        // Max 100 Zeichen für gute Lesbarkeit
-        const shortContent = apiSlide.content.length > 100
-          ? apiSlide.content.slice(0, 97) + '...'
+        const shortContent = apiSlide.content.length > 120
+          ? apiSlide.content.slice(0, 117) + '...'
           : apiSlide.content;
         blocks.push({
           type: 'PARAGRAPH',
           content: {
             text: shortContent,
-            fontSize: '32px',
+            fontSize: '28px',
             textAlign: 'left',
-            color: '#E0E0E0',
-            lineHeight: 1.4,
+            color: '#E5E5E5',
+            lineHeight: 1.5,
             fontWeight: '400'
           }
         });
@@ -373,7 +561,7 @@ const convertApiResponseToSlides = (apiSlides, slideCount) => {
     slides.push({
       type: slideType,
       blocks,
-      styles: { background, padding: 'xl' }  // More padding for breathing room
+      styles: { background, padding: 'xl' }
     });
   });
 
