@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
@@ -7,15 +7,29 @@ import { LanguageProvider } from './context/LanguageContext';
 import { ToastProvider } from './context/ToastContext';
 import { AppProvider, useApp } from './context/AppContext';
 
-// Components
-import { EmailConfirmation } from './components/auth';
-import { Editor, CarouselEditor } from './components/editor';
-import { OfflineSurveyEditor, OnlineSurveyEditor } from './components/survey';
-import { Landing, Dashboard, LegalPage, Datenschutz, Impressum, WorkInProgress } from './components/pages';
+// Eagerly loaded (needed on first paint)
+import { Landing } from './components/pages';
 import { FeedbackWidget, ProtectedRoute } from './components/common';
 
-// Admin Dashboard
-import AdminDashboard from './AdminDashboard';
+// Lazy loaded components (code-splitting)
+const CarouselEditor = lazy(() => import('./components/editor/CarouselEditor'));
+const Editor = lazy(() => import('./components/editor/Editor'));
+const Dashboard = lazy(() => import('./components/pages/Dashboard'));
+const OfflineSurveyEditor = lazy(() => import('./components/survey/OfflineSurveyEditor'));
+const OnlineSurveyEditor = lazy(() => import('./components/survey/OnlineSurveyEditor'));
+const AdminDashboard = lazy(() => import('./AdminDashboard'));
+const EmailConfirmation = lazy(() => import('./components/auth/EmailConfirmation'));
+const LegalPage = lazy(() => import('./components/pages/LegalPage'));
+const Datenschutz = lazy(() => import('./components/pages/Datenschutz'));
+const Impressum = lazy(() => import('./components/pages/Impressum'));
+const WorkInProgress = lazy(() => import('./components/pages/WorkInProgress'));
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="flex min-h-screen items-center justify-center bg-[#0A0A0B]">
+    <Loader2 className="h-8 w-8 animate-spin text-[#FF6B35]" />
+  </div>
+);
 
 // ===========================================
 // FEATURE FLAG: Survey-Tools verstecken
@@ -43,35 +57,37 @@ const AppRoutes = function() {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/carousel" element={<CarouselEditorPage />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/carousel" element={<CarouselEditorPage />} />
 
-      {/* Survey Routes - HIDDEN via Feature Flag */}
-      {SHOW_SURVEY_ROUTES && (
-        <>
-          <Route path="/editor" element={<SurveyEditorPage />} />
-          <Route path="/survey" element={<OfflineSurveyEditorPage />} />
-          <Route path="/survey/online" element={<OnlineSurveyEditorPage />} />
-        </>
-      )}
+        {/* Survey Routes - HIDDEN via Feature Flag */}
+        {SHOW_SURVEY_ROUTES && (
+          <>
+            <Route path="/editor" element={<SurveyEditorPage />} />
+            <Route path="/survey" element={<OfflineSurveyEditorPage />} />
+            <Route path="/survey/online" element={<OnlineSurveyEditorPage />} />
+          </>
+        )}
 
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <DashboardPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/admin" element={
-        <ProtectedRoute>
-          <AdminPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/datenschutz" element={<Datenschutz />} />
-      <Route path="/impressum" element={<Impressum />} />
-      <Route path="/agb" element={<LegalPage title="AGB" />} />
-      <Route path="/wip" element={<WorkInProgress />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <AdminPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/datenschutz" element={<Datenschutz />} />
+        <Route path="/impressum" element={<Impressum />} />
+        <Route path="/agb" element={<LegalPage title="AGB" />} />
+        <Route path="/wip" element={<WorkInProgress />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 };
 

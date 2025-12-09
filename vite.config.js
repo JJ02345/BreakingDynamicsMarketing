@@ -4,11 +4,25 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    // Fallback to index.html for SPA routing
     historyApiFallback: true,
   },
   preview: {
-    // Also for preview server
     historyApiFallback: true,
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunks - split large dependencies
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['lucide-react'],
+          'vendor-pdf': ['jspdf', 'html2canvas'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-dompurify': ['dompurify'],
+        },
+      },
+    },
+    // Increase chunk size warning limit (we're optimizing anyway)
+    chunkSizeWarningLimit: 600,
   },
 })

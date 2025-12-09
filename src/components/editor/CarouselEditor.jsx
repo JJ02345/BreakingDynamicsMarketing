@@ -275,22 +275,15 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     } finally { setExporting(false); setExportProgress(0); }
   };
 
-  // LinkedIn Post - Opens LinkedIn with pre-filled post
+  // LinkedIn Post - Opens LinkedIn with pre-filled post (no login required)
   const handlePostToLinkedIn = useCallback(async () => {
     if (slides.length === 0) {
       addToast(isDE ? 'Keine Slides zum Posten' : 'No slides to post', 'warning');
       return;
     }
 
-    // Show login modal if not authenticated (soft login)
-    if (!isAuthenticated) {
-      setPendingAction('linkedin');
-      setShowLoginModal(true);
-      return;
-    }
-
     await performPostToLinkedIn();
-  }, [slides.length, isAuthenticated, isDE, addToast]);
+  }, [slides.length, isDE, addToast, performPostToLinkedIn]);
 
   const performPostToLinkedIn = useCallback(async () => {
     // First export the PDF
