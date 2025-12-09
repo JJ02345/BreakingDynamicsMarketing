@@ -1,14 +1,11 @@
 // ============================================
 // AI CAROUSEL GENERATOR
-// Mock implementation - replace with real AI API later
+// Connected to Ollama API on homeserver
 // ============================================
 
-/**
- * Generates a LinkedIn carousel from a hypothesis/topic
- * Currently uses mock data, but structured for easy API integration
- */
-
-const MOCK_DELAY = 1500; // Simulate API delay
+// API Configuration
+const AI_API_URL = import.meta.env.VITE_AI_API_URL || 'http://192.168.0.161:3001/api/carousel';
+const AI_API_KEY = import.meta.env.VITE_AI_API_KEY || 'lk-carousel-j4k5ch-2024-prod';
 
 // Template patterns for different carousel types
 const CAROUSEL_PATTERNS = {
@@ -34,165 +31,153 @@ const CAROUSEL_PATTERNS = {
   }
 };
 
-// Generate mock content based on hypothesis
-const generateMockContent = (hypothesis, pattern, slideCount) => {
-  const words = hypothesis.split(' ');
-  const keyword = words.find(w => w.length > 4) || words[0] || 'Thema';
+// Background styles mapping
+const BACKGROUND_STYLES = [
+  'gradient-orange',
+  'solid-dark',
+  'gradient-dark',
+  'gradient-purple',
+  'gradient-blue',
+  'gradient-green'
+];
 
-  const mockSlides = [];
+/**
+ * Convert AI API response to our slide format
+ */
+const convertApiResponseToSlides = (apiSlides, slideCount) => {
+  const slides = [];
 
-  // Cover/Hook Slide
-  mockSlides.push({
-    type: 'cover',
-    blocks: [
-      { type: 'ICON', content: { emoji: '🎯', size: 'xxl' } },
-      { type: 'HEADING', content: {
-        text: hypothesis.length > 50 ? hypothesis.slice(0, 50) + '...' : hypothesis,
-        fontSize: 'xxl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF'
-      }},
-      { type: 'SUBHEADING', content: {
-        text: 'Swipe für die Erklärung →',
-        fontSize: 'lg', fontWeight: 'normal', textAlign: 'center', color: '#FF6B35'
-      }},
-      { type: 'BRANDING', content: { name: 'Dein Name', handle: '@handle', showAvatar: true }}
-    ],
-    styles: { background: 'gradient-orange', padding: 'lg' }
-  });
+  apiSlides.slice(0, slideCount).forEach((apiSlide, index) => {
+    const isFirst = index === 0;
+    const isLast = index === apiSlides.length - 1 || index === slideCount - 1;
 
-  // Content slides based on pattern
-  if (pattern === 'problem_solution') {
-    mockSlides.push({
-      type: 'option',
-      blocks: [
-        { type: 'NUMBER', content: { number: '01', label: '', color: '#FF6B35' }},
-        { type: 'HEADING', content: { text: 'Das Problem', fontSize: 'xl', fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF' }},
-        { type: 'PARAGRAPH', content: {
-          text: `Viele Menschen kämpfen mit ${keyword}. Das führt zu Frustration und verlorener Zeit.`,
-          fontSize: 'base', textAlign: 'left', color: '#B0B0B0'
-        }}
-      ],
-      styles: { background: 'solid-dark', padding: 'lg' }
-    });
-    mockSlides.push({
-      type: 'option',
-      blocks: [
-        { type: 'NUMBER', content: { number: '02', label: '', color: '#FF6B35' }},
-        { type: 'HEADING', content: { text: 'Die Auswirkungen', fontSize: 'xl', fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF' }},
-        { type: 'BULLET_LIST', content: {
-          items: ['Zeitverlust durch ineffiziente Prozesse', 'Frustration im Team', 'Verpasste Chancen'],
-          bulletStyle: 'arrow', color: '#FFFFFF'
-        }}
-      ],
-      styles: { background: 'solid-dark', padding: 'lg' }
-    });
-    mockSlides.push({
-      type: 'option',
-      blocks: [
-        { type: 'ICON', content: { emoji: '💡', size: 'xl' }},
-        { type: 'HEADING', content: { text: 'Die Lösung', fontSize: 'xl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' }},
-        { type: 'PARAGRAPH', content: {
-          text: `Mit dem richtigen Ansatz für ${keyword} kannst du diese Probleme lösen.`,
-          fontSize: 'base', textAlign: 'center', color: '#B0B0B0'
-        }}
-      ],
-      styles: { background: 'gradient-purple', padding: 'lg' }
-    });
-  } else if (pattern === 'listicle') {
-    for (let i = 1; i <= Math.min(slideCount - 2, 5); i++) {
-      mockSlides.push({
-        type: 'option',
-        blocks: [
-          { type: 'NUMBER', content: { number: `0${i}`, label: '', color: '#FF6B35' }},
-          { type: 'HEADING', content: { text: `Punkt ${i}: ${keyword}`, fontSize: 'xl', fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF' }},
-          { type: 'PARAGRAPH', content: {
-            text: `Hier ist ein wichtiger Aspekt zu ${keyword}, den du kennen solltest.`,
-            fontSize: 'base', textAlign: 'left', color: '#B0B0B0'
-          }}
-        ],
-        styles: { background: 'solid-dark', padding: 'lg' }
+    // Determine slide type and background
+    let slideType = 'option';
+    let background = 'solid-dark';
+
+    if (isFirst) {
+      slideType = 'cover';
+      background = 'gradient-orange';
+    } else if (isLast) {
+      slideType = 'cta';
+      background = 'gradient-orange';
+    } else if (apiSlide.type === 'stats' || apiSlide.heading?.includes('%')) {
+      slideType = 'stats';
+      background = 'gradient-purple';
+    } else {
+      background = BACKGROUND_STYLES[index % BACKGROUND_STYLES.length];
+    }
+
+    // Build blocks from API response
+    const blocks = [];
+
+    // Add emoji/icon if present
+    if (apiSlide.emoji) {
+      blocks.push({
+        type: 'ICON',
+        content: { emoji: apiSlide.emoji, size: isFirst ? 'xxl' : 'xl' }
       });
     }
-  } else if (pattern === 'comparison') {
-    mockSlides.push({
-      type: 'comparison',
-      blocks: [
-        { type: 'BADGE', content: { text: 'Option A', backgroundColor: '#FF6B35', textColor: '#FFFFFF' }},
-        { type: 'HEADING', content: { text: 'Der traditionelle Weg', fontSize: 'xl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' }},
-        { type: 'BULLET_LIST', content: {
-          items: ['Mehr Aufwand', 'Längere Zeit', 'Höhere Kosten'],
-          bulletStyle: 'arrow', color: '#FF5252'
-        }}
-      ],
-      styles: { background: 'solid-dark', padding: 'lg' }
-    });
-    mockSlides.push({
-      type: 'comparison',
-      blocks: [
-        { type: 'BADGE', content: { text: 'Option B', backgroundColor: '#00E676', textColor: '#000000' }},
-        { type: 'HEADING', content: { text: 'Der neue Ansatz', fontSize: 'xl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' }},
-        { type: 'BULLET_LIST', content: {
-          items: ['Weniger Aufwand', 'Schnellere Ergebnisse', 'Bessere Effizienz'],
-          bulletStyle: 'check', color: '#00E676'
-        }}
-      ],
-      styles: { background: 'solid-dark', padding: 'lg' }
-    });
-    mockSlides.push({
-      type: 'option',
-      blocks: [
-        { type: 'ICON', content: { emoji: '🏆', size: 'xl' }},
-        { type: 'HEADING', content: { text: 'Meine Empfehlung', fontSize: 'xl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' }},
-        { type: 'PARAGRAPH', content: {
-          text: `Für ${keyword} empfehle ich den neuen Ansatz - hier ist warum.`,
-          fontSize: 'base', textAlign: 'center', color: '#B0B0B0'
-        }}
-      ],
-      styles: { background: 'gradient-blue', padding: 'lg' }
-    });
-  } else {
-    // Default: Generate simple content slides
-    for (let i = 1; i <= Math.min(slideCount - 2, 4); i++) {
-      mockSlides.push({
-        type: 'option',
-        blocks: [
-          { type: 'NUMBER', content: { number: `0${i}`, label: '', color: '#FF6B35' }},
-          { type: 'HEADING', content: { text: `Aspekt ${i}`, fontSize: 'xl', fontWeight: 'bold', textAlign: 'left', color: '#FFFFFF' }},
-          { type: 'PARAGRAPH', content: {
-            text: `Ein wichtiger Punkt über ${hypothesis.slice(0, 30)}...`,
-            fontSize: 'base', textAlign: 'left', color: '#B0B0B0'
-          }}
-        ],
-        styles: { background: 'solid-dark', padding: 'lg' }
+
+    // Add slide number for middle slides
+    if (!isFirst && !isLast && index < 10) {
+      blocks.push({
+        type: 'NUMBER',
+        content: { number: `0${index}`, label: '', color: '#FF6B35' }
       });
     }
-  }
 
-  // CTA Slide
-  mockSlides.push({
-    type: 'cta',
-    blocks: [
-      { type: 'HEADING', content: { text: 'Was denkst du?', fontSize: 'xxl', fontWeight: 'bold', textAlign: 'center', color: '#FFFFFF' }},
-      { type: 'SUBHEADING', content: { text: 'Teile deine Meinung in den Kommentaren!', fontSize: 'lg', fontWeight: 'normal', textAlign: 'center', color: '#B0B0B0' }},
-      { type: 'DIVIDER', content: { style: 'solid', opacity: 0.2, width: '60%' }},
-      { type: 'PARAGRAPH', content: { text: '💬 Kommentieren\n♻️ Reposten\n🔔 Folgen für mehr', fontSize: 'base', textAlign: 'center', color: '#FF6B35' }},
-      { type: 'BRANDING', content: { name: 'Dein Name', handle: '@handle', showAvatar: true }}
-    ],
-    styles: { background: 'gradient-orange', padding: 'lg' }
+    // Add heading
+    if (apiSlide.heading || apiSlide.title) {
+      blocks.push({
+        type: 'HEADING',
+        content: {
+          text: apiSlide.heading || apiSlide.title,
+          fontSize: isFirst ? 'xxl' : 'xl',
+          fontWeight: 'bold',
+          textAlign: isFirst || isLast ? 'center' : 'left',
+          color: '#FFFFFF'
+        }
+      });
+    }
+
+    // Add subheading if present
+    if (apiSlide.subheading) {
+      blocks.push({
+        type: 'SUBHEADING',
+        content: {
+          text: apiSlide.subheading,
+          fontSize: 'lg',
+          fontWeight: 'normal',
+          textAlign: isFirst || isLast ? 'center' : 'left',
+          color: isFirst ? '#FF6B35' : '#B0B0B0'
+        }
+      });
+    }
+
+    // Add bullet points if present
+    if (apiSlide.bullets && Array.isArray(apiSlide.bullets) && apiSlide.bullets.length > 0) {
+      blocks.push({
+        type: 'BULLET_LIST',
+        content: {
+          items: apiSlide.bullets,
+          bulletStyle: 'check',
+          color: '#FFFFFF'
+        }
+      });
+    }
+
+    // Add body/description text
+    if (apiSlide.body || apiSlide.description || apiSlide.content) {
+      const text = apiSlide.body || apiSlide.description || apiSlide.content;
+      blocks.push({
+        type: 'PARAGRAPH',
+        content: {
+          text: text,
+          fontSize: 'base',
+          textAlign: isFirst || isLast ? 'center' : 'left',
+          color: isLast ? '#FF6B35' : '#B0B0B0'
+        }
+      });
+    }
+
+    // Add CTA elements for last slide
+    if (isLast) {
+      blocks.push({
+        type: 'DIVIDER',
+        content: { style: 'solid', opacity: 0.2, width: '60%' }
+      });
+      blocks.push({
+        type: 'PARAGRAPH',
+        content: {
+          text: '💬 Kommentieren\n♻️ Reposten\n🔔 Folgen für mehr',
+          fontSize: 'base',
+          textAlign: 'center',
+          color: '#FF6B35'
+        }
+      });
+    }
+
+    // Add branding for first and last slide
+    if (isFirst || isLast) {
+      blocks.push({
+        type: 'BRANDING',
+        content: { name: 'Dein Name', handle: '@handle', showAvatar: true }
+      });
+    }
+
+    slides.push({
+      type: slideType,
+      blocks,
+      styles: { background, padding: 'lg' }
+    });
   });
 
-  return mockSlides.slice(0, slideCount);
+  return slides;
 };
 
 /**
- * Generate carousel from hypothesis
- * @param {Object} options
- * @param {string} options.hypothesis - The main hypothesis/topic
- * @param {string} options.pattern - Carousel pattern (problem_solution, listicle, etc.)
- * @param {number} options.slideCount - Number of slides to generate
- * @param {string} options.tone - Tone of voice (professional, casual, provocative)
- * @param {string} options.language - Language (de, en)
- * @param {function} options.onProgress - Progress callback
- * @returns {Promise<Object>} Generated carousel data
+ * Generate carousel from hypothesis using Ollama AI API
  */
 export const generateCarouselFromHypothesis = async ({
   hypothesis,
@@ -207,49 +192,107 @@ export const generateCarouselFromHypothesis = async ({
     throw new Error('Bitte gib eine Hypothese mit mindestens 10 Zeichen ein.');
   }
 
-  // Simulate progress
   onProgress({ stage: 'analyzing', percentage: 10 });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY / 3));
 
-  onProgress({ stage: 'generating', percentage: 40 });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY / 3));
+  try {
+    // Call the AI API
+    onProgress({ stage: 'generating', percentage: 30 });
 
-  onProgress({ stage: 'formatting', percentage: 70 });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY / 3));
+    const response = await fetch(AI_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': AI_API_KEY
+      },
+      body: JSON.stringify({
+        topic: hypothesis.trim(),
+        slides: slideCount,
+        pattern: pattern,
+        tone: tone,
+        language: language
+      })
+    });
 
-  // Generate mock content
-  const slides = generateMockContent(hypothesis, pattern, slideCount);
+    onProgress({ stage: 'generating', percentage: 60 });
 
-  // Add unique IDs
-  const slidesWithIds = slides.map((slide, slideIndex) => ({
-    id: `slide-${Date.now()}-${slideIndex}-${Math.random().toString(36).substr(2, 9)}`,
-    ...slide,
-    blocks: slide.blocks.map((block, blockIndex) => ({
-      id: `block-${Date.now()}-${slideIndex}-${blockIndex}-${Math.random().toString(36).substr(2, 9)}`,
-      ...block,
-      content: { ...block.content }
-    })),
-    order: slideIndex + 1
-  }));
-
-  onProgress({ stage: 'complete', percentage: 100 });
-
-  return {
-    title: hypothesis.slice(0, 50),
-    slides: slidesWithIds,
-    settings: {
-      width: 1080,
-      height: 1080
-    },
-    metadata: {
-      generatedAt: new Date().toISOString(),
-      hypothesis,
-      pattern,
-      slideCount,
-      tone,
-      language
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('AI API Error:', response.status, errorText);
+      throw new Error(`AI-Generierung fehlgeschlagen (${response.status})`);
     }
-  };
+
+    const result = await response.json();
+
+    onProgress({ stage: 'formatting', percentage: 80 });
+
+    // Check if we got valid slides
+    if (!result.data?.slides || !Array.isArray(result.data.slides)) {
+      console.error('Invalid API response:', result);
+      throw new Error('Ungültige Antwort vom AI-Server');
+    }
+
+    // Convert API response to our slide format
+    const slides = convertApiResponseToSlides(result.data.slides, slideCount);
+
+    // Add unique IDs
+    const slidesWithIds = slides.map((slide, slideIndex) => ({
+      id: `slide-${Date.now()}-${slideIndex}-${Math.random().toString(36).substr(2, 9)}`,
+      ...slide,
+      blocks: slide.blocks.map((block, blockIndex) => ({
+        id: `block-${Date.now()}-${slideIndex}-${blockIndex}-${Math.random().toString(36).substr(2, 9)}`,
+        ...block,
+        content: { ...block.content }
+      })),
+      order: slideIndex + 1
+    }));
+
+    onProgress({ stage: 'complete', percentage: 100 });
+
+    return {
+      title: result.data.title || hypothesis.slice(0, 50),
+      slides: slidesWithIds,
+      settings: {
+        width: 1080,
+        height: 1080
+      },
+      metadata: {
+        generatedAt: new Date().toISOString(),
+        hypothesis,
+        pattern,
+        slideCount,
+        tone,
+        language,
+        aiGenerated: true,
+        model: result.data.model || 'ollama'
+      }
+    };
+
+  } catch (error) {
+    console.error('AI Generation failed:', error);
+
+    // Check if it's a network error (API not reachable)
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      throw new Error('AI-Server nicht erreichbar. Bitte später erneut versuchen.');
+    }
+
+    throw error;
+  }
+};
+
+/**
+ * Check if AI API is available
+ */
+export const checkAIHealth = async () => {
+  try {
+    const healthUrl = AI_API_URL.replace('/api/carousel', '/health');
+    const response = await fetch(healthUrl, {
+      method: 'GET',
+      headers: { 'X-API-Key': AI_API_KEY }
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
 };
 
 /**
@@ -258,14 +301,15 @@ export const generateCarouselFromHypothesis = async ({
 export const getCarouselPatterns = () => CAROUSEL_PATTERNS;
 
 /**
- * Estimate generation time
+ * Estimate generation time (AI takes longer)
  */
 export const estimateGenerationTime = (slideCount) => {
-  return Math.ceil(MOCK_DELAY / 1000) + Math.ceil(slideCount * 0.2);
+  return 5 + Math.ceil(slideCount * 0.5); // ~5-10 seconds for AI
 };
 
 export default {
   generateCarouselFromHypothesis,
   getCarouselPatterns,
-  estimateGenerationTime
+  estimateGenerationTime,
+  checkAIHealth
 };
