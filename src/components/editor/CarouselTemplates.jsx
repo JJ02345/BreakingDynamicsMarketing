@@ -108,39 +108,7 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI }) => {
           </p>
         </div>
 
-        {/* Blank Carousel - Full Width at Top */}
-        <button
-          onClick={() => onSelectTemplate('blank')}
-          className="w-full p-6 rounded-2xl bg-gradient-to-r from-[#1A1A1D] to-[#1A1A1D]/80 border-2 border-dashed border-white/20 hover:border-[#FF6B35]/50 transition-all group text-left mb-6"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-xl bg-[#FF6B35]/10 border border-[#FF6B35]/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <FileText className="h-7 w-7 text-[#FF6B35]" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-['Syne'] text-lg font-bold text-white mb-1 group-hover:text-[#FF6B35] transition-colors">
-                {isDE ? 'Leeres Carousel' : 'Blank Carousel'}
-              </h3>
-              <p className="text-sm text-white/50">
-                {isDE
-                  ? 'Starte mit einem leeren Carousel und füge eigene Slides hinzu'
-                  : 'Start with an empty carousel and add your own slides'}
-              </p>
-            </div>
-            <div className="px-4 py-2 rounded-xl bg-[#FF6B35]/10 border border-[#FF6B35]/20 text-[#FF6B35] font-medium group-hover:bg-[#FF6B35]/20 transition-colors">
-              {isDE ? 'Starten' : 'Start'}
-            </div>
-          </div>
-        </button>
-
-        {/* Divider */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-white/30 text-sm">{isDE ? 'oder wähle eine Vorlage' : 'or choose a template'}</span>
-          <div className="flex-1 h-px bg-white/10" />
-        </div>
-
-        {/* Template Grid - without blank */}
+        {/* Template Grid */}
         <div className="grid gap-4 md:grid-cols-2">
           {Object.entries(CAROUSEL_PRESETS)
             .filter(([id]) => id !== 'blank')
