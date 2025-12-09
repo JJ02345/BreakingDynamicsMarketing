@@ -280,7 +280,7 @@ const SlideNavigator = ({
 
           {/* Template Dropdown - Click to open, click outside to close */}
           {showTemplateDropdown && (
-          <div className="absolute bottom-full left-0 right-0 mb-2 z-20">
+          <div className="absolute bottom-full left-0 right-0 mb-2 z-50">
             <div className="bg-[#1A1A1D] rounded-xl border border-white/10 shadow-2xl p-2 max-h-80 overflow-y-auto">
               {/* Standard Templates */}
               <div className="text-[10px] uppercase tracking-wider text-white/30 px-3 py-1">

@@ -275,6 +275,87 @@ export const db = {
     if (error) throw error;
   },
 
+  // ============ CAROUSELS ============
+
+  // Create a new carousel
+  async createCarousel(carouselData) {
+    const user = await auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('carousels')
+      .insert({
+        user_id: user.id,
+        title: carouselData.title,
+        slides: carouselData.slides,
+        settings: carouselData.settings || { width: 1080, height: 1080 },
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Get all carousels for current user
+  async getCarousels() {
+    const user = await auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('carousels')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return (data || []).map(c => ({
+      id: c.id,
+      title: c.title,
+      slides: c.slides,
+      settings: c.settings,
+      created: c.created_at,
+      updated: c.updated_at,
+    }));
+  },
+
+  // Update a carousel
+  async updateCarousel(id, carouselData) {
+    const user = await auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('carousels')
+      .update({
+        title: carouselData.title,
+        slides: carouselData.slides,
+        settings: carouselData.settings,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Delete a carousel
+  async deleteCarousel(id) {
+    const user = await auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { error } = await supabase
+      .from('carousels')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+  },
+
   // ============ LEADS (Soft Login) ============
   
   // Save lead and send survey email

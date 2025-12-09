@@ -69,6 +69,7 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   const [previewMode, setPreviewMode] = useState(false);
   const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showLinkedInModal, setShowLinkedInModal] = useState(false);
   const [pendingAction, setPendingAction] = useState(null); // 'save' or 'linkedin'
 
   // Resizable panels
@@ -357,14 +358,32 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     }
   }, [title, isDE, addToast]);
 
-  // Wrapper for LinkedIn post with validation
+  // Wrapper for LinkedIn post - show modal if not authenticated
   const handlePostToLinkedIn = useCallback(async () => {
     if (slides.length === 0) {
       addToast(isDE ? 'Keine Slides zum Posten' : 'No slides to post', 'warning');
       return;
     }
+    // Show login prompt if not authenticated
+    if (!isAuthenticated) {
+      setShowLinkedInModal(true);
+      return;
+    }
     await performPostToLinkedIn();
-  }, [slides.length, isDE, addToast, performPostToLinkedIn]);
+  }, [slides.length, isDE, addToast, performPostToLinkedIn, isAuthenticated]);
+
+  // Continue LinkedIn post without login
+  const handleLinkedInWithoutLogin = useCallback(async () => {
+    setShowLinkedInModal(false);
+    await performPostToLinkedIn();
+  }, [performPostToLinkedIn]);
+
+  // Login then post to LinkedIn
+  const handleLinkedInWithLogin = useCallback(() => {
+    setShowLinkedInModal(false);
+    setPendingAction('linkedin');
+    setShowLoginModal(true);
+  }, []);
 
   // Handle successful login - execute pending action
   const handleLoginSuccess = useCallback(async () => {
@@ -550,6 +569,54 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
           }}
           onLogin={handleLoginSuccess}
         />
+      )}
+
+      {/* LinkedIn Post Modal - Login prompt with skip option */}
+      {showLinkedInModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md mx-4 bg-[#1A1A1D] rounded-2xl border border-white/10 shadow-2xl p-6">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#0077B5]/10 border border-[#0077B5]/20 flex items-center justify-center">
+                <svg className="w-8 h-8 text-[#0077B5]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">
+                {isDE ? 'Auf LinkedIn posten' : 'Post to LinkedIn'}
+              </h3>
+              <p className="text-white/60 text-sm">
+                {isDE
+                  ? 'Registriere dich um deine Carousels zu speichern und später zu bearbeiten.'
+                  : 'Register to save your carousels and edit them later.'}
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={handleLinkedInWithLogin}
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#FF6B35] to-[#FF8C5A] text-white font-semibold hover:opacity-90 transition-opacity"
+              >
+                {isDE ? 'Registrieren / Anmelden' : 'Register / Sign in'}
+              </button>
+
+              <button
+                onClick={handleLinkedInWithoutLogin}
+                className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                {isDE ? 'Ohne Registrierung fortfahren' : 'Continue without registration'}
+              </button>
+            </div>
+
+            <button
+              onClick={() => setShowLinkedInModal(false)}
+              className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
