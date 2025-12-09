@@ -16,6 +16,7 @@ import CarouselTemplates from './CarouselTemplates';
 import MobileCarouselEditor from './MobileCarouselEditor';
 import { createDefaultCarousel, createBlock, createSlide } from '../../utils/slideTemplates';
 import { generateAndDownloadPDF } from '../../lib/pdfGenerator';
+import { translateSlides } from '../../lib/slideTranslator';
 import { LoginModal } from '../auth';
 
 // LocalStorage key for carousel draft
@@ -79,6 +80,40 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
   const [showLinkedInModal, setShowLinkedInModal] = useState(false);
   const [pendingAction, setPendingAction] = useState(null); // 'save' or 'linkedin'
   const [contentLanguage, setContentLanguage] = useState('en'); // Slide content language
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  // Handle language change with translation
+  const handleContentLanguageChange = async (newLanguage) => {
+    if (newLanguage === contentLanguage || slides.length === 0) {
+      setContentLanguage(newLanguage);
+      return;
+    }
+
+    setIsTranslating(true);
+    try {
+      const translatedSlides = await translateSlides(slides, newLanguage, (progress) => {
+        // Could show progress here if needed
+      });
+      setSlides(translatedSlides);
+      setContentLanguage(newLanguage);
+      addToast(
+        language === 'de' ? 'Slides übersetzt!' :
+        language === 'es' ? '¡Slides traducidos!' :
+        language === 'fr' ? 'Slides traduits!' :
+        'Slides translated!',
+        'success'
+      );
+    } catch (error) {
+      console.error('Translation failed:', error);
+      addToast(
+        language === 'de' ? 'Übersetzung fehlgeschlagen' : 'Translation failed',
+        'error'
+      );
+      setContentLanguage(newLanguage); // Still change language even if translation fails
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   // Resizable panels - smaller on tablet
   const [leftPanelWidth, setLeftPanelWidth] = useState(isTablet ? 120 : 160);
@@ -669,7 +704,8 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
               activeBackground={activeSlide?.styles?.background}
               activeBackgroundImage={activeSlide?.styles?.backgroundImage}
               contentLanguage={contentLanguage}
-              onContentLanguageChange={setContentLanguage}
+              onContentLanguageChange={handleContentLanguageChange}
+              isTranslating={isTranslating}
             />
           </div>
         )}

@@ -193,34 +193,61 @@ const SlideNavigator = ({
                   <div className="absolute inset-0 bg-black/40" />
                 )}
 
-                {/* Real content preview - scaled down */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-1.5 overflow-hidden">
-                  {slide.blocks.slice(0, 4).map((block) => {
+                {/* Real content preview - scaled down with proper centering */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-1 gap-0.5 overflow-hidden">
+                  {slide.blocks.slice(0, 5).map((block) => {
                     // Render actual content preview based on block type
                     switch (block.type) {
                       case 'HEADING':
+                        return (
+                          <p
+                            key={block.id}
+                            className="text-[5px] font-bold text-center leading-none w-full px-0.5"
+                            style={{
+                              color: block.content?.color || '#FFFFFF',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {block.content?.text || ''}
+                          </p>
+                        );
                       case 'SUBHEADING':
                         return (
                           <p
                             key={block.id}
-                            className="text-[6px] font-bold text-white text-center leading-tight truncate w-full px-1"
-                            style={{ color: block.content?.color || '#FFFFFF' }}
+                            className="text-[4px] font-semibold text-center leading-none w-full px-0.5"
+                            style={{
+                              color: block.content?.color || '#FFFFFF',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
                           >
-                            {block.content?.text?.substring(0, 30) || '...'}
+                            {block.content?.text || ''}
                           </p>
                         );
                       case 'PARAGRAPH':
                         return (
                           <p
                             key={block.id}
-                            className="text-[4px] text-white/70 text-center leading-tight truncate w-full px-1"
+                            className="text-[3px] text-white/60 text-center leading-tight w-full px-0.5"
+                            style={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
                           >
-                            {block.content?.text?.substring(0, 40) || '...'}
+                            {block.content?.text || ''}
                           </p>
                         );
                       case 'ICON':
                         return (
-                          <span key={block.id} className="text-[10px]">
+                          <span key={block.id} className="text-[12px] leading-none">
                             {block.content?.emoji || '🎯'}
                           </span>
                         );
@@ -228,7 +255,7 @@ const SlideNavigator = ({
                         return (
                           <span
                             key={block.id}
-                            className="text-[8px] font-bold"
+                            className="text-[10px] font-black leading-none"
                             style={{ color: block.content?.color || '#FF6B35' }}
                           >
                             {block.content?.number || '01'}
@@ -238,27 +265,33 @@ const SlideNavigator = ({
                         return (
                           <span
                             key={block.id}
-                            className="text-[4px] px-1 py-0.5 rounded"
+                            className="text-[3px] px-1 py-0.5 rounded-sm font-medium"
                             style={{
                               backgroundColor: block.content?.backgroundColor || '#FF6B35',
                               color: block.content?.textColor || '#FFFFFF'
                             }}
                           >
-                            {block.content?.text?.substring(0, 15) || 'Badge'}
+                            {block.content?.text || 'Badge'}
                           </span>
                         );
                       case 'QUOTE':
                         return (
                           <p
                             key={block.id}
-                            className="text-[4px] italic text-white/80 text-center leading-tight truncate w-full px-1"
+                            className="text-[3px] italic text-white/70 text-center leading-tight w-full px-0.5"
+                            style={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
                           >
-                            {block.content?.text?.substring(0, 35) || '"..."'}
+                            "{block.content?.text || '...'}"
                           </p>
                         );
                       case 'BULLET_LIST':
                         return (
-                          <div key={block.id} className="text-[3px] text-white/60 w-full px-2">
+                          <div key={block.id} className="text-[3px] text-white/50 w-full px-1 text-center">
                             {(block.content?.items || []).slice(0, 2).map((item, i) => (
                               <div key={i} className="truncate">• {item}</div>
                             ))}
@@ -268,22 +301,17 @@ const SlideNavigator = ({
                         return (
                           <div
                             key={block.id}
-                            className="w-1/2 h-px bg-white/30 my-0.5"
+                            className="w-2/3 h-px bg-white/20 my-0.5"
                           />
                         );
                       case 'BRANDING':
                         return (
-                          <div key={block.id} className="text-[4px] text-white/50 mt-auto">
+                          <div key={block.id} className="text-[3px] text-white/40">
                             @{block.content?.handle || 'handle'}
                           </div>
                         );
                       default:
-                        return (
-                          <div
-                            key={block.id}
-                            className="bg-white/10 rounded h-2 w-3/4"
-                          />
-                        );
+                        return null;
                     }
                   })}
                 </div>

@@ -47,6 +47,7 @@ const BlockPalette = ({
   activeBackgroundImage,
   contentLanguage = 'en',
   onContentLanguageChange,
+  isTranslating = false,
   disabled = false
 }) => {
   const { language } = useLanguage();
@@ -186,13 +187,21 @@ const BlockPalette = ({
         {onContentLanguageChange && (
           <div className="relative mb-2">
             <button
-              onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
-              className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all group"
+              onClick={() => !isTranslating && setShowLanguageDropdown(!showLanguageDropdown)}
+              disabled={isTranslating}
+              className={`w-full flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all group ${isTranslating ? 'opacity-70' : ''}`}
             >
               <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-white/50" />
+                {isTranslating ? (
+                  <Loader2 className="h-4 w-4 text-[#FF6B35] animate-spin" />
+                ) : (
+                  <Globe className="h-4 w-4 text-white/50" />
+                )}
                 <span className="text-xs text-white/70">
-                  {isDE ? 'Slide-Sprache' : 'Slide Language'}
+                  {isTranslating
+                    ? (isDE ? 'Übersetze...' : 'Translating...')
+                    : (isDE ? 'Slide-Sprache' : 'Slide Language')
+                  }
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -202,7 +211,7 @@ const BlockPalette = ({
               </div>
             </button>
 
-            {showLanguageDropdown && (
+            {showLanguageDropdown && !isTranslating && (
               <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#1A1A1D] rounded-xl border border-white/10 shadow-xl overflow-hidden">
                 {CONTENT_LANGUAGES.map((lang) => (
                   <button

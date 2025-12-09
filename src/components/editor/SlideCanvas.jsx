@@ -181,17 +181,17 @@ const SlideCanvas = forwardRef(({
           })}
         </div>
 
-        {/* Breaking Dynamics Branding Watermark */}
+        {/* Breaking Dynamics Branding Watermark - Larger */}
         {showBranding && (
           <div
-            className="absolute bottom-6 right-6 flex items-center gap-2 px-3 py-1.5 rounded-lg z-20"
+            className="absolute bottom-8 right-8 flex items-center gap-3 px-5 py-3 rounded-xl z-20"
             style={{
-              background: 'rgba(0, 0, 0, 0.6)',
-              backdropFilter: 'blur(8px)',
+              background: 'rgba(0, 0, 0, 0.7)',
+              backdropFilter: 'blur(12px)',
             }}
           >
-            <Zap className="w-4 h-4 text-[#FF6B35]" />
-            <span className="text-xs font-medium text-white/80">Breaking Dynamics</span>
+            <Zap className="w-6 h-6 text-[#FF6B35]" />
+            <span className="text-base font-semibold text-white">Breaking Dynamics</span>
           </div>
         )}
       </div>
