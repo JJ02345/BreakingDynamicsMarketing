@@ -4,8 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { db } from '../../lib/supabase';
 
 const LandingNewsletter = () => {
-  const { language } = useLanguage();
-  const isDE = language === 'de';
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle, loading, success, error
   const [errorMsg, setErrorMsg] = useState('');
@@ -14,7 +13,7 @@ const LandingNewsletter = () => {
     e.preventDefault();
 
     if (!email || !email.includes('@')) {
-      setErrorMsg(isDE ? 'Bitte gib eine gültige Email ein' : 'Please enter a valid email');
+      setErrorMsg(t('landing.enterValidEmail'));
       setStatus('error');
       return;
     }
@@ -33,7 +32,7 @@ const LandingNewsletter = () => {
       setEmail('');
     } catch (err) {
       console.error('Newsletter subscription failed:', err);
-      setErrorMsg(isDE ? 'Fehler beim Anmelden. Bitte versuche es später.' : 'Failed to subscribe. Please try again.');
+      setErrorMsg(t('landing.subscribeFailed'));
       setStatus('error');
     }
   };
@@ -48,12 +47,10 @@ const LandingNewsletter = () => {
 
         {/* Title */}
         <h3 className="font-['Syne'] text-xl font-bold mb-2">
-          {isDE ? 'Bleib auf dem Laufenden' : 'Stay Updated'}
+          {t('landing.stayUpdated')}
         </h3>
         <p className="text-white/40 text-sm mb-6">
-          {isDE
-            ? 'Erfahre als Erstes, wenn neue Tools live gehen.'
-            : 'Be the first to know when new tools go live.'}
+          {t('landing.stayUpdatedDesc')}
         </p>
 
         {/* Form */}
@@ -61,7 +58,7 @@ const LandingNewsletter = () => {
           <div className="flex items-center justify-center gap-2 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400">
             <Check className="h-5 w-5" />
             <span className="text-sm font-medium">
-              {isDE ? 'Du bist dabei! Wir melden uns.' : "You're in! We'll be in touch."}
+              {t('landing.youreIn')}
             </span>
           </div>
         ) : (
@@ -75,7 +72,7 @@ const LandingNewsletter = () => {
                   setEmail(e.target.value);
                   if (status === 'error') setStatus('idle');
                 }}
-                placeholder={isDE ? 'deine@email.de' : 'your@email.com'}
+                placeholder="your@email.com"
                 className={`w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border text-white placeholder:text-white/30 focus:outline-none transition-colors ${
                   status === 'error'
                     ? 'border-red-500/50 focus:border-red-500'
@@ -92,10 +89,10 @@ const LandingNewsletter = () => {
               {status === 'loading' ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>{isDE ? 'Moment...' : 'Wait...'}</span>
+                  <span>{t('common.loading')}</span>
                 </>
               ) : (
-                <span>{isDE ? 'Benachrichtigen' : 'Notify me'}</span>
+                <span>{t('landing.notifyMe')}</span>
               )}
             </button>
           </form>
@@ -108,9 +105,7 @@ const LandingNewsletter = () => {
 
         {/* Privacy Note */}
         <p className="mt-4 text-xs text-white/20">
-          {isDE
-            ? 'Kein Spam. Nur Updates zu neuen Tools. Jederzeit abmelden.'
-            : 'No spam. Only updates on new tools. Unsubscribe anytime.'}
+          {t('landing.noSpam')}
         </p>
       </div>
     </section>

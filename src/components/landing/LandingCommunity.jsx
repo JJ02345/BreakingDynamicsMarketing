@@ -4,13 +4,12 @@ import { Linkedin, ChevronRight, Sparkles, Save, FolderOpen, Zap } from 'lucide-
 import { useLanguage } from '../../context/LanguageContext';
 
 const LandingCommunity = () => {
-  const { language } = useLanguage();
-  const isDE = language === 'de';
+  const { t } = useLanguage();
 
   const accountBenefits = [
-    { icon: Save, text: isDE ? 'Carousels speichern' : 'Save carousels' },
-    { icon: FolderOpen, text: isDE ? 'Jederzeit bearbeiten' : 'Edit anytime' },
-    { icon: Zap, text: isDE ? 'Früher Zugang zu neuen Tools' : 'Early access to new tools' },
+    { icon: Save, text: t('landing.saveCarousels') },
+    { icon: FolderOpen, text: t('landing.editAnytime') },
+    { icon: Zap, text: t('landing.earlyAccess') },
   ];
 
   return (
@@ -19,16 +18,14 @@ const LandingCommunity = () => {
       <div className="relative z-10 mx-auto max-w-3xl text-center">
         <div className="badge-cyan mb-6 inline-flex items-center gap-2">
           <Sparkles className="h-3.5 w-3.5" />
-          <span>{isDE ? 'Bereit?' : 'Ready?'}</span>
+          <span>{t('landing.ready')}</span>
         </div>
         <h2 className="font-['Syne'] text-4xl sm:text-5xl font-bold mb-6">
-          {isDE ? 'Erstelle jetzt dein' : 'Create your'}
-          <span className="text-gradient"> {isDE ? 'erstes Carousel' : 'first Carousel'}</span>
+          {t('landing.createFirst')}
+          <span className="text-gradient"> {t('landing.firstCarousel')}</span>
         </h2>
         <p className="text-white/50 text-lg mb-8">
-          {isDE
-            ? 'Keine Anmeldung, keine Kreditkarte. Einfach loslegen und in 2 Minuten dein erstes LinkedIn Carousel erstellen.'
-            : 'No sign-up, no credit card. Just start and create your first LinkedIn carousel in 2 minutes.'}
+          {t('landing.noSignupNoCard')}
         </p>
 
         <Link
@@ -36,14 +33,14 @@ const LandingCommunity = () => {
           className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg transition-all bg-gradient-to-r from-[#FF6B35] to-[#FF8C5A] text-[#0A0A0B] hover:scale-105 hover:shadow-2xl hover:shadow-[#FF6B35]/30"
         >
           <Linkedin className="h-5 w-5" />
-          {isDE ? 'Carousel erstellen' : 'Create Carousel'}
+          {t('landing.createCarousel')}
           <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
         </Link>
 
         {/* Account Benefits */}
         <div className="mt-10 pt-8 border-t border-white/5">
           <p className="text-xs text-white/30 uppercase tracking-wider mb-4">
-            {isDE ? 'Mit kostenlosem Account' : 'With free account'}
+            {t('landing.withFreeAccount')}
           </p>
           <div className="flex items-center justify-center gap-6 flex-wrap">
             {accountBenefits.map((benefit, i) => (

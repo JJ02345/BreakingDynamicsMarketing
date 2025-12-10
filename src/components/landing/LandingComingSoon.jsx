@@ -3,26 +3,25 @@ import { ClipboardList, Users, BarChart3, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 const LandingComingSoon = () => {
-  const { language } = useLanguage();
-  const isDE = language === 'de';
+  const { t } = useLanguage();
 
   const upcomingTools = [
     {
       icon: ClipboardList,
-      name: isDE ? 'Umfrage-Tool' : 'Survey Tool',
-      desc: isDE ? 'Validiere Ideen mit echtem Feedback' : 'Validate ideas with real feedback',
+      name: t('landing.surveyTool'),
+      desc: t('landing.surveyToolDesc'),
       color: '#00D4FF'
     },
     {
       icon: Users,
-      name: isDE ? 'Founder Community' : 'Founder Community',
-      desc: isDE ? 'Austausch & Beta-Zugang' : 'Exchange & beta access',
+      name: t('landing.founderCommunity'),
+      desc: t('landing.founderCommunityDesc'),
       color: '#00E676'
     },
     {
       icon: BarChart3,
-      name: isDE ? 'Analytics Dashboard' : 'Analytics Dashboard',
-      desc: isDE ? 'Deine Marketing-Performance' : 'Your marketing performance',
+      name: t('landing.analyticsDashboard'),
+      desc: t('landing.analyticsDashboardDesc'),
       color: '#FF9500'
     }
   ];
@@ -35,16 +34,14 @@ const LandingComingSoon = () => {
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/50 mb-4">
             <Sparkles className="h-3 w-3 text-[#FF6B35]" />
-            <span>{isDE ? 'Bald verfügbar' : 'Coming Soon'}</span>
+            <span>{t('landing.comingSoon')}</span>
           </div>
           <h2 className="font-['Syne'] text-2xl sm:text-3xl font-bold mb-3">
-            {isDE ? 'Eine Platform.' : 'One Platform.'}
-            <span className="text-gradient"> {isDE ? 'Viele Tools.' : 'Many Tools.'}</span>
+            {t('landing.onePlatform')}
+            <span className="text-gradient"> {t('landing.manyTools')}</span>
           </h2>
           <p className="text-white/40 text-sm max-w-lg mx-auto">
-            {isDE
-              ? 'Breaking Dynamics wird deine zentrale Marketing-Toolbox. Starte heute mit Carousels.'
-              : 'Breaking Dynamics is becoming your central marketing toolbox. Start with carousels today.'}
+            {t('landing.platformDesc')}
           </p>
         </div>
 
