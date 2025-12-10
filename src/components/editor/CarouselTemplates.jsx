@@ -164,9 +164,8 @@ const TEMPLATE_CATEGORIES = {
 };
 
 const CarouselTemplates = ({ onSelectTemplate, onOpenAI, onResumeDraft }) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { isAuthenticated } = useAuth();
-  const isDE = language === 'de';
   const [hasDraft, setHasDraft] = useState(false);
   const [draftInfo, setDraftInfo] = useState(null);
 
@@ -179,16 +178,16 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI, onResumeDraft }) => {
         if (draft.slides && draft.slides.length > 0) {
           setHasDraft(true);
           setDraftInfo({
-            title: draft.title || (isDE ? 'Unbenannt' : 'Untitled'),
+            title: draft.title || t('common.untitled'),
             slideCount: draft.slides.length,
-            lastModified: draft.lastModified ? new Date(draft.lastModified).toLocaleString(isDE ? 'de-DE' : 'en-US') : null
+            lastModified: draft.lastModified ? new Date(draft.lastModified).toLocaleString(language === 'de' ? 'de-DE' : language === 'es' ? 'es-ES' : language === 'fr' ? 'fr-FR' : 'en-US') : null
           });
         }
       }
     } catch (e) {
       console.error('Failed to check draft:', e);
     }
-  }, [isDE]);
+  }, [language, t]);
 
   const handleResumeDraft = () => {
     if (onResumeDraft) {
@@ -215,7 +214,7 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI, onResumeDraft }) => {
             >
               <Home className="h-4 w-4 text-[#FF6B35] flex-shrink-0" />
               <span className="text-sm font-medium text-white hidden sm:inline">
-                {isDE ? 'Startseite' : 'Home'}
+                {t('common.home')}
               </span>
             </Link>
           </div>
@@ -237,13 +236,11 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI, onResumeDraft }) => {
         {/* Hero */}
         <div className="text-center mb-12">
           <h1 className="font-['Syne'] text-4xl sm:text-5xl font-bold mb-4">
-            {isDE ? 'Erstelle dein' : 'Create your'}
+            {t('common.createYour')}
             <span className="text-[#FF6B35]"> LinkedIn Carousel</span>
           </h1>
           <p className="text-white/50 text-lg max-w-2xl mx-auto">
-            {isDE
-              ? 'Wähle eine Vorlage und passe sie nach deinen Bedürfnissen an'
-              : 'Choose a template and customize it to your needs'}
+            {t('common.chooseTemplate')}
           </p>
         </div>
 
@@ -256,7 +253,7 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI, onResumeDraft }) => {
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-white mb-1">
-                  {isDE ? 'Entwurf fortsetzen' : 'Resume Draft'}
+                  {t('common.resumeDraft')}
                 </h3>
                 <p className="text-sm text-white/50">
                   {draftInfo.title} • {draftInfo.slideCount} Slides
@@ -270,13 +267,13 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI, onResumeDraft }) => {
                   onClick={handleClearDraft}
                   className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/50 text-sm hover:bg-white/10 hover:text-white/70 transition-colors"
                 >
-                  {isDE ? 'Verwerfen' : 'Discard'}
+                  {t('common.discard')}
                 </button>
                 <button
                   onClick={handleResumeDraft}
                   className="px-4 py-1.5 rounded-lg bg-[#FF6B35] text-[#0A0A0B] text-sm font-semibold hover:bg-[#FF8C5A] transition-colors"
                 >
-                  {isDE ? 'Fortsetzen' : 'Continue'}
+                  {t('common.continue')}
                 </button>
               </div>
             </div>
@@ -294,14 +291,14 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI, onResumeDraft }) => {
             </div>
             <div className="flex-1">
               <h3 className="font-['Syne'] font-bold text-xl text-white mb-1 group-hover:text-[#FF6B35] transition-colors">
-                {isDE ? 'Leer starten' : 'Start Fresh'}
+                {t('common.startFresh')}
               </h3>
               <p className="text-sm text-white/50">
-                {isDE ? 'Volle kreative Freiheit – baue dein Carousel von Grund auf' : 'Full creative freedom – build your carousel from scratch'}
+                {t('common.fullCreativeFreedom')}
               </p>
             </div>
             <div className="px-5 py-2.5 rounded-xl bg-[#FF6B35] text-white text-sm font-semibold group-hover:bg-[#FF8C5A] transition-colors shadow-lg shadow-[#FF6B35]/20">
-              {isDE ? 'Los geht\'s' : 'Let\'s go'}
+              {t('common.letsGo')}
             </div>
           </div>
         </button>
@@ -309,7 +306,7 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI, onResumeDraft }) => {
         {/* Divider */}
         <div className="flex items-center gap-4 mb-8">
           <div className="flex-1 h-px bg-white/10" />
-          <span className="text-white/40 text-sm font-medium">{isDE ? 'oder lass dich inspirieren' : 'or get inspired'}</span>
+          <span className="text-white/40 text-sm font-medium">{t('common.orGetInspired')}</span>
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
@@ -323,11 +320,17 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI, onResumeDraft }) => {
 
             if (categoryTemplates.length === 0) return null;
 
+            // Helper to get localized text
+            const getLocalizedText = (template, field) => {
+              const langSuffix = { de: 'DE', es: 'ES', fr: 'FR' }[language] || '';
+              return template[field + langSuffix] || template[field];
+            };
+
             return (
               <div key={catId} className="mb-8">
                 {/* Category Header */}
                 <h3 className="text-sm font-semibold text-white/30 uppercase tracking-wider mb-3 px-1">
-                  {isDE ? category.nameDE : category.name}
+                  {category['name' + ({ de: 'DE', es: 'ES', fr: 'FR' }[language] || '')] || category.name}
                 </h3>
 
                 {/* Templates Grid */}
@@ -353,14 +356,14 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI, onResumeDraft }) => {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="font-semibold text-white group-hover:text-[#FF6B35] transition-colors">
-                                {isDE ? template.nameDE : template.name}
+                                {getLocalizedText(template, 'name')}
                               </h4>
                               <span className="text-[10px] text-white/30 bg-white/5 px-1.5 py-0.5 rounded">
                                 {template.slides} Slides
                               </span>
                             </div>
                             <p className="text-xs text-white/40 line-clamp-2">
-                              {isDE ? template.descriptionDE : template.description}
+                              {getLocalizedText(template, 'description')}
                             </p>
                             {/* Preview Tags */}
                             {template.preview && (
@@ -392,7 +395,7 @@ const CarouselTemplates = ({ onSelectTemplate, onOpenAI, onResumeDraft }) => {
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:border-[#FF6B35]/30 hover:bg-white/[0.08] transition-all text-sm text-white/60 hover:text-white"
           >
             <Sparkles className="h-4 w-4 text-[#FF6B35]" />
-            <span>{isDE ? 'Mit KI generieren' : 'Generate with AI'}</span>
+            <span>{t('common.generateWithAI')}</span>
           </button>
         </div>
       </div>
