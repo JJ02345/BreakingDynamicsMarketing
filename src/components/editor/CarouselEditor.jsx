@@ -429,12 +429,16 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
 
   // LinkedIn Post - Opens LinkedIn with pre-filled post (no login required)
   const performPostToLinkedIn = useCallback(async () => {
-    // First export the PDF
+    if (slides.length === 0) throw new Error('No slides found');
+
+    // IMPORTANT: Open LinkedIn FIRST (before any async operations)
+    // Browsers block popups that aren't triggered by direct user interaction
+    const linkedInWindow = window.open('https://www.linkedin.com/feed/?shareActive=true', '_blank');
+
+    // Then export the PDF
     setExporting(true);
     setExportProgress(0);
     try {
-      if (slides.length === 0) throw new Error('No slides found');
-
       // Pass slides directly - pdfGenerator renders them from data
       await generateAndDownloadPDF(slides, {
         filename: `${title || 'linkedin-carousel'}.pdf`,
@@ -442,14 +446,12 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
         onProgress: ({ percentage }) => setExportProgress(percentage),
       });
 
-      // Open LinkedIn share dialog
-      const linkedInUrl = 'https://www.linkedin.com/feed/?shareActive=true';
-      window.open(linkedInUrl, '_blank');
-
       addToast(t('editor.pdfDownloaded'), 'success');
     } catch (error) {
       console.error('Post to LinkedIn failed:', error);
       addToast(t('editor.preparationFailed'), 'error');
+      // Close LinkedIn window if PDF export failed
+      if (linkedInWindow) linkedInWindow.close();
     } finally {
       setExporting(false);
       setExportProgress(0);
