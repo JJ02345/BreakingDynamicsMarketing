@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, AlertCircle, Loader2 } from 'lucide-react';
+import { X, AlertCircle, Loader2, Lock } from 'lucide-react';
 import { useAuth } from '../../lib/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
+
+// Registration is temporarily disabled
+const REGISTRATION_DISABLED = true;
 
 const LoginModal = function({ onClose, onLogin, setPendingEmail }) {
   const { signIn, signUp } = useAuth();
@@ -77,6 +80,7 @@ const LoginModal = function({ onClose, onLogin, setPendingEmail }) {
   };
 
   const switchMode = () => {
+    if (REGISTRATION_DISABLED) return; // Prevent switching to register mode
     setMode(mode === 'login' ? 'register' : 'login');
     setError('');
     setPw('');
@@ -152,12 +156,19 @@ const LoginModal = function({ onClose, onLogin, setPendingEmail }) {
             </div>
           </div>
 
-          <button
-            onClick={switchMode}
-            className="btn-secondary w-full"
-          >
-            {mode === 'login' ? t('auth.createAccount') : t('auth.alreadyRegistered')}
-          </button>
+          {REGISTRATION_DISABLED ? (
+            <div className="flex items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-white/40">
+              <Lock className="h-4 w-4" />
+              <span>Registrierung aktuell nicht verfügbar</span>
+            </div>
+          ) : (
+            <button
+              onClick={switchMode}
+              className="btn-secondary w-full"
+            >
+              {mode === 'login' ? t('auth.createAccount') : t('auth.alreadyRegistered')}
+            </button>
+          )}
         </div>
       </div>
     </div>

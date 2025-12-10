@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { Mail, Loader2, Check, Bell } from 'lucide-react';
+import { Mail, Loader2, Check, Bell, Lock } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { db } from '../../lib/supabase';
+
+// Newsletter subscription is temporarily disabled
+const NEWSLETTER_DISABLED = true;
 
 const LandingNewsletter = () => {
   const { t } = useLanguage();
@@ -11,6 +14,8 @@ const LandingNewsletter = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (NEWSLETTER_DISABLED) return; // Prevent submission when disabled
 
     if (!email || !email.includes('@')) {
       setErrorMsg(t('landing.enterValidEmail'));
@@ -53,8 +58,15 @@ const LandingNewsletter = () => {
           {t('landing.stayUpdatedDesc')}
         </p>
 
-        {/* Form */}
-        {status === 'success' ? (
+        {/* Disabled Notice */}
+        {NEWSLETTER_DISABLED ? (
+          <div className="flex items-center justify-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 text-white/40">
+            <Lock className="h-5 w-5" />
+            <span className="text-sm font-medium">
+              Newsletter-Anmeldung aktuell nicht verfügbar
+            </span>
+          </div>
+        ) : status === 'success' ? (
           <div className="flex items-center justify-center gap-2 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400">
             <Check className="h-5 w-5" />
             <span className="text-sm font-medium">
@@ -104,9 +116,11 @@ const LandingNewsletter = () => {
         )}
 
         {/* Privacy Note */}
-        <p className="mt-4 text-xs text-white/20">
-          {t('landing.noSpam')}
-        </p>
+        {!NEWSLETTER_DISABLED && (
+          <p className="mt-4 text-xs text-white/20">
+            {t('landing.noSpam')}
+          </p>
+        )}
       </div>
     </section>
   );

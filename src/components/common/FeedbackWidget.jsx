@@ -33,7 +33,7 @@ const FeedbackWidget = function() {
       await db.submitFeedback({
         type: feedbackType,
         message: message,
-        email: email || user?.email,
+        email: null, // Email collection temporarily disabled
       });
 
       setSubmitted(true);
@@ -119,13 +119,16 @@ const FeedbackWidget = function() {
                   rows={4}
                 />
 
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t('feedback.emailOptional')}
-                  className="input-dark mb-4"
-                />
+                {/* Email field temporarily disabled */}
+                <div className="relative mb-4">
+                  <input
+                    type="email"
+                    value=""
+                    disabled
+                    placeholder="Email-Eingabe aktuell nicht verfügbar"
+                    className="input-dark opacity-50 cursor-not-allowed"
+                  />
+                </div>
 
                 <button
                   onClick={handleSubmit}
