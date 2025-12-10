@@ -3,6 +3,27 @@ import html2canvas from 'html2canvas';
 import { BACKGROUND_STYLES } from '../utils/slideTemplates';
 
 /**
+ * Font size map matching TextBlock.jsx
+ */
+const FONT_SIZE_MAP = {
+  xs: '16px',
+  sm: '20px',
+  base: '28px',
+  lg: '40px',
+  xl: '56px',
+  xxl: '72px',
+  xxxl: '96px'
+};
+
+const getFontSize = (fontSize) => {
+  if (!fontSize) return FONT_SIZE_MAP.base;
+  if (typeof fontSize === 'string' && fontSize.endsWith('px')) {
+    return fontSize;
+  }
+  return FONT_SIZE_MAP[fontSize] || FONT_SIZE_MAP.base;
+};
+
+/**
  * Get CSS background string from slide data
  */
 const getBackgroundCSS = (slide) => {
@@ -27,7 +48,6 @@ const getBackgroundCSS = (slide) => {
  * Render a slide to a canvas element
  */
 const renderSlideToCanvas = async (slide, width, height, quality) => {
-  // Create a temporary container
   const container = document.createElement('div');
   container.style.cssText = `
     position: fixed;
@@ -39,7 +59,6 @@ const renderSlideToCanvas = async (slide, width, height, quality) => {
     overflow: hidden;
   `;
 
-  // Create the slide element with background
   const slideEl = document.createElement('div');
   const bgCSS = getBackgroundCSS(slide);
   const hasBackgroundImage = !!slide?.styles?.backgroundImage?.url;
@@ -58,7 +77,6 @@ const renderSlideToCanvas = async (slide, width, height, quality) => {
     font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   `;
 
-  // Add dark overlay for image backgrounds
   if (hasBackgroundImage) {
     const overlay = document.createElement('div');
     overlay.style.cssText = `
@@ -70,7 +88,6 @@ const renderSlideToCanvas = async (slide, width, height, quality) => {
     slideEl.appendChild(overlay);
   }
 
-  // Create content container
   const contentContainer = document.createElement('div');
   const padding = slide.styles?.padding === 'sm' ? 40 :
                   slide.styles?.padding === 'lg' ? 80 :
@@ -90,9 +107,9 @@ const renderSlideToCanvas = async (slide, width, height, quality) => {
     padding: ${padding}px;
     box-sizing: border-box;
     z-index: 10;
+    gap: 8px;
   `;
 
-  // Render blocks
   if (slide.blocks && slide.blocks.length > 0) {
     for (const block of slide.blocks) {
       const blockEl = renderBlock(block);
@@ -106,10 +123,8 @@ const renderSlideToCanvas = async (slide, width, height, quality) => {
   container.appendChild(slideEl);
   document.body.appendChild(container);
 
-  // Wait for fonts and images to load
   await new Promise(resolve => setTimeout(resolve, 100));
 
-  // Capture with html2canvas
   const canvas = await html2canvas(slideEl, {
     scale: quality,
     useCORS: true,
@@ -120,95 +135,77 @@ const renderSlideToCanvas = async (slide, width, height, quality) => {
     height: height,
   });
 
-  // Cleanup
   document.body.removeChild(container);
 
   return canvas;
 };
 
 /**
- * Render a single block to DOM element
+ * Render a single block to DOM element - matching exact styles from block components
  */
 const renderBlock = (block) => {
   const wrapper = document.createElement('div');
   wrapper.style.cssText = `
-    margin-bottom: 8px;
     text-align: center;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   `;
 
   const content = block.content || {};
 
   switch (block.type) {
-    case 'HEADING': {
-      const el = document.createElement('h1');
-      el.textContent = content.text || '';
-      el.style.cssText = `
-        font-size: ${content.fontSize || 72}px;
-        font-weight: ${content.fontWeight || 700};
-        color: ${content.color || '#FFFFFF'};
-        margin: 0;
-        line-height: 1.1;
-        text-align: ${content.textAlign || 'center'};
-      `;
-      wrapper.appendChild(el);
-      break;
-    }
-
-    case 'SUBHEADING': {
-      const el = document.createElement('h2');
-      el.textContent = content.text || '';
-      el.style.cssText = `
-        font-size: ${content.fontSize || 36}px;
-        font-weight: ${content.fontWeight || 500};
-        color: ${content.color || 'rgba(255,255,255,0.8)'};
-        margin: 0;
-        line-height: 1.2;
-        text-align: ${content.textAlign || 'center'};
-      `;
-      wrapper.appendChild(el);
-      break;
-    }
-
+    // TextBlock - HEADING, SUBHEADING, PARAGRAPH all use same component
+    case 'HEADING':
+    case 'SUBHEADING':
     case 'PARAGRAPH': {
-      const el = document.createElement('p');
+      const el = document.createElement('div');
       el.textContent = content.text || '';
       el.style.cssText = `
-        font-size: ${content.fontSize || 24}px;
-        font-weight: ${content.fontWeight || 400};
-        color: ${content.color || 'rgba(255,255,255,0.7)'};
-        margin: 0;
-        line-height: 1.5;
+        font-size: ${getFontSize(content.fontSize)};
+        font-weight: ${content.fontWeight || 'normal'};
+        font-style: ${content.fontStyle || 'normal'};
         text-align: ${content.textAlign || 'center'};
-        max-width: 900px;
+        color: ${content.color || '#FFFFFF'};
+        line-height: 1.3;
+        font-family: ${content.fontFamily || "'Space Grotesk', sans-serif"};
+        width: 100%;
+        white-space: pre-wrap;
       `;
       wrapper.appendChild(el);
       break;
     }
 
+    // BadgeBlock
     case 'BADGE': {
       const el = document.createElement('span');
-      el.textContent = content.text || '';
+      el.textContent = content.text || 'Badge';
       el.style.cssText = `
-        display: inline-block;
-        padding: 8px 20px;
+        display: inline-flex;
+        align-items: center;
+        padding: 12px 28px;
         border-radius: 9999px;
-        font-size: ${content.fontSize || 18}px;
-        font-weight: 600;
-        color: ${content.color || '#FF6B35'};
-        background: ${content.backgroundColor || 'rgba(255, 107, 53, 0.15)'};
-        border: 1px solid ${content.borderColor || 'rgba(255, 107, 53, 0.3)'};
+        background-color: ${content.backgroundColor || '#FF6B35'};
+        color: ${content.textColor || '#FFFFFF'};
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
       `;
       wrapper.appendChild(el);
       break;
     }
 
+    // DividerBlock
     case 'DIVIDER': {
       const el = document.createElement('div');
+      const dividerHeight = content.style === 'thick' ? '4px' : content.style === 'thin' ? '1px' : '2px';
       el.style.cssText = `
-        width: ${content.width || '200px'};
-        height: ${content.height || '4px'};
-        background: ${content.color || 'linear-gradient(90deg, transparent, #FF6B35, transparent)'};
+        width: ${content.width || '50%'};
+        height: ${dividerHeight};
+        background-color: ${content.color || '#FFFFFF'};
+        opacity: ${content.opacity ?? 0.2};
         border-radius: 2px;
         margin: 16px auto;
       `;
@@ -216,97 +213,166 @@ const renderBlock = (block) => {
       break;
     }
 
+    // NumberBlock
     case 'NUMBER': {
-      const el = document.createElement('div');
-      el.textContent = content.number || '01';
-      el.style.cssText = `
-        font-size: ${content.fontSize || 120}px;
+      const container = document.createElement('div');
+      container.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      `;
+
+      const numEl = document.createElement('div');
+      numEl.textContent = content.number || '01';
+      numEl.style.cssText = `
+        font-size: 120px;
         font-weight: 800;
         color: ${content.color || '#FF6B35'};
         line-height: 1;
-        opacity: ${content.opacity || 0.9};
+        font-family: 'Space Grotesk', sans-serif;
+        letter-spacing: -0.02em;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.3);
       `;
-      wrapper.appendChild(el);
+      container.appendChild(numEl);
+
+      if (content.label) {
+        const labelEl = document.createElement('div');
+        labelEl.textContent = content.label;
+        labelEl.style.cssText = `
+          font-size: 28px;
+          color: #FFFFFF;
+          opacity: 0.9;
+          margin-top: 16px;
+          font-weight: 500;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+        `;
+        container.appendChild(labelEl);
+      }
+
+      wrapper.appendChild(container);
       break;
     }
 
+    // QuoteBlock
     case 'QUOTE': {
-      const quoteEl = document.createElement('blockquote');
+      const container = document.createElement('div');
+      container.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      `;
+
+      const fontSize = content.fontSize === 'xl' ? '32px' :
+                       content.fontSize === 'lg' ? '28px' : '24px';
+
+      const quoteEl = document.createElement('div');
+      quoteEl.textContent = content.text || '"Quote here"';
       quoteEl.style.cssText = `
-        font-size: ${content.fontSize || 32}px;
-        font-style: italic;
-        color: ${content.color || 'rgba(255,255,255,0.9)'};
-        margin: 0;
-        padding: 0 40px;
+        font-size: ${fontSize};
+        font-style: ${content.fontStyle || 'italic'};
+        color: #FFFFFF;
         line-height: 1.4;
         text-align: center;
-        position: relative;
+        font-family: 'Space Grotesk', sans-serif;
       `;
-      quoteEl.textContent = `"${content.text || ''}"`;
-      wrapper.appendChild(quoteEl);
+      container.appendChild(quoteEl);
 
       if (content.author) {
-        const authorEl = document.createElement('p');
+        const authorEl = document.createElement('div');
         authorEl.textContent = `— ${content.author}`;
         authorEl.style.cssText = `
-          font-size: 20px;
-          color: rgba(255,255,255,0.6);
+          font-size: 16px;
+          color: rgba(255, 255, 255, 0.6);
           margin-top: 16px;
+          text-align: center;
         `;
-        wrapper.appendChild(authorEl);
+        container.appendChild(authorEl);
       }
+
+      wrapper.appendChild(container);
       break;
     }
 
+    // BulletListBlock
     case 'BULLET_LIST': {
       const items = content.items || ['Item 1', 'Item 2', 'Item 3'];
-      const listEl = document.createElement('ul');
-      listEl.style.cssText = `
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        text-align: left;
+      const bulletStyle = content.bulletStyle || 'check';
+
+      const bulletColors = {
+        check: '#00E676',
+        circle: '#FF6B35',
+        arrow: '#0A66C2',
+      };
+
+      const bulletSymbols = {
+        check: '✓',
+        circle: '●',
+        arrow: '➤',
+      };
+
+      const listContainer = document.createElement('div');
+      listContainer.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
       `;
 
       items.forEach(item => {
-        const li = document.createElement('li');
-        li.style.cssText = `
-          font-size: ${content.fontSize || 28}px;
-          color: ${content.color || 'rgba(255,255,255,0.85)'};
-          margin-bottom: 12px;
+        const itemEl = document.createElement('div');
+        itemEl.style.cssText = `
           display: flex;
-          align-items: flex-start;
+          align-items: center;
           gap: 16px;
         `;
 
         const bullet = document.createElement('span');
-        bullet.textContent = '•';
-        bullet.style.color = '#FF6B35';
-        bullet.style.fontWeight = 'bold';
+        bullet.textContent = bulletSymbols[bulletStyle] || '✓';
+        bullet.style.cssText = `
+          color: ${bulletColors[bulletStyle] || '#00E676'};
+          font-size: 32px;
+          font-weight: bold;
+          flex-shrink: 0;
+        `;
 
         const text = document.createElement('span');
         text.textContent = item;
+        text.style.cssText = `
+          font-size: 28px;
+          color: ${content.color || '#FFFFFF'};
+          line-height: 1.5;
+          font-weight: 500;
+          text-align: center;
+        `;
 
-        li.appendChild(bullet);
-        li.appendChild(text);
-        listEl.appendChild(li);
+        itemEl.appendChild(bullet);
+        itemEl.appendChild(text);
+        listContainer.appendChild(itemEl);
       });
 
-      wrapper.appendChild(listEl);
+      wrapper.appendChild(listContainer);
       break;
     }
 
+    // IconBlock
     case 'ICON': {
+      const size = content.size === 'xxl' ? '120px' :
+                   content.size === 'xl' ? '96px' :
+                   content.size === 'lg' ? '72px' :
+                   content.size === 'base' ? '48px' : '36px';
+
       const el = document.createElement('div');
       el.textContent = content.emoji || '🚀';
       el.style.cssText = `
-        font-size: ${content.fontSize || 64}px;
+        font-size: ${size};
         line-height: 1;
       `;
       wrapper.appendChild(el);
       break;
     }
 
+    // BrandingBlock
     case 'BRANDING': {
       const el = document.createElement('div');
       el.style.cssText = `
@@ -321,13 +387,29 @@ const renderBlock = (block) => {
       const nameEl = document.createElement('span');
       nameEl.textContent = content.name || '@username';
       nameEl.style.cssText = `
-        font-size: ${content.fontSize || 24}px;
+        font-size: 24px;
         font-weight: 600;
-        color: ${content.color || '#FFFFFF'};
+        color: #FFFFFF;
       `;
 
       el.appendChild(nameEl);
       wrapper.appendChild(el);
+      break;
+    }
+
+    // ImageBlock
+    case 'IMAGE': {
+      if (content.url) {
+        const img = document.createElement('img');
+        img.src = content.url;
+        img.style.cssText = `
+          max-width: 100%;
+          max-height: 600px;
+          object-fit: contain;
+          border-radius: ${content.borderRadius || '12px'};
+        `;
+        wrapper.appendChild(img);
+      }
       break;
     }
 
@@ -371,7 +453,6 @@ export const generateCarouselPDF = async (slideData, options = {}) => {
     });
 
     try {
-      // Render slide directly to canvas
       const canvas = await renderSlideToCanvas(slide, width, height, quality);
       const imgData = canvas.toDataURL('image/png', 1.0);
 
