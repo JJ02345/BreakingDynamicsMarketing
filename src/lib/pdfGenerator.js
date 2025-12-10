@@ -1,18 +1,43 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { BACKGROUND_STYLES } from '../utils/slideTemplates';
+
+/**
+ * Get CSS background string from slide data
+ * @param {Object} slide - The slide object with styles
+ * @returns {string} - CSS background value
+ */
+const getBackgroundCSS = (slide) => {
+  // Check for custom background image first
+  if (slide?.styles?.backgroundImage?.url) {
+    return `url(${slide.styles.backgroundImage.url})`;
+  }
+
+  // Get background from BACKGROUND_STYLES
+  const bgKey = slide?.styles?.background || 'solid-dark';
+  const bgStyle = BACKGROUND_STYLES[bgKey] || BACKGROUND_STYLES['solid-dark'];
+
+  if (bgStyle.style.background) {
+    return bgStyle.style.background;
+  }
+  if (bgStyle.style.backgroundColor) {
+    return bgStyle.style.backgroundColor;
+  }
+
+  return '#0A0A0B';
+};
 
 /**
  * Generate a PDF from carousel slides
- * @param {HTMLElement[]} slideRefs - Array of DOM references to slide elements
+ * @param {Array} slideData - Array of {element, slide} objects
  * @param {Object} options - PDF generation options
  * @returns {Promise<jsPDF>} - The generated PDF document
  */
-export const generateCarouselPDF = async (slideRefs, options = {}) => {
+export const generateCarouselPDF = async (slideData, options = {}) => {
   const {
     width = 1080,
     height = 1080,
-    quality = 2, // Scale factor for image quality
-    filename = 'carousel.pdf',
+    quality = 2,
     onProgress = () => {},
   } = options;
 
@@ -24,7 +49,7 @@ export const generateCarouselPDF = async (slideRefs, options = {}) => {
     compress: true,
   });
 
-  const totalSlides = slideRefs.length;
+  const totalSlides = slideData.length;
 
   // Create a temporary container for rendering slides
   const tempContainer = document.createElement('div');
@@ -41,7 +66,11 @@ export const generateCarouselPDF = async (slideRefs, options = {}) => {
   document.body.appendChild(tempContainer);
 
   for (let i = 0; i < totalSlides; i++) {
-    const slideRef = slideRefs[i];
+    const item = slideData[i];
+
+    // Support both old format (just element) and new format ({element, slide})
+    const slideRef = item?.element || item;
+    const slide = item?.slide;
 
     if (!slideRef) continue;
 
@@ -56,8 +85,19 @@ export const generateCarouselPDF = async (slideRefs, options = {}) => {
       // Clone the slide element
       const clonedSlide = slideRef.cloneNode(true);
 
-      // Get computed styles from original
-      const originalStyles = window.getComputedStyle(slideRef);
+      // Get background CSS - use slide data if available, otherwise try computed style
+      let backgroundCSS = '#0A0A0B';
+      let hasBackgroundImage = false;
+
+      if (slide) {
+        // Use slide data directly (preferred method)
+        backgroundCSS = getBackgroundCSS(slide);
+        hasBackgroundImage = !!slide?.styles?.backgroundImage?.url;
+      } else {
+        // Fallback to computed style (may not work well for gradients)
+        const originalStyles = window.getComputedStyle(slideRef);
+        backgroundCSS = originalStyles.background || originalStyles.backgroundColor || '#0A0A0B';
+      }
 
       // Apply styles to make it visible and properly sized
       clonedSlide.style.cssText = `
@@ -70,10 +110,12 @@ export const generateCarouselPDF = async (slideRefs, options = {}) => {
         visibility: visible;
         opacity: 1;
         overflow: hidden;
-        background: ${originalStyles.background || originalStyles.backgroundColor || '#0A0A0B'};
-        background-image: ${originalStyles.backgroundImage};
-        background-size: ${originalStyles.backgroundSize || 'cover'};
-        background-position: ${originalStyles.backgroundPosition || 'center'};
+        background: ${backgroundCSS};
+        ${hasBackgroundImage ? `
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+        ` : ''}
         font-family: 'Space Grotesk', 'Inter', sans-serif;
       `;
 
@@ -81,18 +123,19 @@ export const generateCarouselPDF = async (slideRefs, options = {}) => {
       tempContainer.innerHTML = '';
       tempContainer.appendChild(clonedSlide);
 
-      // Make all child elements visible
+      // Make all child elements visible and fix their styles
       clonedSlide.querySelectorAll('*').forEach((child) => {
         if (child instanceof HTMLElement) {
           child.style.visibility = 'visible';
+          child.style.transform = 'none';
           if (child.style.opacity === '0') {
             child.style.opacity = '1';
           }
         }
       });
 
-      // Wait a frame for styles to apply
-      await new Promise(resolve => requestAnimationFrame(resolve));
+      // Wait for styles to apply and images to load
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Capture the cloned slide
       const canvas = await html2canvas(clonedSlide, {
@@ -140,13 +183,13 @@ export const downloadPDF = (pdf, filename = 'carousel.pdf') => {
 
 /**
  * Generate and download carousel PDF in one step
- * @param {HTMLElement[]} slideRefs - Array of DOM references to slide elements
+ * @param {Array} slideData - Array of {element, slide} objects or just elements
  * @param {Object} options - Options including filename
  */
-export const generateAndDownloadPDF = async (slideRefs, options = {}) => {
+export const generateAndDownloadPDF = async (slideData, options = {}) => {
   const { filename = 'linkedin-carousel.pdf', ...pdfOptions } = options;
 
-  const pdf = await generateCarouselPDF(slideRefs, pdfOptions);
+  const pdf = await generateCarouselPDF(slideData, pdfOptions);
   downloadPDF(pdf, filename);
 
   return pdf;
@@ -154,12 +197,12 @@ export const generateAndDownloadPDF = async (slideRefs, options = {}) => {
 
 /**
  * Generate PDF as blob for preview or upload
- * @param {HTMLElement[]} slideRefs - Array of DOM references
+ * @param {Array} slideData - Array of {element, slide} objects
  * @param {Object} options - Generation options
  * @returns {Promise<Blob>}
  */
-export const generatePDFBlob = async (slideRefs, options = {}) => {
-  const pdf = await generateCarouselPDF(slideRefs, options);
+export const generatePDFBlob = async (slideData, options = {}) => {
+  const pdf = await generateCarouselPDF(slideData, options);
   return pdf.output('blob');
 };
 

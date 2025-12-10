@@ -412,9 +412,13 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     setExporting(true);
     setExportProgress(0);
     try {
-      const slideElements = slideRefs.current.filter(Boolean);
-      if (slideElements.length === 0) throw new Error('No slides found to export');
-      await generateAndDownloadPDF(slideElements, {
+      // Create array of {element, slide} for PDF generator to access background styles
+      const slideData = slides.map((slide, index) => ({
+        element: slideRefs.current[index],
+        slide: slide
+      })).filter(item => item.element);
+      if (slideData.length === 0) throw new Error('No slides found to export');
+      await generateAndDownloadPDF(slideData, {
         filename: `${title || 'linkedin-carousel'}.pdf`,
         width: 1080, height: 1080, quality: 2,
         onProgress: ({ percentage }) => setExportProgress(percentage),
@@ -434,10 +438,14 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     setExporting(true);
     setExportProgress(0);
     try {
-      const slideElements = slideRefs.current.filter(Boolean);
-      if (slideElements.length === 0) throw new Error('No slides found');
+      // Create array of {element, slide} for PDF generator to access background styles
+      const slideData = slides.map((slide, index) => ({
+        element: slideRefs.current[index],
+        slide: slide
+      })).filter(item => item.element);
+      if (slideData.length === 0) throw new Error('No slides found');
 
-      await generateAndDownloadPDF(slideElements, {
+      await generateAndDownloadPDF(slideData, {
         filename: `${title || 'linkedin-carousel'}.pdf`,
         width: 1080, height: 1080, quality: 2,
         onProgress: ({ percentage }) => setExportProgress(percentage),
@@ -455,7 +463,7 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
       setExporting(false);
       setExportProgress(0);
     }
-  }, [title, t, addToast]);
+  }, [title, t, addToast, slides]);
 
   // Wrapper for LinkedIn post - show modal if not authenticated
   const handlePostToLinkedIn = useCallback(async () => {
