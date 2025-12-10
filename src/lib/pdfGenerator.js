@@ -26,6 +26,20 @@ export const generateCarouselPDF = async (slideRefs, options = {}) => {
 
   const totalSlides = slideRefs.length;
 
+  // Create a temporary container for rendering slides
+  const tempContainer = document.createElement('div');
+  tempContainer.style.cssText = `
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: ${width}px;
+    height: ${height}px;
+    z-index: 99999;
+    pointer-events: none;
+    overflow: hidden;
+  `;
+  document.body.appendChild(tempContainer);
+
   for (let i = 0; i < totalSlides; i++) {
     const slideRef = slideRefs[i];
 
@@ -39,21 +53,58 @@ export const generateCarouselPDF = async (slideRefs, options = {}) => {
     });
 
     try {
-      // Capture slide as canvas
-      const canvas = await html2canvas(slideRef, {
+      // Clone the slide element
+      const clonedSlide = slideRef.cloneNode(true);
+
+      // Get computed styles from original
+      const originalStyles = window.getComputedStyle(slideRef);
+
+      // Apply styles to make it visible and properly sized
+      clonedSlide.style.cssText = `
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: ${width}px;
+        height: ${height}px;
+        transform: none;
+        visibility: visible;
+        opacity: 1;
+        overflow: hidden;
+        background: ${originalStyles.background || originalStyles.backgroundColor || '#0A0A0B'};
+        background-image: ${originalStyles.backgroundImage};
+        background-size: ${originalStyles.backgroundSize || 'cover'};
+        background-position: ${originalStyles.backgroundPosition || 'center'};
+        font-family: 'Space Grotesk', 'Inter', sans-serif;
+      `;
+
+      // Clear temp container and add cloned slide
+      tempContainer.innerHTML = '';
+      tempContainer.appendChild(clonedSlide);
+
+      // Make all child elements visible
+      clonedSlide.querySelectorAll('*').forEach((child) => {
+        if (child instanceof HTMLElement) {
+          child.style.visibility = 'visible';
+          if (child.style.opacity === '0') {
+            child.style.opacity = '1';
+          }
+        }
+      });
+
+      // Wait a frame for styles to apply
+      await new Promise(resolve => requestAnimationFrame(resolve));
+
+      // Capture the cloned slide
+      const canvas = await html2canvas(clonedSlide, {
         scale: quality,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: '#0A0A0B', // Dark background fallback
+        backgroundColor: null, // Use element's own background
         logging: false,
         width: width,
         height: height,
-        onclone: (clonedDoc, element) => {
-          // Ensure fonts are loaded in cloned document
-          element.style.fontFamily = "'Space Grotesk', 'Inter', sans-serif";
-          // Ensure background is visible
-          element.style.backgroundColor = element.style.backgroundColor || '#0A0A0B';
-        },
+        scrollX: 0,
+        scrollY: 0,
       });
 
       // Convert canvas to image
@@ -71,6 +122,9 @@ export const generateCarouselPDF = async (slideRefs, options = {}) => {
       throw new Error(`Failed to capture slide ${i + 1}: ${error.message}`);
     }
   }
+
+  // Clean up temp container
+  document.body.removeChild(tempContainer);
 
   return pdf;
 };

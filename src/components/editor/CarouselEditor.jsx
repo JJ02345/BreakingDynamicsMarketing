@@ -557,16 +557,22 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
           slideRefs={slideRefs}
         />
 
-        {/* Hidden slides for PDF export */}
+        {/* Hidden slides for PDF export - positioned off-screen but rendered */}
         <div
           className="fixed pointer-events-none"
-          style={{ left: '-99999px', top: '-99999px', opacity: 0, visibility: 'hidden', zIndex: -9999 }}
+          style={{ left: '-9999px', top: '0px', zIndex: -1 }}
           aria-hidden="true"
         >
           {slides.map((slide, index) => (
-            <div key={slide.id} ref={(el) => (slideRefs.current[index] = el)} style={{ width: 1080, height: 1080 }}>
-              <SlideCanvas slide={slide} onSlideChange={() => {}} isEditing={false} scale={1} showControls={false} />
-            </div>
+            <SlideCanvas
+              key={slide.id}
+              ref={(el) => (slideRefs.current[index] = el)}
+              slide={slide}
+              onSlideChange={() => {}}
+              isEditing={false}
+              scale={1}
+              showControls={false}
+            />
           ))}
         </div>
 
@@ -696,22 +702,27 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
         )}
       </div>
 
-      {/* Hidden slides for PDF export - completely invisible */}
+      {/* Hidden slides for PDF export - positioned off-screen but rendered */}
       <div
         className="fixed pointer-events-none"
         style={{
-          left: '-99999px',
-          top: '-99999px',
-          opacity: 0,
-          visibility: 'hidden',
-          zIndex: -9999
+          left: '-9999px',
+          top: '0px',
+          zIndex: -1
         }}
         aria-hidden="true"
       >
         {slides.map((slide, index) => (
-          <div key={slide.id} ref={(el) => (slideRefs.current[index] = el)} style={{ width: 1080, height: 1080 }}>
-            <SlideCanvas slide={slide} onSlideChange={() => {}} isEditing={false} scale={1} showControls={false} showBranding={showBranding} />
-          </div>
+          <SlideCanvas
+            key={slide.id}
+            ref={(el) => (slideRefs.current[index] = el)}
+            slide={slide}
+            onSlideChange={() => {}}
+            isEditing={false}
+            scale={1}
+            showControls={false}
+            showBranding={showBranding}
+          />
         ))}
       </div>
 
