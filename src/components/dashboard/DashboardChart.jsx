@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { LineChart } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
-const DashboardChart = ({ surveys }) => {
+const DashboardChart = ({ carousels }) => {
+  const { t, language } = useLanguage();
   const [chartPeriod, setChartPeriod] = useState('week');
+  const locale = language === 'de' ? 'de-DE' : language === 'es' ? 'es-ES' : language === 'fr' ? 'fr-FR' : 'en-US';
 
   const getChartData = () => {
     const chartData = [];
@@ -12,21 +15,21 @@ const DashboardChart = ({ surveys }) => {
         const date = new Date();
         date.setDate(date.getDate() - i);
         const dateStr = date.toISOString().split('T')[0];
-        const count = surveys.filter(s => s.created === dateStr).length;
-        chartData.push({ label: date.toLocaleDateString('de-DE', { weekday: 'short' }), count });
+        const count = carousels.filter(c => c.created?.split('T')[0] === dateStr).length;
+        chartData.push({ label: date.toLocaleDateString(locale, { weekday: 'short' }), count });
       }
     } else if (chartPeriod === 'month') {
       for (let i = 11; i >= 0; i--) {
         const date = new Date();
         date.setMonth(date.getMonth() - i);
         const monthStr = date.toISOString().slice(0, 7);
-        const count = surveys.filter(s => s.created?.startsWith(monthStr)).length;
-        chartData.push({ label: date.toLocaleDateString('de-DE', { month: 'short' }), count });
+        const count = carousels.filter(c => c.created?.startsWith(monthStr)).length;
+        chartData.push({ label: date.toLocaleDateString(locale, { month: 'short' }), count });
       }
     } else {
       for (let i = 4; i >= 0; i--) {
         const year = new Date().getFullYear() - i;
-        const count = surveys.filter(s => s.created?.startsWith(year.toString())).length;
+        const count = carousels.filter(c => c.created?.startsWith(year.toString())).length;
         chartData.push({ label: year.toString(), count });
       }
     }
@@ -44,7 +47,7 @@ const DashboardChart = ({ surveys }) => {
           <div className="w-10 h-10 rounded-xl bg-[#00D4FF]/10 flex items-center justify-center">
             <LineChart className="h-5 w-5 text-[#00D4FF]" />
           </div>
-          Test-Verlauf
+          {t('dashboard.carouselHistory')}
         </h3>
         <div className="flex rounded-lg border border-white/10 bg-[#1A1A1D] p-1">
           {['week', 'month', 'year'].map(p => (
@@ -53,13 +56,13 @@ const DashboardChart = ({ surveys }) => {
               onClick={() => setChartPeriod(p)}
               className={"rounded-md px-3 py-1.5 text-xs font-medium transition-all " + (chartPeriod === p ? 'bg-[#FF6B35] text-[#0A0A0B]' : 'text-white/50 hover:text-white')}
             >
-              {p === 'week' ? 'Woche' : p === 'month' ? 'Monate' : 'Jahre'}
+              {t(`dashboard.${p}`)}
             </button>
           ))}
         </div>
       </div>
       <div className="h-48">
-        {surveys.length > 0 ? (
+        {carousels.length > 0 ? (
           <div className="flex h-full items-end justify-between gap-2 px-4">
             {chartData.map((d, idx) => {
               const height = d.count > 0 ? Math.max((d.count / maxCount) * 100, 10) : 5;
@@ -83,7 +86,7 @@ const DashboardChart = ({ surveys }) => {
           <div className="flex h-full items-center justify-center text-white/30">
             <div className="text-center">
               <LineChart className="mx-auto mb-2 h-10 w-10 opacity-50" />
-              <p className="text-sm">Noch keine Daten</p>
+              <p className="text-sm">{t('dashboard.noData')}</p>
             </div>
           </div>
         )}
