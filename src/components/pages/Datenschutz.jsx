@@ -50,6 +50,8 @@ const Datenschutz = function() {
             <div className="mt-4 p-4 bg-white/5 rounded-lg text-white/60 text-sm">
               <p className="font-medium text-white/80">Breaking Dynamics UG (haftungsbeschränkt) i.G.</p>
               <p>Geschäftsführer: Jonas Niklas Jaksch</p>
+              <p>Spadener Straße 123</p>
+              <p>27578 Bremerhaven</p>
               <p>Deutschland</p>
               <p>E-Mail: jjaksch@breakingdynamics.com</p>
             </div>
