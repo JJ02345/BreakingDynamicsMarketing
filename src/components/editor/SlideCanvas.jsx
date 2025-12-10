@@ -132,6 +132,10 @@ const SlideCanvas = forwardRef(({
                   outlineOffset: '4px',
                   borderRadius: '4px',
                   marginBottom: index < slide.blocks.length - 1 ? '16px' : 0,
+                  // Größerer Klickbereich für alle Blöcke
+                  padding: isEditing ? '12px 20px' : '0',
+                  minWidth: isEditing ? '300px' : 'auto',
+                  minHeight: isEditing ? '60px' : 'auto',
                 }}
               >
                 {/* Block Controls */}

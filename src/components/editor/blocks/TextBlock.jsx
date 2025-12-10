@@ -41,8 +41,17 @@ const TextBlock = ({ content, onChange, isEditing }) => {
       <textarea
         value={content.text || ''}
         onChange={(e) => onChange({ ...content, text: e.target.value })}
-        style={{ ...style, background: 'transparent', border: 'none', outline: 'none', resize: 'none' }}
-        className="w-full min-h-[1em] text-center"
+        style={{
+          ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          resize: 'none',
+          // Größerer Klickbereich für einfacheres Treffen
+          padding: '16px 24px',
+          minHeight: '80px',
+        }}
+        className="w-full text-center cursor-text"
         rows={2}
       />
     );
