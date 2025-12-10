@@ -6,161 +6,117 @@ import { useAuth } from '../../lib/AuthContext';
 
 const CAROUSEL_DRAFT_KEY = 'carousel_draft';
 
-// Carousel preset templates - erweitert mit mehr Optionen
+// Carousel preset templates - with full i18n support (EN/DE/ES/FR)
 const CAROUSEL_PRESETS = {
   // === KREATIV / LEER ===
   blank: {
     id: 'blank',
-    name: 'Start Fresh',
-    nameDE: 'Leer starten',
-    description: 'Complete creative freedom',
-    descriptionDE: 'Volle kreative Freiheit',
-    icon: FileText,
-    color: '#FF6B35',
-    category: 'creative',
-    slides: 1
+    name: 'Start Fresh', nameDE: 'Leer starten', nameES: 'Empezar de cero', nameFR: 'Commencer à zéro',
+    description: 'Complete creative freedom', descriptionDE: 'Volle kreative Freiheit',
+    descriptionES: 'Libertad creativa total', descriptionFR: 'Liberté créative totale',
+    icon: FileText, color: '#FF6B35', category: 'creative', slides: 1
   },
 
   // === TIPPS & WISSEN ===
   tipsList: {
     id: 'tipsList',
-    name: '5 Tips That Work',
-    nameDE: '5 Tipps die funktionieren',
-    description: 'Share actionable tips your audience can use today',
-    descriptionDE: 'Teile Tipps die dein Publikum sofort umsetzen kann',
-    icon: Lightbulb,
-    color: '#FF9500',
-    category: 'educational',
-    slides: 7,
-    preview: ['Hook', 'Tipp 1', 'Tipp 2', 'Tipp 3', 'Tipp 4', 'Tipp 5', 'CTA']
+    name: '5 Tips That Work', nameDE: '5 Tipps die funktionieren', nameES: '5 Consejos que funcionan', nameFR: '5 Conseils qui marchent',
+    description: 'Share actionable tips your audience can use today', descriptionDE: 'Teile Tipps die dein Publikum sofort umsetzen kann',
+    descriptionES: 'Comparte consejos que tu audiencia puede usar hoy', descriptionFR: 'Partagez des conseils que votre audience peut utiliser',
+    icon: Lightbulb, color: '#FF9500', category: 'educational', slides: 7,
+    preview: ['Hook', 'Tip 1', 'Tip 2', 'Tip 3', 'Tip 4', 'Tip 5', 'CTA']
   },
   howToGuide: {
     id: 'howToGuide',
-    name: 'How-To Guide',
-    nameDE: 'Schritt-für-Schritt',
-    description: 'Explain a process step by step',
-    descriptionDE: 'Erkläre einen Prozess Schritt für Schritt',
-    icon: BookOpen,
-    color: '#8B5CF6',
-    category: 'educational',
-    slides: 6,
+    name: 'How-To Guide', nameDE: 'Schritt-für-Schritt', nameES: 'Guía Paso a Paso', nameFR: 'Guide Étape par Étape',
+    description: 'Explain a process step by step', descriptionDE: 'Erkläre einen Prozess Schritt für Schritt',
+    descriptionES: 'Explica un proceso paso a paso', descriptionFR: 'Expliquez un processus étape par étape',
+    icon: BookOpen, color: '#8B5CF6', category: 'educational', slides: 6,
     preview: ['Intro', 'Step 1', 'Step 2', 'Step 3', 'Result', 'CTA']
   },
   mythVsReality: {
     id: 'mythVsReality',
-    name: 'Myth vs. Reality',
-    nameDE: 'Mythos vs. Realität',
-    description: 'Bust common myths in your industry',
-    descriptionDE: 'Räume mit Mythen in deiner Branche auf',
-    icon: HelpCircle,
-    color: '#EF4444',
-    category: 'educational',
-    slides: 6,
-    preview: ['Hook', 'Mythos 1', 'Wahrheit 1', 'Mythos 2', 'Wahrheit 2', 'CTA']
+    name: 'Myth vs. Reality', nameDE: 'Mythos vs. Realität', nameES: 'Mito vs. Realidad', nameFR: 'Mythe vs. Réalité',
+    description: 'Bust common myths in your industry', descriptionDE: 'Räume mit Mythen in deiner Branche auf',
+    descriptionES: 'Desmiente mitos comunes en tu industria', descriptionFR: 'Démystifiez les mythes de votre industrie',
+    icon: HelpCircle, color: '#EF4444', category: 'educational', slides: 6,
+    preview: ['Hook', 'Myth 1', 'Truth 1', 'Myth 2', 'Truth 2', 'CTA']
   },
 
   // === VERGLEICH & ENTSCHEIDUNG ===
   optionComparison: {
     id: 'optionComparison',
-    name: 'This vs. That',
-    nameDE: 'Dies vs. Das',
-    description: 'Compare two options clearly',
-    descriptionDE: 'Vergleiche zwei Optionen klar',
-    icon: GitCompare,
-    color: '#3B82F6',
-    category: 'comparison',
-    slides: 5,
-    preview: ['Hook', 'Option A', 'Option B', 'Vergleich', 'CTA']
+    name: 'This vs. That', nameDE: 'Dies vs. Das', nameES: 'Esto vs. Aquello', nameFR: 'Ceci vs. Cela',
+    description: 'Compare two options clearly', descriptionDE: 'Vergleiche zwei Optionen klar',
+    descriptionES: 'Compara dos opciones claramente', descriptionFR: 'Comparez deux options clairement',
+    icon: GitCompare, color: '#3B82F6', category: 'comparison', slides: 5,
+    preview: ['Hook', 'Option A', 'Option B', 'Compare', 'CTA']
   },
   beforeAfter: {
     id: 'beforeAfter',
-    name: 'Before → After',
-    nameDE: 'Vorher → Nachher',
-    description: 'Show transformation and results',
-    descriptionDE: 'Zeige Transformation und Ergebnisse',
-    icon: TrendingUp,
-    color: '#10B981',
-    category: 'comparison',
-    slides: 5,
-    preview: ['Hook', 'Vorher', 'Der Weg', 'Nachher', 'CTA']
+    name: 'Before → After', nameDE: 'Vorher → Nachher', nameES: 'Antes → Después', nameFR: 'Avant → Après',
+    description: 'Show transformation and results', descriptionDE: 'Zeige Transformation und Ergebnisse',
+    descriptionES: 'Muestra transformación y resultados', descriptionFR: 'Montrez transformation et résultats',
+    icon: TrendingUp, color: '#10B981', category: 'comparison', slides: 5,
+    preview: ['Hook', 'Before', 'Journey', 'After', 'CTA']
   },
 
   // === STORYTELLING ===
   storySelling: {
     id: 'storySelling',
-    name: 'My Journey',
-    nameDE: 'Meine Reise',
-    description: 'Share your personal story authentically',
-    descriptionDE: 'Teile deine persönliche Geschichte authentisch',
-    icon: Heart,
-    color: '#EC4899',
-    category: 'storytelling',
-    slides: 6,
-    preview: ['Hook', 'Anfang', 'Challenge', 'Wendepunkt', 'Heute', 'CTA']
+    name: 'My Journey', nameDE: 'Meine Reise', nameES: 'Mi Viaje', nameFR: 'Mon Parcours',
+    description: 'Share your personal story authentically', descriptionDE: 'Teile deine persönliche Geschichte authentisch',
+    descriptionES: 'Comparte tu historia personal auténticamente', descriptionFR: 'Partagez votre histoire personnelle',
+    icon: Heart, color: '#EC4899', category: 'storytelling', slides: 6,
+    preview: ['Hook', 'Start', 'Challenge', 'Turning Point', 'Today', 'CTA']
   },
   lessonsLearned: {
     id: 'lessonsLearned',
-    name: 'Lessons Learned',
-    nameDE: 'Was ich gelernt habe',
-    description: 'Share insights from your experience',
-    descriptionDE: 'Teile Erkenntnisse aus deiner Erfahrung',
-    icon: Award,
-    color: '#F59E0B',
-    category: 'storytelling',
-    slides: 6,
-    preview: ['Hook', 'Kontext', 'Lesson 1', 'Lesson 2', 'Lesson 3', 'CTA']
+    name: 'Lessons Learned', nameDE: 'Was ich gelernt habe', nameES: 'Lecciones Aprendidas', nameFR: 'Leçons Apprises',
+    description: 'Share insights from your experience', descriptionDE: 'Teile Erkenntnisse aus deiner Erfahrung',
+    descriptionES: 'Comparte aprendizajes de tu experiencia', descriptionFR: 'Partagez les enseignements de votre expérience',
+    icon: Award, color: '#F59E0B', category: 'storytelling', slides: 6,
+    preview: ['Hook', 'Context', 'Lesson 1', 'Lesson 2', 'Lesson 3', 'CTA']
   },
 
   // === ZAHLEN & FAKTEN ===
   statsShowcase: {
     id: 'statsShowcase',
-    name: 'Stats That Shock',
-    nameDE: 'Zahlen die überraschen',
-    description: 'Present data that makes people stop',
-    descriptionDE: 'Präsentiere Daten die aufhorchen lassen',
-    icon: BarChart3,
-    color: '#06B6D4',
-    category: 'data',
-    slides: 5,
+    name: 'Stats That Shock', nameDE: 'Zahlen die überraschen', nameES: 'Estadísticas Impactantes', nameFR: 'Stats Choquantes',
+    description: 'Present data that makes people stop', descriptionDE: 'Präsentiere Daten die aufhorchen lassen',
+    descriptionES: 'Presenta datos que detienen a la gente', descriptionFR: 'Présentez des données qui font réagir',
+    icon: BarChart3, color: '#06B6D4', category: 'data', slides: 5,
     preview: ['Hook', 'Stat 1', 'Stat 2', 'Stat 3', 'CTA']
   },
 
   // === ENGAGEMENT ===
   unpopularOpinion: {
     id: 'unpopularOpinion',
-    name: 'Unpopular Opinion',
-    nameDE: 'Unpopuläre Meinung',
-    description: 'Share a controversial take that sparks discussion',
-    descriptionDE: 'Teile eine kontroverse Meinung die Diskussion auslöst',
-    icon: MessageSquare,
-    color: '#DC2626',
-    category: 'engagement',
-    slides: 5,
-    preview: ['Hook', 'Meinung', 'Warum', 'Beweis', 'CTA']
+    name: 'Unpopular Opinion', nameDE: 'Unpopuläre Meinung', nameES: 'Opinión Impopular', nameFR: 'Opinion Impopulaire',
+    description: 'Share a controversial take that sparks discussion', descriptionDE: 'Teile eine kontroverse Meinung die Diskussion auslöst',
+    descriptionES: 'Comparte una opinión controvertida que genere debate', descriptionFR: 'Partagez une opinion controversée qui suscite le débat',
+    icon: MessageSquare, color: '#DC2626', category: 'engagement', slides: 5,
+    preview: ['Hook', 'Opinion', 'Why', 'Proof', 'CTA']
   },
   aboutMe: {
     id: 'aboutMe',
-    name: 'About Me',
-    nameDE: 'Über Mich',
-    description: 'Introduce yourself to new followers',
-    descriptionDE: 'Stelle dich neuen Followern vor',
-    icon: Users,
-    color: '#0EA5E9',
-    category: 'personal',
-    slides: 6,
-    preview: ['Hook', 'Wer', 'Was', 'Warum', 'Fun Fact', 'CTA']
+    name: 'About Me', nameDE: 'Über Mich', nameES: 'Sobre Mí', nameFR: 'À Propos de Moi',
+    description: 'Introduce yourself to new followers', descriptionDE: 'Stelle dich neuen Followern vor',
+    descriptionES: 'Preséntate a nuevos seguidores', descriptionFR: 'Présentez-vous à vos nouveaux abonnés',
+    icon: Users, color: '#0EA5E9', category: 'personal', slides: 6,
+    preview: ['Hook', 'Who', 'What', 'Why', 'Fun Fact', 'CTA']
   }
 };
 
-// Kategorien für Gruppierung
+// Kategorien für Gruppierung - with full i18n
 const TEMPLATE_CATEGORIES = {
-  creative: { name: 'Creative', nameDE: 'Kreativ', order: 0 },
-  educational: { name: 'Educational', nameDE: 'Wissen teilen', order: 1 },
-  comparison: { name: 'Comparison', nameDE: 'Vergleichen', order: 2 },
-  storytelling: { name: 'Storytelling', nameDE: 'Geschichten', order: 3 },
-  data: { name: 'Data & Facts', nameDE: 'Zahlen & Fakten', order: 4 },
-  engagement: { name: 'Engagement', nameDE: 'Engagement', order: 5 },
-  personal: { name: 'Personal Brand', nameDE: 'Personal Brand', order: 6 }
+  creative: { name: 'Creative', nameDE: 'Kreativ', nameES: 'Creativo', nameFR: 'Créatif', order: 0 },
+  educational: { name: 'Educational', nameDE: 'Wissen teilen', nameES: 'Educativo', nameFR: 'Éducatif', order: 1 },
+  comparison: { name: 'Comparison', nameDE: 'Vergleichen', nameES: 'Comparación', nameFR: 'Comparaison', order: 2 },
+  storytelling: { name: 'Storytelling', nameDE: 'Geschichten', nameES: 'Historias', nameFR: 'Histoires', order: 3 },
+  data: { name: 'Data & Facts', nameDE: 'Zahlen & Fakten', nameES: 'Datos y Hechos', nameFR: 'Données & Faits', order: 4 },
+  engagement: { name: 'Engagement', nameDE: 'Engagement', nameES: 'Interacción', nameFR: 'Engagement', order: 5 },
+  personal: { name: 'Personal Brand', nameDE: 'Personal Brand', nameES: 'Marca Personal', nameFR: 'Marque Personnelle', order: 6 }
 };
 
 const CarouselTemplates = ({ onSelectTemplate, onOpenAI, onResumeDraft }) => {
