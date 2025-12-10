@@ -48,11 +48,10 @@ const Datenschutz = function() {
               {isDE ? 'Verantwortlich für die Datenverarbeitung auf dieser Website:' : 'Responsible for data processing on this website:'}
             </p>
             <div className="mt-4 p-4 bg-white/5 rounded-lg text-white/60 text-sm">
-              <p>Breaking Dynamics</p>
-              <p>[Dein Name]</p>
-              <p>[Deine Adresse]</p>
-              <p>[Deine Stadt, PLZ]</p>
-              <p>E-Mail: [deine@email.de]</p>
+              <p className="font-medium text-white/80">Breaking Dynamics UG (haftungsbeschränkt) i.G.</p>
+              <p>Geschäftsführer: Jonas Niklas Jaksch</p>
+              <p>Deutschland</p>
+              <p>E-Mail: jjaksch@breakingdynamics.com</p>
             </div>
           </section>
 

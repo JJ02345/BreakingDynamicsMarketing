@@ -36,10 +36,8 @@ const Impressum = function() {
               {isDE ? 'Angaben gemäß § 5 TMG' : 'Information according to § 5 TMG'}
             </h2>
             <div className="text-white/70 space-y-1">
-              <p className="font-medium text-white">Breaking Dynamics</p>
-              <p>[Dein vollständiger Name]</p>
-              <p>[Straße und Hausnummer]</p>
-              <p>[PLZ] [Stadt]</p>
+              <p className="font-medium text-white">Breaking Dynamics UG (haftungsbeschränkt) i.G.</p>
+              <p>Geschäftsführer: Jonas Niklas Jaksch</p>
               <p>Deutschland</p>
             </div>
           </section>
@@ -52,8 +50,8 @@ const Impressum = function() {
             <div className="text-white/70 space-y-2">
               <p>
                 <span className="text-white/50">E-Mail: </span>
-                <a href="mailto:kontakt@breakingdynamics.de" className="text-[#FF6B35] hover:underline">
-                  [deine@email.de]
+                <a href="mailto:jjaksch@breakingdynamics.com" className="text-[#FF6B35] hover:underline">
+                  jjaksch@breakingdynamics.com
                 </a>
               </p>
               <p className="text-white/50 text-sm mt-4">
@@ -87,9 +85,8 @@ const Impressum = function() {
               {isDE ? 'Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV' : 'Responsible for Content'}
             </h2>
             <div className="text-white/70 space-y-1">
-              <p>[Dein vollständiger Name]</p>
-              <p>[Straße und Hausnummer]</p>
-              <p>[PLZ] [Stadt]</p>
+              <p>Jonas Niklas Jaksch</p>
+              <p>E-Mail: jjaksch@breakingdynamics.com</p>
             </div>
           </section>
 
@@ -154,15 +151,6 @@ const Impressum = function() {
             </p>
           </section>
 
-          {/* Hinweis */}
-          <div className="p-4 bg-[#FF6B35]/10 border border-[#FF6B35]/20 rounded-xl">
-            <p className="text-[#FF6B35] text-sm">
-              <strong>{isDE ? 'Wichtig:' : 'Important:'}</strong>{' '}
-              {isDE
-                ? 'Bitte ersetze alle Platzhalter [in eckigen Klammern] mit deinen echten Daten, bevor du die Website öffentlich machst.'
-                : 'Please replace all placeholders [in square brackets] with your real data before making the website public.'}
-            </p>
-          </div>
         </div>
       </main>
     </div>
