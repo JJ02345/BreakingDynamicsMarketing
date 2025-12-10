@@ -212,9 +212,10 @@ const ImageUpload = ({
           />
           <button
             onClick={handleRemove}
-            className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500/80 text-white hover:bg-red-500 transition-colors"
+            className="absolute top-2 right-2 p-3 rounded-xl bg-red-500/80 text-white hover:bg-red-500 transition-colors shadow-lg"
+            title="Bild entfernen"
           >
-            <X className="h-4 w-4" />
+            <X className="h-6 w-6" />
           </button>
           {currentImage.isCloud && (
             <div className="absolute bottom-2 left-2 flex items-center gap-1 px-2 py-1 rounded-full bg-black/60 text-[10px] text-white/70">
