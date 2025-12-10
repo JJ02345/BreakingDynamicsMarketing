@@ -27,15 +27,7 @@ const IconBlock = ({ content, onChange, isEditing }) => {
     <div className="relative flex flex-col items-center justify-center py-4">
       <div
         className={`flex items-center justify-center transition-all ${isEditing ? 'cursor-pointer hover:opacity-80' : ''}`}
-        style={{
-          fontSize: size,
-          lineHeight: 1,
-          margin: '16px 0',
-          // Größerer Klickbereich für einfacheres Treffen
-          padding: isEditing ? '24px 48px' : '0',
-          minWidth: isEditing ? '200px' : 'auto',
-          minHeight: isEditing ? '120px' : 'auto',
-        }}
+        style={{ fontSize: size, lineHeight: 1, margin: '16px 0' }}
         onClick={() => isEditing && setShowPicker(!showPicker)}
       >
         {content.emoji || '🚀'}
