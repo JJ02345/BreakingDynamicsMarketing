@@ -131,7 +131,7 @@ const SlideCanvas = forwardRef(({
                   outline: isActive && isEditing ? '2px solid #FF6B35' : 'none',
                   outlineOffset: '4px',
                   borderRadius: '4px',
-                  marginBottom: index < slide.blocks.length - 1 ? '8px' : 0,
+                  marginBottom: index < slide.blocks.length - 1 ? '16px' : 0,
                 }}
               >
                 {/* Block Controls */}

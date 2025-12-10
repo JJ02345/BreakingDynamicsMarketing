@@ -12,11 +12,11 @@ const IconBlock = ({ content, onChange, isEditing }) => {
   const [showPicker, setShowPicker] = useState(false);
   const [activeCategory, setActiveCategory] = useState('popular');
 
-  // Größere Icons für visuellen Impact
-  const size = content.size === 'xxl' ? '120px' :
-               content.size === 'xl' ? '96px' :
-               content.size === 'lg' ? '72px' :
-               content.size === 'base' ? '48px' : '36px';
+  // Größere Icons für visuellen Impact - angepasst für bessere Lesbarkeit
+  const size = content.size === 'xxl' ? '180px' :
+               content.size === 'xl' ? '140px' :
+               content.size === 'lg' ? '100px' :
+               content.size === 'base' ? '72px' : '56px';
 
   const handleEmojiSelect = (emoji) => {
     onChange({ ...content, emoji });
@@ -24,10 +24,10 @@ const IconBlock = ({ content, onChange, isEditing }) => {
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center">
+    <div className="relative flex flex-col items-center justify-center py-4">
       <div
         className={`flex items-center justify-center transition-all ${isEditing ? 'cursor-pointer hover:opacity-80' : ''}`}
-        style={{ fontSize: size, lineHeight: 1 }}
+        style={{ fontSize: size, lineHeight: 1, margin: '16px 0' }}
         onClick={() => isEditing && setShowPicker(!showPicker)}
       >
         {content.emoji || '🚀'}
