@@ -107,7 +107,7 @@ const renderSlideToCanvas = async (slide, width, height, quality) => {
     padding: ${padding}px;
     box-sizing: border-box;
     z-index: 10;
-    gap: 8px;
+    gap: 16px;
   `;
 
   if (slide.blocks && slide.blocks.length > 0) {
@@ -151,6 +151,7 @@ const renderBlock = (block) => {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 12px 0;
   `;
 
   const content = block.content || {};
@@ -207,7 +208,7 @@ const renderBlock = (block) => {
         background-color: ${content.color || '#FFFFFF'};
         opacity: ${content.opacity ?? 0.2};
         border-radius: 2px;
-        margin: 16px auto;
+        margin: 24px auto;
       `;
       wrapper.appendChild(el);
       break;
@@ -357,16 +358,19 @@ const renderBlock = (block) => {
 
     // IconBlock
     case 'ICON': {
-      const size = content.size === 'xxl' ? '120px' :
-                   content.size === 'xl' ? '96px' :
-                   content.size === 'lg' ? '72px' :
-                   content.size === 'base' ? '48px' : '36px';
+      // Sehr große Icons für PDF - deutlich größer als im Editor
+      const size = content.size === 'xxl' ? '220px' :
+                   content.size === 'xl' ? '180px' :
+                   content.size === 'lg' ? '140px' :
+                   content.size === 'base' ? '100px' : '80px';
 
       const el = document.createElement('div');
       el.textContent = content.emoji || '🚀';
       el.style.cssText = `
         font-size: ${size};
         line-height: 1;
+        margin: 30px 0;
+        flex-shrink: 0;
       `;
       wrapper.appendChild(el);
       break;
@@ -382,6 +386,7 @@ const renderBlock = (block) => {
         padding: 12px 24px;
         background: rgba(0,0,0,0.4);
         border-radius: 12px;
+        margin-top: 30px;
       `;
 
       const nameEl = document.createElement('span');
