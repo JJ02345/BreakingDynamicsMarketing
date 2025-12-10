@@ -4,16 +4,12 @@ import { BACKGROUND_STYLES } from '../utils/slideTemplates';
 
 /**
  * Get CSS background string from slide data
- * @param {Object} slide - The slide object with styles
- * @returns {string} - CSS background value
  */
 const getBackgroundCSS = (slide) => {
-  // Check for custom background image first
   if (slide?.styles?.backgroundImage?.url) {
     return `url(${slide.styles.backgroundImage.url})`;
   }
 
-  // Get background from BACKGROUND_STYLES
   const bgKey = slide?.styles?.background || 'solid-dark';
   const bgStyle = BACKGROUND_STYLES[bgKey] || BACKGROUND_STYLES['solid-dark'];
 
@@ -28,10 +24,322 @@ const getBackgroundCSS = (slide) => {
 };
 
 /**
+ * Render a slide to a canvas element
+ */
+const renderSlideToCanvas = async (slide, width, height, quality) => {
+  // Create a temporary container
+  const container = document.createElement('div');
+  container.style.cssText = `
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: ${width}px;
+    height: ${height}px;
+    z-index: 99999;
+    overflow: hidden;
+  `;
+
+  // Create the slide element with background
+  const slideEl = document.createElement('div');
+  const bgCSS = getBackgroundCSS(slide);
+  const hasBackgroundImage = !!slide?.styles?.backgroundImage?.url;
+
+  slideEl.style.cssText = `
+    width: ${width}px;
+    height: ${height}px;
+    background: ${bgCSS};
+    ${hasBackgroundImage ? `
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    ` : ''}
+    position: relative;
+    overflow: hidden;
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  `;
+
+  // Add dark overlay for image backgrounds
+  if (hasBackgroundImage) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%);
+      pointer-events: none;
+    `;
+    slideEl.appendChild(overlay);
+  }
+
+  // Create content container
+  const contentContainer = document.createElement('div');
+  const padding = slide.styles?.padding === 'sm' ? 40 :
+                  slide.styles?.padding === 'lg' ? 80 :
+                  slide.styles?.padding === 'xl' ? 100 : 60;
+
+  const verticalAlign = slide.styles?.verticalAlign === 'top' ? 'flex-start' :
+                        slide.styles?.verticalAlign === 'bottom' ? 'flex-end' : 'center';
+
+  contentContainer.style.cssText = `
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: ${verticalAlign};
+    padding: ${padding}px;
+    box-sizing: border-box;
+    z-index: 10;
+  `;
+
+  // Render blocks
+  if (slide.blocks && slide.blocks.length > 0) {
+    for (const block of slide.blocks) {
+      const blockEl = renderBlock(block);
+      if (blockEl) {
+        contentContainer.appendChild(blockEl);
+      }
+    }
+  }
+
+  slideEl.appendChild(contentContainer);
+  container.appendChild(slideEl);
+  document.body.appendChild(container);
+
+  // Wait for fonts and images to load
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  // Capture with html2canvas
+  const canvas = await html2canvas(slideEl, {
+    scale: quality,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: null,
+    logging: false,
+    width: width,
+    height: height,
+  });
+
+  // Cleanup
+  document.body.removeChild(container);
+
+  return canvas;
+};
+
+/**
+ * Render a single block to DOM element
+ */
+const renderBlock = (block) => {
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = `
+    margin-bottom: 8px;
+    text-align: center;
+    width: 100%;
+  `;
+
+  const content = block.content || {};
+
+  switch (block.type) {
+    case 'HEADING': {
+      const el = document.createElement('h1');
+      el.textContent = content.text || '';
+      el.style.cssText = `
+        font-size: ${content.fontSize || 72}px;
+        font-weight: ${content.fontWeight || 700};
+        color: ${content.color || '#FFFFFF'};
+        margin: 0;
+        line-height: 1.1;
+        text-align: ${content.textAlign || 'center'};
+      `;
+      wrapper.appendChild(el);
+      break;
+    }
+
+    case 'SUBHEADING': {
+      const el = document.createElement('h2');
+      el.textContent = content.text || '';
+      el.style.cssText = `
+        font-size: ${content.fontSize || 36}px;
+        font-weight: ${content.fontWeight || 500};
+        color: ${content.color || 'rgba(255,255,255,0.8)'};
+        margin: 0;
+        line-height: 1.2;
+        text-align: ${content.textAlign || 'center'};
+      `;
+      wrapper.appendChild(el);
+      break;
+    }
+
+    case 'PARAGRAPH': {
+      const el = document.createElement('p');
+      el.textContent = content.text || '';
+      el.style.cssText = `
+        font-size: ${content.fontSize || 24}px;
+        font-weight: ${content.fontWeight || 400};
+        color: ${content.color || 'rgba(255,255,255,0.7)'};
+        margin: 0;
+        line-height: 1.5;
+        text-align: ${content.textAlign || 'center'};
+        max-width: 900px;
+      `;
+      wrapper.appendChild(el);
+      break;
+    }
+
+    case 'BADGE': {
+      const el = document.createElement('span');
+      el.textContent = content.text || '';
+      el.style.cssText = `
+        display: inline-block;
+        padding: 8px 20px;
+        border-radius: 9999px;
+        font-size: ${content.fontSize || 18}px;
+        font-weight: 600;
+        color: ${content.color || '#FF6B35'};
+        background: ${content.backgroundColor || 'rgba(255, 107, 53, 0.15)'};
+        border: 1px solid ${content.borderColor || 'rgba(255, 107, 53, 0.3)'};
+      `;
+      wrapper.appendChild(el);
+      break;
+    }
+
+    case 'DIVIDER': {
+      const el = document.createElement('div');
+      el.style.cssText = `
+        width: ${content.width || '200px'};
+        height: ${content.height || '4px'};
+        background: ${content.color || 'linear-gradient(90deg, transparent, #FF6B35, transparent)'};
+        border-radius: 2px;
+        margin: 16px auto;
+      `;
+      wrapper.appendChild(el);
+      break;
+    }
+
+    case 'NUMBER': {
+      const el = document.createElement('div');
+      el.textContent = content.number || '01';
+      el.style.cssText = `
+        font-size: ${content.fontSize || 120}px;
+        font-weight: 800;
+        color: ${content.color || '#FF6B35'};
+        line-height: 1;
+        opacity: ${content.opacity || 0.9};
+      `;
+      wrapper.appendChild(el);
+      break;
+    }
+
+    case 'QUOTE': {
+      const quoteEl = document.createElement('blockquote');
+      quoteEl.style.cssText = `
+        font-size: ${content.fontSize || 32}px;
+        font-style: italic;
+        color: ${content.color || 'rgba(255,255,255,0.9)'};
+        margin: 0;
+        padding: 0 40px;
+        line-height: 1.4;
+        text-align: center;
+        position: relative;
+      `;
+      quoteEl.textContent = `"${content.text || ''}"`;
+      wrapper.appendChild(quoteEl);
+
+      if (content.author) {
+        const authorEl = document.createElement('p');
+        authorEl.textContent = `— ${content.author}`;
+        authorEl.style.cssText = `
+          font-size: 20px;
+          color: rgba(255,255,255,0.6);
+          margin-top: 16px;
+        `;
+        wrapper.appendChild(authorEl);
+      }
+      break;
+    }
+
+    case 'BULLET_LIST': {
+      const items = content.items || ['Item 1', 'Item 2', 'Item 3'];
+      const listEl = document.createElement('ul');
+      listEl.style.cssText = `
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        text-align: left;
+      `;
+
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.style.cssText = `
+          font-size: ${content.fontSize || 28}px;
+          color: ${content.color || 'rgba(255,255,255,0.85)'};
+          margin-bottom: 12px;
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
+        `;
+
+        const bullet = document.createElement('span');
+        bullet.textContent = '•';
+        bullet.style.color = '#FF6B35';
+        bullet.style.fontWeight = 'bold';
+
+        const text = document.createElement('span');
+        text.textContent = item;
+
+        li.appendChild(bullet);
+        li.appendChild(text);
+        listEl.appendChild(li);
+      });
+
+      wrapper.appendChild(listEl);
+      break;
+    }
+
+    case 'ICON': {
+      const el = document.createElement('div');
+      el.textContent = content.emoji || '🚀';
+      el.style.cssText = `
+        font-size: ${content.fontSize || 64}px;
+        line-height: 1;
+      `;
+      wrapper.appendChild(el);
+      break;
+    }
+
+    case 'BRANDING': {
+      const el = document.createElement('div');
+      el.style.cssText = `
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 24px;
+        background: rgba(0,0,0,0.4);
+        border-radius: 12px;
+      `;
+
+      const nameEl = document.createElement('span');
+      nameEl.textContent = content.name || '@username';
+      nameEl.style.cssText = `
+        font-size: ${content.fontSize || 24}px;
+        font-weight: 600;
+        color: ${content.color || '#FFFFFF'};
+      `;
+
+      el.appendChild(nameEl);
+      wrapper.appendChild(el);
+      break;
+    }
+
+    default:
+      return null;
+  }
+
+  return wrapper;
+};
+
+/**
  * Generate a PDF from carousel slides
- * @param {Array} slideData - Array of {element, slide} objects
- * @param {Object} options - PDF generation options
- * @returns {Promise<jsPDF>} - The generated PDF document
  */
 export const generateCarouselPDF = async (slideData, options = {}) => {
   const {
@@ -41,7 +349,6 @@ export const generateCarouselPDF = async (slideData, options = {}) => {
     onProgress = () => {},
   } = options;
 
-  // Create PDF with square format (LinkedIn optimal)
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'px',
@@ -51,30 +358,12 @@ export const generateCarouselPDF = async (slideData, options = {}) => {
 
   const totalSlides = slideData.length;
 
-  // Create a temporary container for rendering slides
-  const tempContainer = document.createElement('div');
-  tempContainer.style.cssText = `
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: ${width}px;
-    height: ${height}px;
-    z-index: 99999;
-    pointer-events: none;
-    overflow: hidden;
-  `;
-  document.body.appendChild(tempContainer);
-
   for (let i = 0; i < totalSlides; i++) {
     const item = slideData[i];
+    const slide = item?.slide || item;
 
-    // Support both old format (just element) and new format ({element, slide})
-    const slideRef = item?.element || item;
-    const slide = item?.slide;
+    if (!slide) continue;
 
-    if (!slideRef) continue;
-
-    // Report progress
     onProgress({
       current: i + 1,
       total: totalSlides,
@@ -82,83 +371,14 @@ export const generateCarouselPDF = async (slideData, options = {}) => {
     });
 
     try {
-      // Clone the slide element
-      const clonedSlide = slideRef.cloneNode(true);
-
-      // Get background CSS - use slide data if available, otherwise try computed style
-      let backgroundCSS = '#0A0A0B';
-      let hasBackgroundImage = false;
-
-      if (slide) {
-        // Use slide data directly (preferred method)
-        backgroundCSS = getBackgroundCSS(slide);
-        hasBackgroundImage = !!slide?.styles?.backgroundImage?.url;
-      } else {
-        // Fallback to computed style (may not work well for gradients)
-        const originalStyles = window.getComputedStyle(slideRef);
-        backgroundCSS = originalStyles.background || originalStyles.backgroundColor || '#0A0A0B';
-      }
-
-      // Apply styles to make it visible and properly sized
-      clonedSlide.style.cssText = `
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: ${width}px;
-        height: ${height}px;
-        transform: none;
-        visibility: visible;
-        opacity: 1;
-        overflow: hidden;
-        background: ${backgroundCSS};
-        ${hasBackgroundImage ? `
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
-        ` : ''}
-        font-family: 'Space Grotesk', 'Inter', sans-serif;
-      `;
-
-      // Clear temp container and add cloned slide
-      tempContainer.innerHTML = '';
-      tempContainer.appendChild(clonedSlide);
-
-      // Make all child elements visible and fix their styles
-      clonedSlide.querySelectorAll('*').forEach((child) => {
-        if (child instanceof HTMLElement) {
-          child.style.visibility = 'visible';
-          child.style.transform = 'none';
-          if (child.style.opacity === '0') {
-            child.style.opacity = '1';
-          }
-        }
-      });
-
-      // Wait for styles to apply and images to load
-      await new Promise(resolve => setTimeout(resolve, 50));
-
-      // Capture the cloned slide
-      const canvas = await html2canvas(clonedSlide, {
-        scale: quality,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: null, // Use element's own background
-        logging: false,
-        width: width,
-        height: height,
-        scrollX: 0,
-        scrollY: 0,
-      });
-
-      // Convert canvas to image
+      // Render slide directly to canvas
+      const canvas = await renderSlideToCanvas(slide, width, height, quality);
       const imgData = canvas.toDataURL('image/png', 1.0);
 
-      // Add new page for slides after the first
       if (i > 0) {
         pdf.addPage([width, height], 'portrait');
       }
 
-      // Add image to PDF
       pdf.addImage(imgData, 'PNG', 0, 0, width, height, undefined, 'FAST');
     } catch (error) {
       console.error(`Error capturing slide ${i + 1}:`, error);
@@ -166,52 +386,25 @@ export const generateCarouselPDF = async (slideData, options = {}) => {
     }
   }
 
-  // Clean up temp container
-  document.body.removeChild(tempContainer);
-
   return pdf;
 };
 
-/**
- * Download the generated PDF
- * @param {jsPDF} pdf - The PDF document
- * @param {string} filename - The filename for download
- */
 export const downloadPDF = (pdf, filename = 'carousel.pdf') => {
   pdf.save(filename);
 };
 
-/**
- * Generate and download carousel PDF in one step
- * @param {Array} slideData - Array of {element, slide} objects or just elements
- * @param {Object} options - Options including filename
- */
 export const generateAndDownloadPDF = async (slideData, options = {}) => {
   const { filename = 'linkedin-carousel.pdf', ...pdfOptions } = options;
-
   const pdf = await generateCarouselPDF(slideData, pdfOptions);
   downloadPDF(pdf, filename);
-
   return pdf;
 };
 
-/**
- * Generate PDF as blob for preview or upload
- * @param {Array} slideData - Array of {element, slide} objects
- * @param {Object} options - Generation options
- * @returns {Promise<Blob>}
- */
 export const generatePDFBlob = async (slideData, options = {}) => {
   const pdf = await generateCarouselPDF(slideData, options);
   return pdf.output('blob');
 };
 
-/**
- * Generate individual slide images (for preview thumbnails)
- * @param {HTMLElement} slideRef - DOM reference to a slide
- * @param {Object} options - Capture options
- * @returns {Promise<string>} - Data URL of the captured image
- */
 export const captureSlideImage = async (slideRef, options = {}) => {
   const { width = 1080, height = 1080, scale = 0.5 } = options;
 

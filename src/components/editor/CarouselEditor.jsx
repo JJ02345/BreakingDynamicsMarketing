@@ -412,13 +412,8 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     setExporting(true);
     setExportProgress(0);
     try {
-      // Create array of {element, slide} for PDF generator to access background styles
-      const slideData = slides.map((slide, index) => ({
-        element: slideRefs.current[index],
-        slide: slide
-      })).filter(item => item.element);
-      if (slideData.length === 0) throw new Error('No slides found to export');
-      await generateAndDownloadPDF(slideData, {
+      // Pass slides directly - pdfGenerator renders them from data
+      await generateAndDownloadPDF(slides, {
         filename: `${title || 'linkedin-carousel'}.pdf`,
         width: 1080, height: 1080, quality: 2,
         onProgress: ({ percentage }) => setExportProgress(percentage),
@@ -438,14 +433,10 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
     setExporting(true);
     setExportProgress(0);
     try {
-      // Create array of {element, slide} for PDF generator to access background styles
-      const slideData = slides.map((slide, index) => ({
-        element: slideRefs.current[index],
-        slide: slide
-      })).filter(item => item.element);
-      if (slideData.length === 0) throw new Error('No slides found');
+      if (slides.length === 0) throw new Error('No slides found');
 
-      await generateAndDownloadPDF(slideData, {
+      // Pass slides directly - pdfGenerator renders them from data
+      await generateAndDownloadPDF(slides, {
         filename: `${title || 'linkedin-carousel'}.pdf`,
         width: 1080, height: 1080, quality: 2,
         onProgress: ({ percentage }) => setExportProgress(percentage),
@@ -564,25 +555,6 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
           onExport={handleExportPDF}
           slideRefs={slideRefs}
         />
-
-        {/* Hidden slides for PDF export - positioned off-screen but rendered */}
-        <div
-          className="fixed pointer-events-none"
-          style={{ left: '-9999px', top: '0px', zIndex: -1 }}
-          aria-hidden="true"
-        >
-          {slides.map((slide, index) => (
-            <SlideCanvas
-              key={slide.id}
-              ref={(el) => (slideRefs.current[index] = el)}
-              slide={slide}
-              onSlideChange={() => {}}
-              isEditing={false}
-              scale={1}
-              showControls={false}
-            />
-          ))}
-        </div>
 
         {/* AI Generator Modal */}
         <AIGeneratorModal
@@ -708,30 +680,6 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
             />
           </div>
         )}
-      </div>
-
-      {/* Hidden slides for PDF export - positioned off-screen but rendered */}
-      <div
-        className="fixed pointer-events-none"
-        style={{
-          left: '-9999px',
-          top: '0px',
-          zIndex: -1
-        }}
-        aria-hidden="true"
-      >
-        {slides.map((slide, index) => (
-          <SlideCanvas
-            key={slide.id}
-            ref={(el) => (slideRefs.current[index] = el)}
-            slide={slide}
-            onSlideChange={() => {}}
-            isEditing={false}
-            scale={1}
-            showControls={false}
-            showBranding={showBranding}
-          />
-        ))}
       </div>
 
       {/* AI Generator Modal */}
