@@ -52,6 +52,10 @@ export const en = {
     title: 'Title', created: 'Created', actions: 'Actions', loadError: 'Loading error:', retry: 'Retry',
     comingSoon: 'Coming soon...', inDevelopment: 'In Development',
     carouselDeleted: 'Carousel deleted', deleteFailed: 'Delete failed:', delete: 'Delete', settings: 'Settings',
+    uploads: 'Uploads', images: 'Images', savedSlides: 'Saved Slides',
+    uploadImage: 'Upload Image', noImages: 'No Images Yet', uploadFirstImage: 'Upload your first image to use in carousels',
+    imageUploaded: 'Image uploaded!', imageDeleted: 'Image deleted', copyUrl: 'Copy URL',
+    noSavedSlides: 'No Saved Slides', saveSlideHint: 'Save slides from the editor to reuse them', slideDeleted: 'Slide deleted',
   },
   editor: {
     blocks: 'Blocks', preview: 'Preview', required: 'Required', internal: 'Internal', dropHere: 'Drop block here or drag from sidebar',
@@ -189,6 +193,10 @@ export const de = {
     title: 'Titel', created: 'Erstellt', actions: 'Aktionen', loadError: 'Fehler beim Laden:', retry: 'Erneut versuchen',
     comingSoon: 'Kommt bald...', inDevelopment: 'In Entwicklung',
     carouselDeleted: 'Carousel gelöscht', deleteFailed: 'Löschen fehlgeschlagen:', delete: 'Löschen', settings: 'Einstellungen',
+    uploads: 'Uploads', images: 'Bilder', savedSlides: 'Gespeicherte Slides',
+    uploadImage: 'Bild hochladen', noImages: 'Noch keine Bilder', uploadFirstImage: 'Lade dein erstes Bild hoch, um es in Carousels zu nutzen',
+    imageUploaded: 'Bild hochgeladen!', imageDeleted: 'Bild gelöscht', copyUrl: 'URL kopieren',
+    noSavedSlides: 'Keine gespeicherten Slides', saveSlideHint: 'Speichere Slides aus dem Editor, um sie wiederzuverwenden', slideDeleted: 'Slide gelöscht',
   },
   editor: {
     blocks: 'Bausteine', preview: 'Vorschau', required: 'Pflicht', internal: 'Intern', dropHere: 'Baustein hier ablegen oder aus der Sidebar ziehen',
@@ -326,6 +334,10 @@ export const es = {
     title: 'Título', created: 'Creado', actions: 'Acciones', loadError: 'Error al cargar:', retry: 'Reintentar',
     comingSoon: 'Próximamente...', inDevelopment: 'En Desarrollo',
     carouselDeleted: 'Carrusel eliminado', deleteFailed: 'Error al eliminar:', delete: 'Eliminar', settings: 'Configuración',
+    uploads: 'Archivos', images: 'Imágenes', savedSlides: 'Slides Guardados',
+    uploadImage: 'Subir Imagen', noImages: 'Sin Imágenes Aún', uploadFirstImage: 'Sube tu primera imagen para usarla en carruseles',
+    imageUploaded: '¡Imagen subida!', imageDeleted: 'Imagen eliminada', copyUrl: 'Copiar URL',
+    noSavedSlides: 'Sin Slides Guardados', saveSlideHint: 'Guarda slides desde el editor para reutilizarlos', slideDeleted: 'Slide eliminado',
   },
   editor: {
     blocks: 'Bloques', preview: 'Vista previa', required: 'Requerido', internal: 'Interno', dropHere: 'Suelta el bloque aquí o arrastra desde la barra lateral',
@@ -463,6 +475,10 @@ export const fr = {
     title: 'Titre', created: 'Créé', actions: 'Actions', loadError: 'Erreur de chargement:', retry: 'Réessayer',
     comingSoon: 'Bientôt disponible...', inDevelopment: 'En Développement',
     carouselDeleted: 'Carrousel supprimé', deleteFailed: 'Échec de la suppression:', delete: 'Supprimer', settings: 'Paramètres',
+    uploads: 'Fichiers', images: 'Images', savedSlides: 'Slides Sauvegardés',
+    uploadImage: 'Télécharger Image', noImages: 'Pas Encore d\'Images', uploadFirstImage: 'Téléchargez votre première image pour l\'utiliser dans les carrousels',
+    imageUploaded: 'Image téléchargée!', imageDeleted: 'Image supprimée', copyUrl: 'Copier URL',
+    noSavedSlides: 'Pas de Slides Sauvegardés', saveSlideHint: 'Sauvegardez des slides depuis l\'éditeur pour les réutiliser', slideDeleted: 'Slide supprimé',
   },
   editor: {
     blocks: 'Blocs', preview: 'Aperçu', required: 'Requis', internal: 'Interne', dropHere: 'Déposez le bloc ici ou faites glisser depuis la barre latérale',

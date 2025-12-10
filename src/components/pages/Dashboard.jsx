@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Home, History, LineChart, ChevronRight, AlertCircle, Loader2, Sparkles, Settings, ToggleLeft, ToggleRight, Zap, LayoutGrid } from 'lucide-react';
+import { Plus, Home, ChevronRight, AlertCircle, Loader2, Settings, ToggleLeft, ToggleRight, Zap, LayoutGrid, FolderOpen } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { auth, db } from '../../lib/supabase';
 import { useBrandingSettings } from '../../hooks/useBrandingSettings';
@@ -8,7 +8,8 @@ import {
   DashboardHeader,
   DashboardStats,
   DashboardChart,
-  DashboardHistory
+  DashboardHistory,
+  DashboardUploads
 } from '../dashboard';
 
 const Dashboard = function(props) {
@@ -83,10 +84,11 @@ const Dashboard = function(props) {
 
       <div className="mx-auto max-w-7xl px-6 py-8">
         <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex rounded-xl border border-white/10 bg-[#111113] p-1">
+          <div className="flex rounded-xl border border-white/10 bg-[#111113] p-1 overflow-x-auto">
             {[
               { k: 'home', i: Home, l: t('dashboard.home') },
               { k: 'history', i: LayoutGrid, l: t('dashboard.myCarousels') },
+              { k: 'uploads', i: FolderOpen, l: t('dashboard.uploads') },
               { k: 'settings', i: Settings, l: t('dashboard.settings') }
             ].map(item => (
               <button key={item.k} onClick={() => setTab(item.k)} className={"flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all " + (tab === item.k ? 'bg-gradient-to-r from-[#FF6B35] to-[#FF8C5A] text-[#0A0A0B]' : 'text-white/60 hover:text-white hover:bg-white/5')}>
@@ -146,6 +148,10 @@ const Dashboard = function(props) {
                 onEdit={editCarousel}
                 loadCarousels={loadCarousels}
               />
+            )}
+
+            {tab === 'uploads' && (
+              <DashboardUploads />
             )}
 
             {tab === 'settings' && (
