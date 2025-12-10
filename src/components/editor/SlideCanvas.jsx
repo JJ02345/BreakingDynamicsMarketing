@@ -138,30 +138,30 @@ const SlideCanvas = forwardRef(({
                   minHeight: isEditing ? '60px' : 'auto',
                 }}
               >
-                {/* Block Controls */}
+                {/* Block Controls - Größere Buttons für einfacheres Treffen */}
                 {isEditing && showControls && isActive && (
-                  <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                    <div className="p-1 rounded bg-[#1A1A1D] text-white/50 cursor-grab">
-                      <GripVertical className="h-4 w-4" />
+                  <div className="absolute -left-16 top-1/2 -translate-y-1/2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <div className="p-3 rounded-lg bg-[#1A1A1D] text-white/50 cursor-grab hover:bg-[#252528] hover:text-white transition-colors">
+                      <GripVertical className="h-6 w-6" />
                     </div>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setShowStylePanel(!showStylePanel);
                       }}
-                      className={`p-1 rounded transition-colors ${showStylePanel ? 'bg-[#FF6B35]/20 text-[#FF6B35]' : 'bg-[#1A1A1D] text-white/50 hover:text-white'}`}
+                      className={`p-3 rounded-lg transition-colors ${showStylePanel ? 'bg-[#FF6B35]/20 text-[#FF6B35]' : 'bg-[#1A1A1D] text-white/50 hover:bg-[#252528] hover:text-white'}`}
                       title="Block styling"
                     >
-                      <Settings2 className="h-4 w-4" />
+                      <Settings2 className="h-6 w-6" />
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeleteBlock(block.id);
                       }}
-                      className="p-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
+                      className="p-3 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-6 w-6" />
                     </button>
                   </div>
                 )}
