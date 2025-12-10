@@ -358,18 +358,18 @@ const renderBlock = (block) => {
 
     // IconBlock
     case 'ICON': {
-      // Sehr große Icons für PDF - deutlich größer als im Editor
-      const size = content.size === 'xxl' ? '220px' :
-                   content.size === 'xl' ? '180px' :
-                   content.size === 'lg' ? '140px' :
-                   content.size === 'base' ? '100px' : '80px';
+      // Sehr große Icons für PDF
+      const size = content.size === 'xxl' ? '280px' :
+                   content.size === 'xl' ? '220px' :
+                   content.size === 'lg' ? '160px' :
+                   content.size === 'base' ? '120px' : '80px';
 
       const el = document.createElement('div');
       el.textContent = content.emoji || '🚀';
       el.style.cssText = `
         font-size: ${size};
         line-height: 1;
-        margin: 30px 0;
+        margin: 40px 0;
         flex-shrink: 0;
       `;
       wrapper.appendChild(el);

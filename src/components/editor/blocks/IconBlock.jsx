@@ -12,11 +12,11 @@ const IconBlock = ({ content, onChange, isEditing }) => {
   const [showPicker, setShowPicker] = useState(false);
   const [activeCategory, setActiveCategory] = useState('popular');
 
-  // Größere Icons für visuellen Impact - angepasst für bessere Lesbarkeit
-  const size = content.size === 'xxl' ? '180px' :
-               content.size === 'xl' ? '140px' :
-               content.size === 'lg' ? '100px' :
-               content.size === 'base' ? '72px' : '56px';
+  // Sehr große Icons für visuellen Impact
+  const size = content.size === 'xxl' ? '280px' :
+               content.size === 'xl' ? '220px' :
+               content.size === 'lg' ? '160px' :
+               content.size === 'base' ? '120px' : '80px';
 
   const handleEmojiSelect = (emoji) => {
     onChange({ ...content, emoji });
