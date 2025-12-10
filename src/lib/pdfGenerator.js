@@ -51,12 +51,13 @@ const renderSlideToCanvas = async (slide, width, height, quality) => {
   const container = document.createElement('div');
   container.style.cssText = `
     position: fixed;
-    left: 0;
-    top: 0;
+    left: -9999px;
+    top: -9999px;
     width: ${width}px;
     height: ${height}px;
     z-index: 99999;
     overflow: hidden;
+    clip-path: inset(0);
   `;
 
   const slideEl = document.createElement('div');
@@ -74,6 +75,7 @@ const renderSlideToCanvas = async (slide, width, height, quality) => {
     ` : ''}
     position: relative;
     overflow: hidden;
+    clip-path: inset(0);
     font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   `;
 

@@ -277,6 +277,34 @@ const BlockStylePanel = ({ block, onChange, onClose }) => {
           </div>
         )}
 
+        {/* Icon Size */}
+        {type === 'ICON' && (
+          <div>
+            <label className="block text-xs text-white/60 mb-1">Icon-Größe</label>
+            <div className="grid grid-cols-5 gap-1">
+              {[
+                { value: 'sm', label: 'S' },
+                { value: 'base', label: 'M' },
+                { value: 'lg', label: 'L' },
+                { value: 'xl', label: 'XL' },
+                { value: 'xxl', label: 'XXL' },
+              ].map(({ value, label }) => (
+                <button
+                  key={value}
+                  onClick={() => handleChange('size', value)}
+                  className={`px-2 py-1 rounded text-xs transition-colors ${
+                    content.size === value
+                      ? 'bg-[#FF6B35] text-white'
+                      : 'bg-white/5 text-white/60 hover:bg-white/10'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Divider Options */}
         {type === 'DIVIDER' && (
           <>
