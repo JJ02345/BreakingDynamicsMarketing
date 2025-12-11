@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, CreditCard, Zap } from 'lucide-react';
+import { Shield, Flag, Zap } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 const LandingTrustBadges = () => {
@@ -7,7 +7,7 @@ const LandingTrustBadges = () => {
 
   const badges = [
     { icon: Shield, text: t('landing.trustBadge1'), color: '#00E676' },
-    { icon: CreditCard, text: t('landing.trustBadge2'), color: '#FF6B35' },
+    { icon: Flag, text: t('landing.trustBadge2'), color: '#FF6B35' },
     { icon: Zap, text: t('landing.trustBadge3'), color: '#0A66C2' },
   ];
 

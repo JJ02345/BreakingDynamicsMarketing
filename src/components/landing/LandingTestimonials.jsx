@@ -1,28 +1,29 @@
 import React from 'react';
-import { Quote, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Rocket, MessageSquare, Gift, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 const LandingTestimonials = () => {
   const { t } = useLanguage();
 
-  const testimonials = [
+  const cards = [
     {
-      text: t('landing.testimonial1Text'),
-      author: t('landing.testimonial1Author'),
-      role: t('landing.testimonial1Role'),
-      rating: 5,
+      icon: Rocket,
+      title: t('landing.feedbackCard1Title'),
+      desc: t('landing.feedbackCard1Desc'),
+      color: '#FF6B35',
     },
     {
-      text: t('landing.testimonial2Text'),
-      author: t('landing.testimonial2Author'),
-      role: t('landing.testimonial2Role'),
-      rating: 5,
+      icon: MessageSquare,
+      title: t('landing.feedbackCard2Title'),
+      desc: t('landing.feedbackCard2Desc'),
+      color: '#0A66C2',
     },
     {
-      text: t('landing.testimonial3Text'),
-      author: t('landing.testimonial3Author'),
-      role: t('landing.testimonial3Role'),
-      rating: 5,
+      icon: Gift,
+      title: t('landing.feedbackCard3Title'),
+      desc: t('landing.feedbackCard3Desc'),
+      color: '#00E676',
     },
   ];
 
@@ -36,37 +37,42 @@ const LandingTestimonials = () => {
           <h2 className="font-['Syne'] text-3xl sm:text-4xl font-bold mb-4">
             {t('landing.testimonialTitle')}
           </h2>
+          <p className="text-white/50 max-w-xl mx-auto">
+            {t('landing.testimonialSubtitle')}
+          </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {testimonials.map((testimonial, i) => (
+        <div className="grid gap-6 md:grid-cols-3 mb-10">
+          {cards.map((card, i) => (
             <div
               key={i}
-              className="relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-[#FF6B35]/30 transition-all duration-300 group"
+              className="relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300 group"
             >
-              <Quote className="absolute top-4 right-4 h-8 w-8 text-[#FF6B35]/20 group-hover:text-[#FF6B35]/40 transition-colors" />
-
-              <div className="flex gap-1 mb-4">
-                {[...Array(testimonial.rating)].map((_, j) => (
-                  <Star key={j} className="h-4 w-4 text-[#FF6B35] fill-[#FF6B35]" />
-                ))}
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
+                style={{ background: `${card.color}15`, border: `1px solid ${card.color}30` }}
+              >
+                <card.icon className="h-6 w-6" style={{ color: card.color }} />
               </div>
 
-              <p className="text-white/70 leading-relaxed mb-6 text-sm">
-                "{testimonial.text}"
+              <h3 className="font-['Syne'] text-lg font-bold text-white mb-2">
+                {card.title}
+              </h3>
+              <p className="text-white/50 text-sm leading-relaxed">
+                {card.desc}
               </p>
-
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF6B35] to-[#FF8C5A] flex items-center justify-center text-[#0A0A0B] font-bold text-sm">
-                  {testimonial.author.charAt(0)}
-                </div>
-                <div>
-                  <p className="font-semibold text-white text-sm">{testimonial.author}</p>
-                  <p className="text-white/50 text-xs">{testimonial.role}</p>
-                </div>
-              </div>
             </div>
           ))}
+        </div>
+
+        <div className="text-center">
+          <Link
+            to="/carousel"
+            className="group inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all bg-white/10 text-white hover:bg-white/15 border border-white/10 hover:border-white/20"
+          >
+            <span>{t('landing.testimonialCTA')}</span>
+            <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
       </div>
     </section>

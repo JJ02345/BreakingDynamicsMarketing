@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Linkedin, FileText, Sparkles, MousePointerClick, Shield, CreditCard, Zap } from 'lucide-react';
+import { ChevronRight, Linkedin, FileText, Sparkles, MousePointerClick, Shield, Flag, Zap } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { db } from '../../lib/supabase';
 
@@ -65,7 +65,7 @@ const LandingHero = () => {
           <div className="mt-6 flex items-center justify-center gap-4 flex-wrap">
             {[
               { icon: Shield, text: t('landing.trustBadge1'), color: '#00E676' },
-              { icon: CreditCard, text: t('landing.trustBadge2'), color: '#FF6B35' },
+              { icon: Flag, text: t('landing.trustBadge2'), color: '#FF6B35' },
               { icon: Zap, text: t('landing.trustBadge3'), color: '#0A66C2' },
             ].map((badge, i) => (
               <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
