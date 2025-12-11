@@ -5,3 +5,7 @@ export { default as LandingComingSoon } from './LandingComingSoon';
 export { default as LandingNewsletter } from './LandingNewsletter';
 export { default as LandingCommunity } from './LandingCommunity';
 export { default as LandingFooter } from './LandingFooter';
+export { default as LandingUrgencyBanner } from './LandingUrgencyBanner';
+export { default as LandingTestimonials } from './LandingTestimonials';
+export { default as LandingTrustBadges } from './LandingTrustBadges';
+export { default as LandingFinalCTA } from './LandingFinalCTA';

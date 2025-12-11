@@ -7,7 +7,10 @@ import {
   LandingComingSoon,
   LandingNewsletter,
   LandingCommunity,
-  LandingFooter
+  LandingFooter,
+  LandingUrgencyBanner,
+  LandingTestimonials,
+  LandingFinalCTA
 } from '../landing';
 import { db } from '../../lib/supabase';
 
@@ -19,11 +22,14 @@ const Landing = function(props) {
 
   return (
     <div className="min-h-screen bg-[#0A0A0B] text-white overflow-hidden">
+      <LandingUrgencyBanner />
       <LandingNav onShowLogin={props.showLogin} />
       <LandingHero />
       <LandingFeatures />
+      <LandingTestimonials />
       <LandingComingSoon />
       <LandingNewsletter />
+      <LandingFinalCTA />
       <LandingCommunity />
       <LandingFooter />
       {props.loginModal && (
