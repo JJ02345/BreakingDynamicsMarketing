@@ -21,7 +21,7 @@ export const de = {
     urgencyBanner: 'Aktuell 100% kostenlos – Premium-Features kommen bald',
     limitedTime: 'Begrenzte Zeit',
     trustBadge1: 'DSGVO-konform',
-    trustBadge2: 'Made in Germany',
+    trustBadge2: 'Made in Europe',
     trustBadge3: 'Sofort loslegen',
     testimonialTitle: 'Werde Teil der Community',
     testimonialSubtitle: 'Probier es aus und hinterlasse dein Feedback – hilf uns, das beste Tool für Gründer zu bauen.',
