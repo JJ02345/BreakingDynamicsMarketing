@@ -24,6 +24,35 @@ const getFontSize = (fontSize) => {
 };
 
 /**
+ * Simplified background colors for PDF export
+ * html2canvas struggles with complex gradients, so we use simplified versions
+ */
+const PDF_BACKGROUND_FALLBACKS = {
+  // Solids - use exact colors
+  'solid-dark': '#0A0A0B',
+  'solid-black': '#000000',
+  'solid-charcoal': '#1A1A1D',
+  'solid-navy': '#0d1b2a',
+  'solid-white': '#FFFFFF',
+  // Gradients - use simple linear gradients that html2canvas can handle
+  'gradient-orange': 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%)',
+  'gradient-fire': 'linear-gradient(135deg, #1a0a0a 0%, #2d1010 50%, #4a1515 100%)',
+  'gradient-dark': 'linear-gradient(180deg, #0A0A0B 0%, #1a1a2e 100%)',
+  'gradient-purple': 'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 50%, #1a1a2e 100%)',
+  'gradient-aurora': 'linear-gradient(135deg, #0a1628 0%, #1a2744 50%, #2d1b4e 100%)',
+  'gradient-blue': 'linear-gradient(135deg, #0a192f 0%, #172a45 50%, #0a192f 100%)',
+  'gradient-cyan': 'linear-gradient(135deg, #0a1a2e 0%, #0d3b4a 50%, #0a1a2e 100%)',
+  'gradient-green': 'linear-gradient(135deg, #0a1a0a 0%, #1a2f1a 50%, #0a1a0a 100%)',
+  'gradient-emerald': 'linear-gradient(135deg, #0a1a14 0%, #0d3d2e 50%, #0a1a14 100%)',
+  'gradient-gold': 'linear-gradient(135deg, #1a1508 0%, #2d2510 50%, #1a1508 100%)',
+  'gradient-rose': 'linear-gradient(135deg, #1a0a14 0%, #3d1a2e 50%, #1a0a14 100%)',
+  // Mesh gradients - simplified to single gradient (html2canvas can't do multiple radial-gradients)
+  'mesh-vibrant': 'linear-gradient(135deg, #2d1b4e 0%, #1a1a2e 50%, #0A0A0B 100%)',
+  'mesh-sunset': 'linear-gradient(135deg, #4a1515 0%, #2d2510 50%, #0A0A0B 100%)',
+  'mesh-cool': 'linear-gradient(135deg, #172a45 0%, #0d3d2e 50%, #0A0A0B 100%)',
+};
+
+/**
  * Get CSS background string from slide data
  */
 const getBackgroundCSS = (slide) => {
@@ -32,6 +61,13 @@ const getBackgroundCSS = (slide) => {
   }
 
   const bgKey = slide?.styles?.background || 'solid-dark';
+
+  // Use PDF-optimized backgrounds first
+  if (PDF_BACKGROUND_FALLBACKS[bgKey]) {
+    return PDF_BACKGROUND_FALLBACKS[bgKey];
+  }
+
+  // Fallback to original style
   const bgStyle = BACKGROUND_STYLES[bgKey] || BACKGROUND_STYLES['solid-dark'];
 
   if (bgStyle.style.background) {
