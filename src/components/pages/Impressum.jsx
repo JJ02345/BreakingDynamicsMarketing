@@ -36,8 +36,8 @@ const Impressum = function() {
               {isDE ? 'Angaben gemäß § 5 TMG' : 'Information according to § 5 TMG'}
             </h2>
             <div className="text-white/70 space-y-1">
-              <p className="font-medium text-white">Breaking Dynamics UG (haftungsbeschränkt) i.G.</p>
-              <p>Geschäftsführer: Jonas Niklas Jaksch</p>
+              <p className="font-medium text-white">Breaking Dynamics von Jonas Jaksch</p>
+              <p>Inhaber: Jonas Niklas Jaksch</p>
               <p>Spadener Straße 123</p>
               <p>27578 Bremerhaven</p>
               <p>Deutschland</p>
