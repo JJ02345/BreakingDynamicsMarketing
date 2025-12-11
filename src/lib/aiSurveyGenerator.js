@@ -1,9 +1,9 @@
 // ============================================
 // AI SURVEY GENERATOR
-// Mock implementation - replace with real AI API later
+// Uses local AI for survey generation
 // ============================================
 
-const MOCK_DELAY = 1500;
+import { callAI } from './ai/config';
 
 /**
  * Generate survey questions from a hypothesis/topic
@@ -20,15 +20,35 @@ export const generateSurveyFromHypothesis = async ({
   }
 
   onProgress({ stage: 'analyzing', percentage: 20 });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY / 3));
 
-  onProgress({ stage: 'generating', percentage: 50 });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY / 3));
+  let blocks;
 
-  onProgress({ stage: 'formatting', percentage: 80 });
-  await new Promise(resolve => setTimeout(resolve, MOCK_DELAY / 3));
+  try {
+    // Try to use AI for survey generation
+    onProgress({ stage: 'generating', percentage: 40 });
 
-  const blocks = generateMockBlocks(hypothesis, surveyType, questionCount, language);
+    const result = await callAI('ideas', {
+      topic: `Survey questions for: ${hypothesis}`,
+      count: questionCount,
+      platform: 'survey',
+      language: language,
+    });
+
+    onProgress({ stage: 'formatting', percentage: 70 });
+
+    // Convert AI ideas to survey blocks if successful
+    if (result.data?.ideas || result.ideas) {
+      const ideas = result.data?.ideas || result.ideas || [];
+      blocks = convertIdeasToBlocks(ideas, hypothesis, surveyType, language);
+    } else {
+      // Fallback to template blocks
+      blocks = generateTemplateBlocks(hypothesis, surveyType, questionCount, language);
+    }
+  } catch (error) {
+    console.warn('AI survey generation failed, using templates:', error);
+    onProgress({ stage: 'formatting', percentage: 70 });
+    blocks = generateTemplateBlocks(hypothesis, surveyType, questionCount, language);
+  }
 
   onProgress({ stage: 'complete', percentage: 100 });
 
@@ -54,9 +74,81 @@ export const generateSurveyFromHypothesis = async ({
       hypothesis,
       surveyType,
       questionCount,
-      language
+      language,
+      aiGenerated: true,
     }
   };
+};
+
+/**
+ * Convert AI-generated ideas to survey blocks
+ */
+const convertIdeasToBlocks = (ideas, hypothesis, surveyType, language) => {
+  const blocks = [];
+  const isDE = language === 'de';
+
+  // Header
+  blocks.push({
+    id: `block_${Date.now()}_header`,
+    type: 'HEADER',
+    content: {
+      title: hypothesis.slice(0, 40),
+      subtitle: isDE ? 'Wir schätzen deine ehrliche Meinung' : 'We value your honest opinion'
+    }
+  });
+
+  // Convert ideas to questions
+  ideas.slice(0, 5).forEach((idea, index) => {
+    const questionText = typeof idea === 'string' ? idea : idea.title || idea.text || `Question ${index + 1}`;
+
+    if (index === 0) {
+      blocks.push({
+        id: `block_${Date.now()}_${index}`,
+        type: 'YES_NO',
+        content: {
+          question: questionText,
+          required: true,
+          yesLabel: isDE ? 'Ja' : 'Yes',
+          noLabel: isDE ? 'Nein' : 'No'
+        }
+      });
+    } else if (index === 1) {
+      blocks.push({
+        id: `block_${Date.now()}_${index}`,
+        type: 'RATING',
+        content: {
+          question: questionText,
+          minValue: 1,
+          maxValue: 5,
+          minLabel: isDE ? 'Gar nicht' : 'Not at all',
+          maxLabel: isDE ? 'Sehr' : 'Very much',
+          required: true,
+          style: 'stars'
+        }
+      });
+    } else {
+      blocks.push({
+        id: `block_${Date.now()}_${index}`,
+        type: 'TEXT_INPUT',
+        content: {
+          question: questionText,
+          placeholder: isDE ? 'Deine Antwort...' : 'Your answer...',
+          required: false,
+          multiline: true,
+          maxLength: 500
+        }
+      });
+    }
+  });
+
+  return blocks;
+};
+
+/**
+ * Generate template-based blocks (fallback)
+ */
+const generateTemplateBlocks = (hypothesis, surveyType, questionCount, language) => {
+  return generateMockBlocks(hypothesis, surveyType, questionCount, language);
 };
 
 const generateMockBlocks = (hypothesis, surveyType, questionCount, language) => {
