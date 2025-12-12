@@ -1,8 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@/command': resolve(__dirname, 'src/command'),
+      '@/squads': resolve(__dirname, 'src/squads'),
+      '@/shared': resolve(__dirname, 'src/shared'),
+    },
+  },
   server: {
     historyApiFallback: true,
   },
@@ -13,16 +21,14 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Vendor chunks - split large dependencies
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-ui': ['lucide-react'],
           'vendor-pdf': ['jspdf', 'html2canvas'],
           'vendor-supabase': ['@supabase/supabase-js'],
-          'vendor-dompurify': ['dompurify'],
+          'vendor-validation': ['zod', 'dompurify'],
         },
       },
     },
-    // Increase chunk size warning limit (we're optimizing anyway)
     chunkSizeWarningLimit: 600,
   },
 })
