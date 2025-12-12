@@ -17,6 +17,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const { emit } = useEventBus();
 
   useEffect(() => {
@@ -166,13 +167,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const value: AuthContextValue = {
     user,
     loading,
+    isLoading: loading, // Alias for App.tsx compatibility
     error,
     isAuthenticated: !!user,
     isAdmin,
+    pendingEmail,
     signUp,
     signIn,
     signOut,
     checkAdmin,
+    setPendingEmail,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

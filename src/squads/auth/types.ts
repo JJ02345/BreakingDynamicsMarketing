@@ -11,9 +11,11 @@ export interface User {
 export interface AuthState {
   user: SupabaseUser | null;
   loading: boolean;
+  isLoading: boolean; // Alias for loading
   error: string | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  pendingEmail: string | null;
 }
 
 export interface AuthResult {
@@ -36,4 +38,5 @@ export interface AuthContextValue extends AuthState {
   signIn: (email: string, password: string) => Promise<AuthResult>;
   signOut: () => Promise<{ success: boolean; error?: string }>;
   checkAdmin: () => Promise<boolean>;
+  setPendingEmail: (email: string | null) => void;
 }
