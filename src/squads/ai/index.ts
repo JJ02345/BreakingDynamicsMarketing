@@ -109,7 +109,11 @@ export type {
   TranslationProgress,
   TextItem,
 
-  // API types
+  // API Response types - for mapping
+  SlideMood,
+  ApiSlideType,
+  VisualHint,
+  CtaType,
   AIApiResponse,
   AISlideResponse,
   CarouselApiResponse,

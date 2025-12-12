@@ -171,9 +171,84 @@ export interface AIApiResponse<T = unknown> {
   error?: string;
 }
 
+// Mood types from API - determines background and accent color
+export type SlideMood =
+  | 'tension'    // gradient-midnight-blue + white
+  | 'pain'       // gradient-blood + red
+  | 'urgency'    // gradient-sunset-orange + orange
+  | 'empathy'    // mesh-cool + blue
+  | 'insight'    // gradient-purple + purple
+  | 'hope'       // gradient-emerald + green
+  | 'action'     // gradient-gold + gold
+  | 'neutral'    // gradient-dark + slate
+  | 'excitement' // mesh-neon + pink
+  | 'trust'      // gradient-blue + cyan
+  | 'warning'    // gradient-fire + red
+  | 'success'    // gradient-green + green
+  | 'luxury'     // gradient-wine + gold
+  | 'calm'       // gradient-cyan + teal
+  | 'power'      // solid-black + orange;
+
+// Slide type from API - determines template
+export type ApiSlideType =
+  | 'hook'       // cover
+  | 'problem'    // content
+  | 'agitate'    // tip (warning style)
+  | 'discovery'  // reality
+  | 'solution'   // step
+  | 'cta'        // cta
+  | 'myth'       // myth
+  | 'truth'      // reality
+  | 'before'     // before
+  | 'after'      // after
+  | 'step'       // step
+  | 'tip'        // tip
+  | 'stat'       // stats
+  | 'quote'      // quote
+  | 'proof'      // proof
+  | 'lesson'     // lesson;
+
+// Visual hint from API - determines block structure
+export type VisualHint =
+  | 'statement_gross'      // ICON + HEADING (big statement)
+  | 'liste_schmerz'        // HEADING + BULLET_LIST (pain points)
+  | 'zahlen_konsequenzen'  // HEADING + NUMBER + PARAGRAPH (stats)
+  | 'zitate'               // QUOTE
+  | 'checkliste'           // HEADING + BULLET_LIST with checkmarks
+  | 'cta_einladend'        // HEADING + PARAGRAPH + BADGE (inviting CTA)
+  | 'schritt_anleitung'    // NUMBER + HEADING + PARAGRAPH (step)
+  | 'vergleich'            // HEADING + BULLET_LIST (comparison)
+  | 'vorher_nachher'       // BADGE + HEADING + PARAGRAPH (before/after)
+  | 'fakt_highlight'       // NUMBER + HEADING (fact highlight)
+  | 'emotion_trigger'      // ICON + HEADING + PARAGRAPH
+  | 'mini_story'           // ICON + PARAGRAPH (narrative)
+  | 'beweis'               // HEADING + BULLET_LIST + PARAGRAPH (proof)
+  | 'warnung';             // ICON + HEADING + PARAGRAPH (warning)
+
+// CTA type from API - determines emoji set and call-to-action style
+export type CtaType =
+  | 'follow'       // social engagement
+  | 'save'         // bookmark action
+  | 'share'        // viral spread
+  | 'comment'      // discussion
+  | 'link'         // external action
+  | 'subscribe'    // newsletter
+  | 'download'     // resource
+  | 'join';        // community
+
 export interface AISlideResponse {
   title?: string;
   content?: string;
+  // Extended API response fields
+  slide_type?: ApiSlideType;
+  mood?: SlideMood;
+  visual_hint?: VisualHint;
+  cta_type?: CtaType;
+  // Additional optional fields
+  bullet_points?: string[];
+  stat_number?: string;
+  stat_label?: string;
+  quote_author?: string;
 }
 
 export interface CarouselApiResponse {
