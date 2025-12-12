@@ -1,3 +1,6 @@
+/* Font Loading - MUST be first (before @tailwind) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,9 +8,6 @@
 /* ============================================
    BREAKING DYNAMICS - DESIGN SYSTEM
    ============================================ */
-
-/* Font Loading - Optimized for: schnell, innovativ, professionell */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap');
 
 :root {
   /* Brand Colors */
