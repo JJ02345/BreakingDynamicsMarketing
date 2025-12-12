@@ -142,3 +142,35 @@ export function isSafeError(error: unknown): error is SafeError {
     typeof (error as SafeError).code === 'string'
   );
 }
+
+/**
+ * Extended App Error with additional metadata
+ */
+export interface AppError extends Error {
+  code: string;
+  userMessage?: string;
+  statusCode?: number;
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * Create an application error with additional context
+ * Used for creating errors with user-friendly messages
+ */
+export function createAppError(
+  message: string,
+  code: string,
+  metadata?: {
+    userMessage?: string;
+    statusCode?: number;
+    [key: string]: unknown;
+  }
+): AppError {
+  const error = new Error(message) as AppError;
+  error.name = 'AppError';
+  error.code = code;
+  error.userMessage = metadata?.userMessage;
+  error.statusCode = metadata?.statusCode;
+  error.metadata = metadata;
+  return error;
+}

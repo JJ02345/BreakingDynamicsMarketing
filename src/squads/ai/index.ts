@@ -19,6 +19,14 @@ export {
   getCarouselPatterns,
   getCarouselStyles,
   estimateGenerationTime,
+  // Full design system access
+  getAllBackgrounds,
+  getAllBlockTypes,
+  getAllFontSizes,
+  getAllSlideTemplates,
+  getAllAccentColors,
+  getAllEmojiSets,
+  getFullDesignSystem,
 } from './services/carouselGenerator';
 export {
   generatePost,
@@ -45,6 +53,26 @@ export {
   CAROUSEL_STYLES,
   CAROUSEL_PATTERNS,
   LANGUAGE_NAMES,
+  // Full carousel design system access
+  BACKGROUND_STYLES,
+  PDF_BACKGROUND_FALLBACKS,
+  getBackgroundCSS,
+  getPDFBackgroundCSS,
+  BLOCK_TYPES,
+  FONT_SIZES,
+  PDF_FONT_SIZE_MAP,
+  getFontSize,
+  SLIDE_TEMPLATES,
+  CAROUSEL_TEMPLATES,
+  createSlide,
+  createBlock,
+  createDefaultCarousel,
+  getSlidesForTemplate,
+} from './constants';
+
+export type {
+  BackgroundStyle,
+  BlockTypeDefinition,
 } from './constants';
 
 // Types

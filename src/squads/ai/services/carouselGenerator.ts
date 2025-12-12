@@ -1,5 +1,5 @@
 // Carousel Generator Service
-// AI-powered LinkedIn carousel generation
+// AI-powered LinkedIn carousel generation with full design system access
 
 import { callAI } from './aiProxy';
 import {
@@ -9,6 +9,13 @@ import {
   ACCENT_COLORS,
   EMOJI_SETS,
   SLIDE_BACKGROUNDS,
+  // Full design system from Carousel Squad
+  BACKGROUND_STYLES,
+  BLOCK_TYPES,
+  FONT_SIZES,
+  SLIDE_TEMPLATES,
+  createSlide,
+  createBlock,
 } from '../constants';
 import type {
   CarouselGenerationParams,
@@ -303,9 +310,134 @@ export function estimateGenerationTime(slideCount: number): number {
   return 5 + Math.ceil(slideCount * 0.5);
 }
 
+// ============================================
+// FULL DESIGN SYSTEM ACCESS
+// ============================================
+
+/**
+ * Get all available backgrounds for AI to choose from
+ */
+export function getAllBackgrounds() {
+  return {
+    styles: BACKGROUND_STYLES,
+    available: Object.keys(BACKGROUND_STYLES),
+    byCategory: {
+      solid: Object.entries(BACKGROUND_STYLES)
+        .filter(([_, style]) => style.category === 'solid')
+        .map(([key]) => key),
+      gradient: Object.entries(BACKGROUND_STYLES)
+        .filter(([_, style]) => style.category === 'gradient')
+        .map(([key]) => key),
+      mesh: Object.entries(BACKGROUND_STYLES)
+        .filter(([_, style]) => style.category === 'mesh')
+        .map(([key]) => key),
+    },
+  };
+}
+
+/**
+ * Get all available block types for AI to use
+ */
+export function getAllBlockTypes() {
+  return {
+    types: BLOCK_TYPES,
+    available: Object.keys(BLOCK_TYPES),
+    byCategory: {
+      text: Object.entries(BLOCK_TYPES)
+        .filter(([_, def]) => def.category === 'text')
+        .map(([key]) => key),
+      media: Object.entries(BLOCK_TYPES)
+        .filter(([_, def]) => def.category === 'media')
+        .map(([key]) => key),
+      layout: Object.entries(BLOCK_TYPES)
+        .filter(([_, def]) => def.category === 'layout')
+        .map(([key]) => key),
+      data: Object.entries(BLOCK_TYPES)
+        .filter(([_, def]) => def.category === 'data')
+        .map(([key]) => key),
+    },
+  };
+}
+
+/**
+ * Get all font sizes available
+ */
+export function getAllFontSizes() {
+  return {
+    sizes: FONT_SIZES,
+    available: Object.keys(FONT_SIZES),
+    labels: Object.entries(FONT_SIZES).map(([key, val]) => ({
+      key,
+      label: val.label,
+      size: val.size,
+    })),
+  };
+}
+
+/**
+ * Get all slide templates for AI to use
+ */
+export function getAllSlideTemplates() {
+  return {
+    templates: SLIDE_TEMPLATES,
+    available: Object.keys(SLIDE_TEMPLATES),
+    byPurpose: {
+      intro: ['cover', 'aboutIntro'],
+      content: ['content', 'tip', 'step', 'journey', 'proof', 'stats'],
+      contrast: ['myth', 'reality', 'before', 'after', 'option', 'comparison'],
+      conclusion: ['cta', 'quote', 'lesson', 'result', 'funFact'],
+      special: ['blank', 'opinion', 'aboutWho', 'aboutWhat', 'aboutWhy'],
+    },
+  };
+}
+
+/**
+ * Get all accent colors for AI theming
+ */
+export function getAllAccentColors() {
+  return ACCENT_COLORS;
+}
+
+/**
+ * Get all emoji sets for content decoration
+ */
+export function getAllEmojiSets() {
+  return EMOJI_SETS;
+}
+
+/**
+ * Complete design system access for AI
+ * This provides everything the AI needs to create visually rich carousels
+ */
+export function getFullDesignSystem() {
+  return {
+    backgrounds: getAllBackgrounds(),
+    blockTypes: getAllBlockTypes(),
+    fontSizes: getAllFontSizes(),
+    slideTemplates: getAllSlideTemplates(),
+    accentColors: getAllAccentColors(),
+    emojiSets: getAllEmojiSets(),
+    patterns: CAROUSEL_PATTERNS,
+    styles: CAROUSEL_STYLES,
+    // Helper functions for creating content
+    helpers: {
+      createSlide,
+      createBlock,
+    },
+  };
+}
+
 export default {
   generateCarouselFromHypothesis,
   getCarouselPatterns,
   getCarouselStyles,
   estimateGenerationTime,
+  // Full design system access
+  getAllBackgrounds,
+  getAllBlockTypes,
+  getAllFontSizes,
+  getAllSlideTemplates,
+  getAllAccentColors,
+  getAllEmojiSets,
+  getFullDesignSystem,
 };

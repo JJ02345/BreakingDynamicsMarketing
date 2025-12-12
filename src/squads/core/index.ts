@@ -87,10 +87,13 @@ export {
   RATE_LIMIT_CONFIGS,
   handleError,
   createSafeError,
+  createAppError,
   isErrorCode,
   isSafeError,
   ERROR_CODES,
 } from './security';
+
+export type { AppError } from './security';
 
 // ============================================
 // Constants

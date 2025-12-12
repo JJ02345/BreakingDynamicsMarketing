@@ -1,7 +1,35 @@
 // AI Squad Constants
 // Configuration and constant values for AI services
+// Full access to Carousel Squad design options
 
 import type { CarouselStyle, CarouselPatterns } from './types';
+
+// Re-export all design options from Carousel Squad for AI generation
+// This gives AI full access to all visual design possibilities
+export {
+  // Backgrounds - all available background styles
+  BACKGROUND_STYLES,
+  PDF_BACKGROUND_FALLBACKS,
+  getBackgroundCSS,
+  getPDFBackgroundCSS,
+  // Block types - all content block definitions
+  BLOCK_TYPES,
+  FONT_SIZES,
+  PDF_FONT_SIZE_MAP,
+  getFontSize,
+  // Templates - all slide and carousel templates
+  SLIDE_TEMPLATES,
+  CAROUSEL_TEMPLATES,
+  createSlide,
+  createBlock,
+  createDefaultCarousel,
+  getSlidesForTemplate,
+} from '../carousel/templates';
+
+export type {
+  BackgroundStyle,
+  BlockTypeDefinition,
+} from '../carousel/templates';
 
 // ============================================
 // API CONFIGURATION

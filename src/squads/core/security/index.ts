@@ -7,7 +7,10 @@ export {
 export {
   handleError,
   createSafeError,
+  createAppError,
   isErrorCode,
   isSafeError,
   ERROR_CODES,
 } from './errorHandler';
+
+export type { AppError } from './errorHandler';
