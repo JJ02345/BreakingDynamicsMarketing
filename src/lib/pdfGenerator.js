@@ -223,6 +223,8 @@ const renderBlock = (block) => {
       el.style.cssText = `
         display: inline-flex;
         align-items: center;
+        justify-content: center;
+        text-align: center;
         padding: 12px 28px;
         border-radius: 9999px;
         background-color: ${content.backgroundColor || '#FF6B35'};
@@ -231,6 +233,7 @@ const renderBlock = (block) => {
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
+        min-width: 100px;
       `;
       wrapper.appendChild(el);
       break;
@@ -427,15 +430,73 @@ const renderBlock = (block) => {
         margin-top: 30px;
       `;
 
-      const nameEl = document.createElement('span');
-      nameEl.textContent = content.name || '@username';
-      nameEl.style.cssText = `
-        font-size: 24px;
-        font-weight: 600;
-        color: #FFFFFF;
+      // Avatar/Logo
+      if (content.showAvatar !== false) {
+        if (content.avatarUrl) {
+          // Custom uploaded avatar/logo
+          const avatarImg = document.createElement('img');
+          avatarImg.src = content.avatarUrl;
+          avatarImg.style.cssText = `
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.2);
+            flex-shrink: 0;
+          `;
+          el.appendChild(avatarImg);
+        } else {
+          // Default avatar placeholder with gradient
+          const avatarPlaceholder = document.createElement('div');
+          avatarPlaceholder.style.cssText = `
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+          `;
+          // User icon as SVG
+          avatarPlaceholder.innerHTML = `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          `;
+          el.appendChild(avatarPlaceholder);
+        }
+      }
+
+      // Name and handle container
+      const textContainer = document.createElement('div');
+      textContainer.style.cssText = `
+        display: flex;
+        flex-direction: column;
       `;
 
-      el.appendChild(nameEl);
+      const nameEl = document.createElement('span');
+      nameEl.textContent = content.name || 'Your Name';
+      nameEl.style.cssText = `
+        font-size: 20px;
+        font-weight: 600;
+        color: #FFFFFF;
+        font-family: 'Space Grotesk', sans-serif;
+      `;
+      textContainer.appendChild(nameEl);
+
+      if (content.handle) {
+        const handleEl = document.createElement('span');
+        handleEl.textContent = content.handle;
+        handleEl.style.cssText = `
+          font-size: 14px;
+          color: rgba(255,255,255,0.6);
+        `;
+        textContainer.appendChild(handleEl);
+      }
+
+      el.appendChild(textContainer);
       wrapper.appendChild(el);
       break;
     }
