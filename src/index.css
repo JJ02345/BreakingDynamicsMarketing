@@ -100,7 +100,8 @@ body {
 [class*='font-["Syne"]'],
 [style*="Syne"] {
   font-family: 'Syne', system-ui, sans-serif !important;
-  letter-spacing: -0.03em;
+  letter-spacing: normal;
+  font-stretch: normal;
   font-feature-settings: 'kern' 1, 'liga' 1;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

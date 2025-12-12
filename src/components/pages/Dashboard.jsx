@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Home, ChevronRight, AlertCircle, Loader2, Settings, ToggleLeft, ToggleRight, Zap, LayoutGrid, FolderOpen } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import { auth, db } from '../../lib/supabase';
+import { useAuth } from '../../squads/auth';
+import { db } from '../../lib/supabase';
 import { useBrandingSettings } from '../../hooks/useBrandingSettings';
 import {
   DashboardHeader,
@@ -12,18 +13,18 @@ import {
   DashboardUploads
 } from '../dashboard';
 
-const Dashboard = function(props) {
+const Dashboard = function() {
   const { t, language } = useLanguage();
+  const { user, isAdmin, signOut } = useAuth();
   const isDE = language === 'de';
   const navigate = useNavigate();
   const [tab, setTab] = useState('home');
-  const [isAdmin, setIsAdmin] = useState(false);
   const [carousels, setCarousels] = useState([]);
   const [carouselsLoading, setCarouselsLoading] = useState(true);
   const [carouselsError, setCarouselsError] = useState(null);
 
   // Branding settings
-  const { showBranding, setShowBranding } = useBrandingSettings(!!props.user);
+  const { showBranding, setShowBranding } = useBrandingSettings(!!user);
 
   // Load carousels
   const loadCarousels = async () => {
@@ -41,26 +42,10 @@ const Dashboard = function(props) {
   };
 
   useEffect(() => {
-    if (props.user) {
+    if (user) {
       loadCarousels();
     }
-  }, [props.user]);
-
-  useEffect(() => {
-    const checkAdmin = async () => {
-      if (props.user) {
-        try {
-          setIsAdmin(await auth.isAdmin(props.user));
-        } catch (err) {
-          console.error('Admin check failed:', err);
-          setIsAdmin(false);
-        }
-      } else {
-        setIsAdmin(false);
-      }
-    };
-    checkAdmin();
-  }, [props.user]);
+  }, [user]);
 
   const editCarousel = (carousel) => {
     // Store carousel in localStorage for the editor to pick up
@@ -80,7 +65,7 @@ const Dashboard = function(props) {
 
   return (
     <div className="min-h-screen bg-[#0A0A0B] text-white">
-      <DashboardHeader user={props.user} isAdmin={isAdmin} onLogout={props.handleLogout} />
+      <DashboardHeader user={user} isAdmin={isAdmin} onLogout={signOut} />
 
       <div className="mx-auto max-w-7xl px-6 py-8">
         <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
