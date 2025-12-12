@@ -24,6 +24,27 @@ const getFontSize = (fontSize) => {
 };
 
 /**
+ * Helper: Lighten a hex color by percentage
+ */
+const lightenColor = (hex, percent) => {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const amt = Math.round(2.55 * percent);
+  const R = Math.min(255, (num >> 16) + amt);
+  const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
+  const B = Math.min(255, (num & 0x0000FF) + amt);
+  return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
+};
+
+/**
+ * Helper: Convert hex to rgba
+ */
+const hexToRgba = (hex, alpha) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return `rgba(255, 107, 53, ${alpha})`;
+  return `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, ${alpha})`;
+};
+
+/**
  * Simplified background colors for PDF export
  * html2canvas struggles with complex gradients, so we use simplified versions
  */
@@ -81,9 +102,59 @@ const getBackgroundCSS = (slide) => {
 };
 
 /**
+ * Render Breaking Dynamics watermark
+ */
+const renderBDWatermark = () => {
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = `
+    position: absolute;
+    bottom: 32px;
+    right: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    z-index: 100;
+  `;
+
+  // BD Icon (simplified SVG as inline)
+  const iconWrapper = document.createElement('div');
+  iconWrapper.innerHTML = `
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bd-pdf-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FF6B35" />
+          <stop offset="100%" stop-color="#FF8C5A" />
+        </linearGradient>
+      </defs>
+      <path d="M4 4 L4 28 L14 28 C18 28 22 26 22 22 C22 19 20 17 17 16 C19 15 21 13 21 10 C21 6 18 4 14 4 L4 4 Z M8 8 L12 8 C14 8 16 9 16 11 C16 13 14 14 12 14 L8 14 L8 8 Z M8 18 L13 18 C16 18 18 19 18 22 C18 24 16 24 13 24 L8 24 L8 18 Z" fill="url(#bd-pdf-grad)" fill-rule="evenodd"/>
+      <path d="M18 14 L28 8 L28 12 L22 16 L28 20 L28 24 L18 18 L18 14 Z" fill="#FF6B35"/>
+      <circle cx="27" cy="6" r="1.5" fill="#FF6B35" opacity="0.8"/>
+    </svg>
+  `;
+  wrapper.appendChild(iconWrapper);
+
+  // Text
+  const textEl = document.createElement('span');
+  textEl.textContent = 'Breaking Dynamics';
+  textEl.style.cssText = `
+    font-size: 16px;
+    font-weight: 600;
+    color: #FFFFFF;
+    font-family: 'Inter', system-ui, sans-serif;
+  `;
+  wrapper.appendChild(textEl);
+
+  return wrapper;
+};
+
+/**
  * Render a slide to a canvas element
  */
-const renderSlideToCanvas = async (slide, width, height, quality) => {
+const renderSlideToCanvas = async (slide, width, height, quality, options = {}) => {
   const container = document.createElement('div');
   container.style.cssText = `
     position: fixed;
@@ -158,6 +229,13 @@ const renderSlideToCanvas = async (slide, width, height, quality) => {
   }
 
   slideEl.appendChild(contentContainer);
+
+  // Add Breaking Dynamics watermark if enabled
+  if (options.showBranding) {
+    const watermark = renderBDWatermark();
+    slideEl.appendChild(watermark);
+  }
+
   container.appendChild(slideEl);
   document.body.appendChild(container);
 
@@ -216,25 +294,33 @@ const renderBlock = (block) => {
       break;
     }
 
-    // BadgeBlock
+    // BadgeBlock - Improved styling for PDF export
     case 'BADGE': {
-      const el = document.createElement('span');
-      el.textContent = content.text || 'Badge';
+      const el = document.createElement('div');
       el.style.cssText = `
         display: inline-flex;
         align-items: center;
         justify-content: center;
         text-align: center;
-        padding: 12px 28px;
+        padding: 16px 36px;
         border-radius: 9999px;
-        background-color: ${content.backgroundColor || '#FF6B35'};
-        color: ${content.textColor || '#FFFFFF'};
-        font-size: 18px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        min-width: 100px;
+        background: linear-gradient(135deg, ${content.backgroundColor || '#FF6B35'} 0%, ${lightenColor(content.backgroundColor || '#FF6B35', 15)} 100%);
+        box-shadow: 0 4px 20px ${hexToRgba(content.backgroundColor || '#FF6B35', 0.4)};
+        min-width: 120px;
       `;
+
+      const textSpan = document.createElement('span');
+      textSpan.textContent = content.text || 'Badge';
+      textSpan.style.cssText = `
+        color: ${content.textColor || '#FFFFFF'};
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        font-family: 'Inter', 'Space Grotesk', sans-serif;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      `;
+      el.appendChild(textSpan);
       wrapper.appendChild(el);
       break;
     }
@@ -533,6 +619,7 @@ export const generateCarouselPDF = async (slideData, options = {}) => {
     height = 1080,
     quality = 2,
     onProgress = () => {},
+    showBranding = false,
   } = options;
 
   const pdf = new jsPDF({
@@ -557,7 +644,7 @@ export const generateCarouselPDF = async (slideData, options = {}) => {
     });
 
     try {
-      const canvas = await renderSlideToCanvas(slide, width, height, quality);
+      const canvas = await renderSlideToCanvas(slide, width, height, quality, { showBranding });
       const imgData = canvas.toDataURL('image/png', 1.0);
 
       if (i > 0) {

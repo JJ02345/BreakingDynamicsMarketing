@@ -84,7 +84,7 @@ body {
   background-color: var(--bd-black);
 }
 
-.font-display { font-family: var(--font-display); }
+.font-display { font-family: 'Syne', system-ui, sans-serif !important; }
 
 /* ===========================================
    TYPOGRAPHY SYSTEM
@@ -92,10 +92,14 @@ body {
    =========================================== */
 
 /* Syne - Display Font (Headlines, Titles)
-   → Innovativ, dynamisch, auffällig */
+   → Innovativ, dynamisch, auffällig
+   Multiple selectors to catch all Tailwind arbitrary value variations */
 .font-\[\'Syne\'\],
-[class*="font-['Syne']"] {
-  font-family: 'Syne', system-ui, sans-serif;
+.font-\[\"Syne\"\],
+[class*="font-['Syne']"],
+[class*='font-["Syne"]'],
+[style*="Syne"] {
+  font-family: 'Syne', system-ui, sans-serif !important;
   letter-spacing: -0.03em;
   font-feature-settings: 'kern' 1, 'liga' 1;
   text-rendering: optimizeLegibility;
