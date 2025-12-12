@@ -5,7 +5,7 @@
 
 import { callAI, AI_BASE_URL, getHeaders } from './config';
 
-const LANGUAGE_NAMES = {
+export const LANGUAGE_NAMES = {
   en: 'English',
   de: 'German',
   es: 'Spanish',
