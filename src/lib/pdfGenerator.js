@@ -112,36 +112,42 @@ const renderBDWatermark = () => {
     right: 32px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(12px);
-    border-radius: 12px;
+    gap: 10px;
+    padding: 10px 16px;
+    background: rgba(10, 10, 11, 0.85);
+    border: 1px solid rgba(255, 107, 53, 0.3);
+    border-radius: 10px;
     z-index: 100;
   `;
 
-  // BD Icon (simplified SVG as inline)
-  const iconWrapper = document.createElement('div');
-  iconWrapper.innerHTML = `
-    <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="bd-pdf-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#FF6B35" />
-          <stop offset="100%" stop-color="#FF8C5A" />
-        </linearGradient>
-      </defs>
-      <path d="M4 4 L4 28 L14 28 C18 28 22 26 22 22 C22 19 20 17 17 16 C19 15 21 13 21 10 C21 6 18 4 14 4 L4 4 Z M8 8 L12 8 C14 8 16 9 16 11 C16 13 14 14 12 14 L8 14 L8 8 Z M8 18 L13 18 C16 18 18 19 18 22 C18 24 16 24 13 24 L8 24 L8 18 Z" fill="url(#bd-pdf-grad)" fill-rule="evenodd"/>
-      <path d="M18 14 L28 8 L28 12 L22 16 L28 20 L28 24 L18 18 L18 14 Z" fill="#FF6B35"/>
-      <circle cx="27" cy="6" r="1.5" fill="#FF6B35" opacity="0.8"/>
-    </svg>
+  // BD Icon - simplified for html2canvas compatibility
+  const iconEl = document.createElement('div');
+  iconEl.style.cssText = `
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   `;
-  wrapper.appendChild(iconWrapper);
+  const bdText = document.createElement('span');
+  bdText.textContent = 'BD';
+  bdText.style.cssText = `
+    font-size: 10px;
+    font-weight: 800;
+    color: #0A0A0B;
+    font-family: 'Inter', system-ui, sans-serif;
+  `;
+  iconEl.appendChild(bdText);
+  wrapper.appendChild(iconEl);
 
   // Text
   const textEl = document.createElement('span');
   textEl.textContent = 'Breaking Dynamics';
   textEl.style.cssText = `
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     color: #FFFFFF;
     font-family: 'Inter', system-ui, sans-serif;
@@ -298,27 +304,32 @@ const renderBlock = (block) => {
     case 'BADGE': {
       const el = document.createElement('div');
       el.style.cssText = `
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
-        padding: 16px 36px;
+        padding: 18px 40px;
         border-radius: 9999px;
         background: linear-gradient(135deg, ${content.backgroundColor || '#FF6B35'} 0%, ${lightenColor(content.backgroundColor || '#FF6B35', 15)} 100%);
         box-shadow: 0 4px 20px ${hexToRgba(content.backgroundColor || '#FF6B35', 0.4)};
-        min-width: 120px;
+        min-width: 140px;
+        height: auto;
+        line-height: 1;
       `;
 
       const textSpan = document.createElement('span');
       textSpan.textContent = content.text || 'Badge';
       textSpan.style.cssText = `
         color: ${content.textColor || '#FFFFFF'};
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 700;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
         font-family: 'Inter', 'Space Grotesk', sans-serif;
         text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        line-height: 1;
+        display: block;
+        text-align: center;
       `;
       el.appendChild(textSpan);
       wrapper.appendChild(el);
@@ -498,6 +509,12 @@ const renderBlock = (block) => {
         line-height: 1;
         margin: 40px 0;
         flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        vertical-align: middle;
+        height: ${size};
       `;
       wrapper.appendChild(el);
       break;
