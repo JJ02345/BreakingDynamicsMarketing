@@ -100,7 +100,7 @@ const CarouselEditor = ({ editCarousel: editCarouselProp, setEditCarousel, loadC
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showLinkedInModal, setShowLinkedInModal] = useState(false);
   const [pendingAction, setPendingAction] = useState(null); // 'save' or 'linkedin'
-  const [contentLanguage, setContentLanguage] = useState('en'); // Slide content language
+  const [contentLanguage, setContentLanguage] = useState('de'); // Slide content language - default German
   const [isTranslating, setIsTranslating] = useState(false);
 
   // Handle language change with translation
@@ -553,6 +553,7 @@ const CarouselEditor = ({ editCarousel: editCarouselProp, setEditCarousel, loadC
           isOpen={showAIGenerator}
           onClose={() => setShowAIGenerator(false)}
           onGenerated={handleAIGenerated}
+          contentLanguage={contentLanguage}
         />
       </>
     );
@@ -585,6 +586,7 @@ const CarouselEditor = ({ editCarousel: editCarouselProp, setEditCarousel, loadC
           isOpen={showAIGenerator}
           onClose={() => setShowAIGenerator(false)}
           onGenerated={handleAIGenerated}
+          contentLanguage={contentLanguage}
         />
 
         {/* Login Modal */}
@@ -711,6 +713,7 @@ const CarouselEditor = ({ editCarousel: editCarouselProp, setEditCarousel, loadC
         isOpen={showAIGenerator}
         onClose={() => setShowAIGenerator(false)}
         onGenerated={handleAIGenerated}
+        contentLanguage={contentLanguage}
       />
 
       {/* Login Modal for soft login */}

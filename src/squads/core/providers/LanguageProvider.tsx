@@ -16,8 +16,8 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 const STORAGE_KEY = 'bd-language';
 
 const languages: LanguageOption[] = [
-  { code: 'en', label: 'English', flag: '\uD83C\uDDEC\uD83C\uDDE7' },
   { code: 'de', label: 'Deutsch', flag: '\uD83C\uDDE9\uD83C\uDDEA' },
+  { code: 'en', label: 'English', flag: '\uD83C\uDDEC\uD83C\uDDE7' },
   { code: 'es', label: 'Español', flag: '\uD83C\uDDEA\uD83C\uDDF8' },
   { code: 'fr', label: 'Français', flag: '\uD83C\uDDEB\uD83C\uDDF7' },
 ];
@@ -34,7 +34,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         return stored as LanguageCode;
       }
     }
-    return 'en';
+    return 'de'; // Default to German
   });
 
   const t = useCallback(

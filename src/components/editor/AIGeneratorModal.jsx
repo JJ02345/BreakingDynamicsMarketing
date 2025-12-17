@@ -36,8 +36,8 @@ const PATTERN_CONFIG = {
   }
 };
 
-const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
-  const { t } = useLanguage();
+const AIGeneratorModal = ({ isOpen, onClose, onGenerated, contentLanguage = 'de' }) => {
+  const { t, language } = useLanguage();
   const [hypothesis, setHypothesis] = useState('');
   const [pattern, setPattern] = useState('problem_solution');
   const [slideCount, setSlideCount] = useState(5);
@@ -45,6 +45,9 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState({ stage: '', percentage: 0 });
   const [error, setError] = useState('');
+
+  // Use content language for AI generation (defaults to German)
+  const aiLanguage = contentLanguage || language || 'de';
 
   const patterns = getCarouselPatterns();
 
@@ -63,7 +66,7 @@ const AIGeneratorModal = ({ isOpen, onClose, onGenerated }) => {
         pattern,
         slideCount,
         tone,
-        language: 'en', // Always generate in English - user can change in editor
+        language: aiLanguage, // Use selected content language (default: German)
         onProgress: setProgress
       });
 
