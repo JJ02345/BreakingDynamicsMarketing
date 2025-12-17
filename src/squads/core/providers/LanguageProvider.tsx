@@ -84,26 +84,45 @@ export const LanguageSwitcher: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   const currentLang = languages.find((l) => l.code === language);
 
+  const handleToggle = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOpen(!isOpen);
+  };
+
+  const handleSelect = (code: LanguageCode) => (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    changeLanguage(code);
+    setIsOpen(false);
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all text-sm"
+        onClick={handleToggle}
+        onTouchEnd={handleToggle}
+        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all text-sm touch-manipulation"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
+        type="button"
       >
-        <span>{currentLang?.flag}</span>
+        <span className="text-base">{currentLang?.flag}</span>
         <span className="hidden sm:inline">{currentLang?.label}</span>
         <ChevronDown
           className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -112,25 +131,24 @@ export const LanguageSwitcher: React.FC = () => {
 
       {isOpen && (
         <div
-          className="absolute right-0 mt-2 w-40 rounded-xl bg-[#1A1A1D] border border-white/10 shadow-2xl overflow-hidden z-50 animate-scale-in"
+          className="absolute right-0 mt-2 w-44 rounded-xl bg-[#1A1A1D] border border-white/10 shadow-2xl overflow-hidden z-[9999] animate-scale-in"
           role="listbox"
         >
           {languages.map((lang) => (
             <button
               key={lang.code}
-              onClick={() => {
-                changeLanguage(lang.code);
-                setIsOpen(false);
-              }}
-              className={`flex items-center gap-3 w-full px-4 py-3 text-sm transition-colors ${
+              onClick={handleSelect(lang.code)}
+              onTouchEnd={handleSelect(lang.code)}
+              className={`flex items-center gap-3 w-full px-4 py-4 text-sm transition-colors touch-manipulation ${
                 language === lang.code
                   ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
-                  : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  : 'text-white/70 hover:bg-white/5 hover:text-white active:bg-white/10'
               }`}
               role="option"
               aria-selected={language === lang.code}
+              type="button"
             >
-              <span>{lang.flag}</span>
+              <span className="text-lg">{lang.flag}</span>
               <span>{lang.label}</span>
               {language === lang.code && <Check className="h-4 w-4 ml-auto" />}
             </button>
