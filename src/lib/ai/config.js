@@ -38,8 +38,8 @@ export const ENDPOINTS = {
 // Build full URL for endpoint
 export const getEndpointUrl = (endpoint) => `${AI_BASE_URL}${ENDPOINTS[endpoint] || endpoint}`;
 
-// Generic API call function
-export const callAI = async (endpoint, data = null, method = 'POST') => {
+// Generic API call function with timeout
+export const callAI = async (endpoint, data = null, method = 'POST', timeoutMs = 15000) => {
   const url = getEndpointUrl(endpoint);
 
   const options = {
@@ -51,15 +51,30 @@ export const callAI = async (endpoint, data = null, method = 'POST') => {
     options.body = JSON.stringify(data);
   }
 
-  const response = await fetch(url, options);
+  // Create abort controller for timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  options.signal = controller.signal;
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error(`AI API Error [${endpoint}]:`, response.status, errorText);
-    throw new Error(`AI request failed (${response.status})`);
+  try {
+    const response = await fetch(url, options);
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`AI API Error [${endpoint}]:`, response.status, errorText);
+      throw new Error(`AI request failed (${response.status})`);
+    }
+
+    return response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      console.warn(`AI API timeout [${endpoint}] after ${timeoutMs}ms`);
+      throw new Error('AI request timed out - server may be unavailable');
+    }
+    throw error;
   }
-
-  return response.json();
 };
 
 // Health check

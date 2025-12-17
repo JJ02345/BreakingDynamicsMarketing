@@ -190,10 +190,20 @@ export const translateSlides = async (slides, targetLanguage, onProgress) => {
     return translated;
   }
 
-  // Use AI for remaining
+  // Use AI for remaining - with timeout protection
   try {
+    // Create a timeout promise (20 seconds max)
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Translation timeout')), 20000);
+    });
+
     const textsToTranslate = needsAI.map(t => t.value);
-    const aiTranslated = await translateWithAI(textsToTranslate, targetLanguage);
+
+    // Race between AI translation and timeout
+    const aiTranslated = await Promise.race([
+      translateWithAI(textsToTranslate, targetLanguage),
+      timeoutPromise
+    ]);
 
     onProgress?.({ stage: 'applying', percentage: 80 });
 
@@ -208,10 +218,13 @@ export const translateSlides = async (slides, targetLanguage, onProgress) => {
     onProgress?.({ stage: 'complete', percentage: 100 });
     return translated;
   } catch (error) {
-    console.warn('AI translation failed:', error);
+    console.warn('AI translation failed or timed out:', error.message);
 
-    // Fallback: return with quick translations only
-    const translated = applyTranslations(slides, quickTranslated);
+    // Fallback: return with quick translations only, keep untranslated text as-is
+    const fallbackResults = needsAI.map(t => ({ path: t.path, value: t.value }));
+    const allTranslations = [...quickTranslated, ...fallbackResults];
+    const translated = applyTranslations(slides, allTranslations);
+
     onProgress?.({ stage: 'complete', percentage: 100 });
     return translated;
   }
