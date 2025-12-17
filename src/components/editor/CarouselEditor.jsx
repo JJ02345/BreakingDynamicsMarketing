@@ -19,10 +19,11 @@ import { generateAndDownloadPDF } from '../../lib/pdfGenerator';
 import { translateSlides } from '../../lib/slideTranslator';
 import { LoginModal } from '../auth';
 
-// LocalStorage key for carousel draft
+// LocalStorage keys
 const CAROUSEL_DRAFT_KEY = 'carousel_draft';
+const EDIT_CAROUSEL_KEY = 'editCarousel';
 
-const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
+const CarouselEditor = ({ editCarousel: editCarouselProp, setEditCarousel, loadCarousels }) => {
   const { user, isAuthenticated } = useAuth();
   const { addToast } = useToast();
   const { t } = useLanguage();
@@ -33,6 +34,27 @@ const CarouselEditor = ({ editCarousel, setEditCarousel, loadCarousels }) => {
 
   // Branding settings
   const { showBranding } = useBrandingSettings(isAuthenticated);
+
+  // Load carousel to edit from localStorage (set by Dashboard)
+  const loadEditCarouselFromStorage = useCallback(() => {
+    try {
+      const saved = localStorage.getItem(EDIT_CAROUSEL_KEY);
+      if (saved) {
+        // Clear it after reading so it doesn't persist
+        localStorage.removeItem(EDIT_CAROUSEL_KEY);
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Failed to load edit carousel:', e);
+    }
+    return null;
+  }, []);
+
+  // Check for carousel to edit from localStorage or props
+  const [editCarousel] = useState(() => {
+    if (editCarouselProp) return editCarouselProp;
+    return loadEditCarouselFromStorage();
+  });
 
   // Load draft from LocalStorage on mount
   const loadDraftFromStorage = useCallback(() => {

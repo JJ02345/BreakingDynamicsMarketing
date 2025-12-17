@@ -44,6 +44,9 @@ const Dashboard = function() {
   useEffect(() => {
     if (user) {
       loadCarousels();
+    } else {
+      // If no user yet, stop loading state to prevent black screen
+      setCarouselsLoading(false);
     }
   }, [user]);
 
