@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../lib/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -6,6 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { db } from '../../lib/supabase';
 import useDeviceDetection from '../../hooks/useDeviceDetection';
 import { useBrandingSettings } from '../../hooks/useBrandingSettings';
+import useKeyboardShortcuts from '../../hooks/useKeyboardShortcuts';
 import SlideCanvas from './SlideCanvas';
 import SlideNavigator from './SlideNavigator';
 import BlockPalette from './BlockPalette';
@@ -14,6 +15,7 @@ import CarouselSlideControls from './CarouselSlideControls';
 import AIGeneratorModal from './AIGeneratorModal';
 import CarouselTemplates from './CarouselTemplates';
 import MobileCarouselEditor from './MobileCarouselEditor';
+import KeyboardShortcutsModal from './KeyboardShortcutsModal';
 import { createDefaultCarousel, createBlock, createSlide } from '../../utils/slideTemplates';
 import { generateAndDownloadPDF } from '../../lib/pdfGenerator';
 import { translateSlides } from '../../lib/slideTranslator';
@@ -518,15 +520,41 @@ const CarouselEditor = ({ editCarousel: editCarouselProp, setEditCarousel, loadC
     setPendingAction(null);
   }, [pendingAction, performSave, performPostToLinkedIn]);
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-      if (e.key === 'ArrowLeft') goToPrevSlide();
-      else if (e.key === 'ArrowRight') goToNextSlide();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeSlideIndex, slides.length]);
+  // Keyboard shortcut handlers
+  const shortcutHandlers = useMemo(() => ({
+    // Navigation
+    prevSlide: goToPrevSlide,
+    nextSlide: goToNextSlide,
+    firstSlide: () => setActiveSlideIndex(0),
+    lastSlide: () => setActiveSlideIndex(slides.length - 1),
+
+    // Actions
+    save: handleSave,
+    exportPdf: handleExportPDF,
+    newSlide: () => {
+      const newSlide = createSlide('blank', slides.length + 1);
+      handleAddSlide(newSlide);
+    },
+    duplicateSlide: () => handleDuplicateSlide(activeSlideIndex),
+    deleteSlide: () => handleDeleteSlide(activeSlideIndex),
+    deleteSlideBackspace: () => handleDeleteSlide(activeSlideIndex),
+
+    // View
+    togglePreview: () => setPreviewMode(prev => !prev),
+    openAI: () => setShowAIGenerator(true),
+
+    // Close modals
+    closeModal: () => {
+      if (showAIGenerator) setShowAIGenerator(false);
+      else if (showLoginModal) { setShowLoginModal(false); setPendingAction(null); }
+      else if (showLinkedInModal) setShowLinkedInModal(false);
+    },
+  }), [slides.length, activeSlideIndex, handleSave, handleAddSlide, handleDuplicateSlide, handleDeleteSlide, showAIGenerator, showLoginModal, showLinkedInModal]);
+
+  // Initialize keyboard shortcuts
+  const { helpModalOpen, setHelpModalOpen } = useKeyboardShortcuts(shortcutHandlers, {
+    enabled: !showTemplates && !isMobile,
+  });
 
   // Handle resuming a draft from templates screen
   const handleResumeDraft = useCallback(() => {
@@ -626,6 +654,7 @@ const CarouselEditor = ({ editCarousel: editCarouselProp, setEditCarousel, loadC
         onTogglePreview={() => setPreviewMode(!previewMode)}
         onSave={handleSave}
         onExport={handleExportPDF}
+        onShowShortcuts={() => setHelpModalOpen(true)}
         t={t}
       />
 
@@ -772,6 +801,12 @@ const CarouselEditor = ({ editCarousel: editCarouselProp, setEditCarousel, loadC
           </div>
         </div>
       )}
+
+      {/* Keyboard Shortcuts Help Modal */}
+      <KeyboardShortcutsModal
+        isOpen={helpModalOpen}
+        onClose={() => setHelpModalOpen(false)}
+      />
     </div>
   );
 };

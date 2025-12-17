@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Download, Save, Loader2, Eye } from 'lucide-react';
+import { Home, Download, Save, Loader2, Eye, Keyboard } from 'lucide-react';
 
 const CarouselHeader = ({
   title,
@@ -13,6 +13,7 @@ const CarouselHeader = ({
   onTogglePreview,
   onSave,
   onExport,
+  onShowShortcuts,
   t,
 }) => {
   return (
@@ -42,6 +43,17 @@ const CarouselHeader = ({
 
         {/* Right: Actions */}
         <div className="flex justify-end items-center gap-2">
+          {/* Keyboard Shortcuts Button */}
+          {onShowShortcuts && (
+            <button
+              onClick={onShowShortcuts}
+              className="p-2 rounded-lg bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70 transition-colors hidden sm:flex"
+              title={t('editor.keyboardShortcuts') || 'Keyboard shortcuts (Shift + ?)'}
+            >
+              <Keyboard className="h-4 w-4" />
+            </button>
+          )}
+
           <button
             onClick={onTogglePreview}
             className={`p-2 rounded-lg transition-colors ${

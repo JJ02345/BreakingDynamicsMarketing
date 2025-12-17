@@ -96,6 +96,7 @@ export const de = {
     preparationFailed: 'Fehler beim Vorbereiten', noSlidesToPost: 'Keine Slides zum Posten', registerSignIn: 'Registrieren / Anmelden',
     continueWithoutReg: 'Ohne Registrierung fortfahren', registerToSave: 'Registriere dich um deine Carousels zu speichern und später zu bearbeiten.',
     backgroundSolid: 'Einfarbig', backgroundGradient: 'Verlauf', backgroundPremium: 'Premium', backgroundImage: 'Bild',
+    keyboardShortcuts: 'Tastenkürzel (Shift + ?)',
   },
   blocks: { POLL: 'Umfrage-Kern', CHALLENGE: 'Validierungs-Herausforderung', TITLE: 'Post-Titel', CTA: 'Call-to-Action', HASHTAG: 'Hashtags', DURATION: 'Laufzeit', CUSTOM: 'Custom Text', DIVIDER: 'Trenner', MENTION: '@Mention', NUMBER: 'Zahlen', SCHEDULE: 'Termin' },
   feedback: { title: 'Feedback', bugReport: 'Bug melden', idea: 'Idee', describeBug: 'Beschreibe den Bug...', describeIdea: 'Beschreibe deine Idee...', emailOptional: 'E-Mail (optional, für Rückfragen)', submit: 'Absenden', thanks: 'Danke für dein Feedback!', willContact: 'Wir melden uns bei dir.', sent: 'Feedback gesendet!', sendFailed: 'Feedback konnte nicht gesendet werden' },

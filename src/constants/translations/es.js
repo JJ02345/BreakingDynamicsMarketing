@@ -78,6 +78,7 @@ export const es = {
     preparationFailed: 'Error al preparar', noSlidesToPost: 'No hay slides para publicar', registerSignIn: 'Registrar / Iniciar sesión',
     continueWithoutReg: 'Continuar sin registro', registerToSave: 'Regístrate para guardar tus carruseles y editarlos después.',
     backgroundSolid: 'Sólido', backgroundGradient: 'Gradiente', backgroundPremium: 'Premium', backgroundImage: 'Imagen',
+    keyboardShortcuts: 'Atajos de teclado (Shift + ?)',
   },
   blocks: { POLL: 'Encuesta', CHALLENGE: 'Desafío de Validación', TITLE: 'Título del Post', CTA: 'Llamada a la Acción', HASHTAG: 'Hashtags', DURATION: 'Duración', CUSTOM: 'Texto Personalizado', DIVIDER: 'Separador', MENTION: '@Mención', NUMBER: 'Números', SCHEDULE: 'Programar' },
   feedback: { title: 'Feedback', bugReport: 'Reportar Bug', idea: 'Idea', describeBug: 'Describe el bug...', describeIdea: 'Describe tu idea...', emailOptional: 'Email (opcional)', submit: 'Enviar', thanks: '¡Gracias por tu feedback!', willContact: 'Te contactaremos.', sent: '¡Feedback enviado!', sendFailed: 'No se pudo enviar el feedback' },
