@@ -211,6 +211,7 @@ const renderSlideToCanvas = async (slide, width, height, quality, options = {}) 
   const verticalAlign = slide.styles?.verticalAlign === 'top' ? 'flex-start' :
                         slide.styles?.verticalAlign === 'bottom' ? 'flex-end' : 'center';
 
+  // Match SlideCanvas.jsx content container styling exactly
   contentContainer.style.cssText = `
     position: relative;
     width: 100%;
@@ -222,7 +223,6 @@ const renderSlideToCanvas = async (slide, width, height, quality, options = {}) 
     padding: ${padding}px;
     box-sizing: border-box;
     z-index: 10;
-    gap: 16px;
   `;
 
   if (slide.blocks && slide.blocks.length > 0) {
@@ -267,13 +267,14 @@ const renderSlideToCanvas = async (slide, width, height, quality, options = {}) 
  */
 const renderBlock = (block) => {
   const wrapper = document.createElement('div');
+  // Match SlideCanvas.jsx: marginBottom: 16px between blocks
   wrapper.style.cssText = `
     text-align: center;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 12px 0;
+    margin-bottom: 16px;
   `;
 
   const content = block.content || {};
@@ -300,38 +301,25 @@ const renderBlock = (block) => {
       break;
     }
 
-    // BadgeBlock - Improved styling for PDF export
+    // BadgeBlock - Match exact editor styling
     case 'BADGE': {
       const el = document.createElement('div');
+      // Exact match to BadgeBlock.jsx styles
       el.style.cssText = `
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        text-align: center;
-        padding: 18px 40px;
+        padding: 12px 28px;
         border-radius: 9999px;
-        background: linear-gradient(135deg, ${content.backgroundColor || '#FF6B35'} 0%, ${lightenColor(content.backgroundColor || '#FF6B35', 15)} 100%);
-        box-shadow: 0 4px 20px ${hexToRgba(content.backgroundColor || '#FF6B35', 0.4)};
-        min-width: 140px;
-        height: auto;
-        line-height: 1;
-      `;
-
-      const textSpan = document.createElement('span');
-      textSpan.textContent = content.text || 'Badge';
-      textSpan.style.cssText = `
+        background-color: ${content.backgroundColor || '#FF6B35'};
         color: ${content.textColor || '#FFFFFF'};
-        font-size: 22px;
+        font-size: 18px;
         font-weight: 700;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
         font-family: 'Inter', 'Space Grotesk', sans-serif;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        line-height: 1;
-        display: block;
-        text-align: center;
       `;
-      el.appendChild(textSpan);
+      el.textContent = content.text || 'Badge';
       wrapper.appendChild(el);
       break;
     }
@@ -494,9 +482,9 @@ const renderBlock = (block) => {
       break;
     }
 
-    // IconBlock
+    // IconBlock - Match exact editor styling from IconBlock.jsx
     case 'ICON': {
-      // Sehr große Icons für PDF
+      // Exact match to IconBlock.jsx size mapping
       const size = content.size === 'xxl' ? '280px' :
                    content.size === 'xl' ? '220px' :
                    content.size === 'lg' ? '160px' :
@@ -504,17 +492,12 @@ const renderBlock = (block) => {
 
       const el = document.createElement('div');
       el.textContent = content.emoji || '🚀';
+      // Match IconBlock.jsx: style={{ fontSize: size, lineHeight: 1, margin: '16px 0' }}
       el.style.cssText = `
         font-size: ${size};
         line-height: 1;
-        margin: 40px 0;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        vertical-align: middle;
-        height: ${size};
+        margin: 16px 0;
+        padding: 16px 0;
       `;
       wrapper.appendChild(el);
       break;
