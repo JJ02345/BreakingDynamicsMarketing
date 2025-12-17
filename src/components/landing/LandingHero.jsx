@@ -37,7 +37,7 @@ const LandingHero = () => {
         </div>
 
         {/* Headline */}
-        <h1 className="animate-slide-up delay-100 font-['Syne'] text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight mb-6">
+        <h1 className="animate-slide-up delay-100 font-['Syne'] text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-normal mb-6">
           {t('landing.headline1')}<br />
           <span className="text-gradient">{t('landing.headline2')}</span>
         </h1>
