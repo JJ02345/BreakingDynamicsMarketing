@@ -121,35 +121,68 @@ const applyTranslations = (slides, translations) => {
  * Translate using AI API
  */
 const translateWithAI = async (texts, targetLanguage) => {
-  // Use repurpose endpoint for translation
-  const result = await callAI('repurpose', {
-    content: JSON.stringify(texts),
-    fromFormat: 'json-texts',
-    toFormat: `translated-${targetLanguage}`,
-    language: targetLanguage,
-  });
+  // Combine all texts into a single payload with markers for parsing
+  // This ensures we meet the 50 char minimum requirement
+  const combinedContent = texts.map((t, i) => `[${i}]: ${t}`).join('\n');
 
-  // Parse result
-  if (result.data?.result || result.result) {
+  // Only use repurpose if we have enough content
+  if (combinedContent.length >= 50) {
     try {
-      const translated = JSON.parse(result.data?.result || result.result);
-      if (Array.isArray(translated)) return translated;
-    } catch {
-      // If not JSON, try to extract array
+      const result = await callAI('repurpose', {
+        content: combinedContent,
+        fromFormat: 'numbered-list',
+        toFormat: `translated-${targetLanguage}-numbered-list`,
+        language: targetLanguage,
+      });
+
+      // Parse result - expect numbered format back
+      const resultText = result.data?.result || result.result || '';
+      if (resultText) {
+        const lines = resultText.split('\n').filter(l => l.trim());
+        const parsed = [];
+
+        for (let i = 0; i < texts.length; i++) {
+          // Try to find line with index marker
+          const marker = `[${i}]:`;
+          const line = lines.find(l => l.includes(marker));
+          if (line) {
+            parsed[i] = line.replace(marker, '').trim();
+          } else if (lines[i]) {
+            // Fallback: use line by position
+            parsed[i] = lines[i].replace(/^\[\d+\]:\s*/, '').trim();
+          } else {
+            parsed[i] = texts[i];
+          }
+        }
+
+        if (parsed.length === texts.length) return parsed;
+      }
+    } catch (error) {
+      console.warn('Repurpose translation failed:', error.message);
     }
   }
 
-  // Fallback: call post endpoint for simple translation
+  // Fallback: translate individually using post endpoint
+  // For short texts, this is more reliable
   const translatedTexts = [];
   for (const text of texts) {
     try {
+      // Skip very short texts that are likely symbols or numbers
+      if (text.length < 3 || /^[\d\s\.\,\!\?]+$/.test(text)) {
+        translatedTexts.push(text);
+        continue;
+      }
+
       const postResult = await callAI('post', {
-        topic: `Translate to ${LANGUAGE_NAMES[targetLanguage]}: "${text}"`,
-        style: 'translation',
-        maxLength: text.length * 2,
+        topic: `Translate this text to ${LANGUAGE_NAMES[targetLanguage]}. Only return the translation, nothing else: "${text}"`,
+        style: 'minimal',
+        maxLength: Math.max(100, text.length * 3),
         language: targetLanguage,
-      });
-      translatedTexts.push(postResult.data?.post || postResult.post || text);
+      }, 'POST', 10000); // 10s timeout per text
+
+      const translated = postResult.data?.post || postResult.post || text;
+      // Clean up - remove quotes if the AI added them
+      translatedTexts.push(translated.replace(/^["']|["']$/g, '').trim() || text);
     } catch {
       translatedTexts.push(text);
     }
