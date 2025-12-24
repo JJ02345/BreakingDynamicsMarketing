@@ -21,6 +21,7 @@ const CarouselEditor = lazy(() => import('./components/editor/CarouselEditor'));
 const Dashboard = lazy(() => import('./components/pages/Dashboard'));
 const OfflineSurveyEditor = lazy(() => import('./components/survey/OfflineSurveyEditor'));
 const OnlineSurveyEditor = lazy(() => import('./components/survey/OnlineSurveyEditor'));
+const AIChat = lazy(() => import('./components/chat/AIChat'));
 const AdminDashboard = lazy(() => import('./AdminDashboard'));
 const LegalPage = lazy(() => import('./components/pages/LegalPage'));
 const Datenschutz = lazy(() => import('./components/pages/Datenschutz'));
@@ -53,6 +54,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/carousel" element={<CarouselEditor />} />
+        <Route path="/chat" element={<AIChat />} />
 
         {/* Survey Routes - HIDDEN via Feature Flag */}
         {SHOW_SURVEY_ROUTES && (

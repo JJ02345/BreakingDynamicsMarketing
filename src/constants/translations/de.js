@@ -16,7 +16,7 @@ export const de = {
     feature3Title: 'Professionell', feature3Desc: 'Moderne Templates die auffallen. Mehr Engagement für deine Posts.',
     communityBadge: 'Community', communityTitle: 'Werde Teil der', communityTitle2: 'Gründer-Community',
     communityDesc: 'Exklusive Insights, Beta-Zugang & direkter Austausch mit anderen Gründern.', communityButton: 'Community beitreten',
-    privacy: 'Datenschutz', terms: 'AGB', createCarouselNow: 'Jetzt Carousel erstellen', noSignUp: 'Keine Anmeldung nötig',
+    privacy: 'Datenschutz', terms: 'AGB', createCarouselNow: 'Jetzt Carousel erstellen', noSignUp: 'Keine Anmeldung nötig', aiChat: 'AI Chat',
     carouselsCreated: 'Carousels erstellt',
     urgencyBanner: 'Aktuell 100% kostenlos – Premium-Features kommen bald',
     limitedTime: 'Begrenzte Zeit',
